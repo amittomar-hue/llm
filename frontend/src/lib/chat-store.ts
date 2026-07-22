@@ -289,7 +289,24 @@ export const useChatStore = create<ChatState>()(
         scheduleSync(id);
       },
 
-      setActive: (id) => set({ activeId: id }),
+      setActive: (id) => {
+        set({ activeId: id });
+        // Sync the agent-store's selectedAgentId to the newly-active
+        // conversation's binding so a subsequent brand-agent pick doesn't
+        // race against a stale selectedAgentId. Without this, the chat
+        // input and header can silently disagree about which agent is
+        // active — which surfaced as "the response ignored the brand
+        // agent" after a sidebar-switch. Dynamic import avoids a circular
+        // module cycle at load time.
+        if (typeof window !== "undefined") {
+          void import("./agent-store").then(({ useAgentStore }) => {
+            const conv = get().conversations.find((c) => c.id === id);
+            if (conv?.agentId) {
+              useAgentStore.getState().setSelected(conv.agentId);
+            }
+          });
+        }
+      },
 
       addMessage: (conversationId, msg) => {
         const id = uid();

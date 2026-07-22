@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useChatStore, Conversation } from "@/lib/chat-store";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
-import { SquarePen, MessageSquare, LogOut, Shield, ChevronUp, X, BookOpen } from "lucide-react";
+import { SquarePen, MessageSquare, LogOut, Shield, ChevronUp, X, BookOpen, Plug } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function groupByDate(conversations: Conversation[]) {
@@ -180,6 +180,12 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
                   <div className="h-px bg-[var(--dmoop-border-soft)] mx-2" />
                 </>
               )}
+              <Link href="/settings/integrations" onClick={() => { setMenuOpen(false); onMobileClose(); }}
+                className="flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] text-[var(--dmoop-text-primary)] hover:bg-[#faf6ef] transition-colors">
+                <Plug size={13} className="text-[var(--dmoop-accent)]" />
+                <span className="font-medium">Integrations</span>
+              </Link>
+              <div className="h-px bg-[var(--dmoop-border-soft)] mx-2" />
               <button onClick={signOut} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] text-[var(--dmoop-text-primary)] hover:bg-[#faf6ef] transition-colors text-left">
                 <LogOut size={13} className="text-[var(--dmoop-text-secondary)]" />
                 <span className="font-medium">Sign out</span>

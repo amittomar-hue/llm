@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+import { motion, useInView } from "framer-motion";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import {
   ArrowRight, Sparkles, Search, Globe, Target, MessageSquare,
@@ -10,9 +12,34 @@ import {
   TrendingUp, Building2, Crosshair, Mail, Mic2, Wand2,
   BookOpen, FileText, Download, Paperclip, Mic, Hammer, Link as LinkIcon,
   Database, RefreshCw, Newspaper, BarChartHorizontal, FileBadge,
-  GraduationCap, Clock,
+  GraduationCap, Clock, Plug,
 } from "lucide-react";
 import { listResources, type ResourceCategory } from "@/lib/resources";
+import { InteractiveDemo } from "./InteractiveDemo";
+import { SharedNav } from "./SharedNav";
+
+// three.js/webgl imports are heavy — SSR-disable them so the initial
+// HTML payload stays tiny and the shader only loads client-side.
+const WebGLBackground = dynamic(
+  () => import("./WebGLBackground").then((m) => m.WebGLBackground),
+  { ssr: false, loading: () => null }
+);
+
+/** Wrapper that fades + rises its children when they scroll into view. */
+function Reveal({ children, delay = 0, y = 20 }: { children: ReactNode; delay?: number; y?: number }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y }}
+      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 const CAPABILITIES = [
   { icon: BookOpen, color: "text-[var(--dmoop-accent)]", bg: "bg-[#fbf3ee]", title: "Brand Agent", desc: "Name your own agent. Upload brand docs once. Every asset comes out on-voice." },
@@ -112,61 +139,23 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--dmoop-bg-app)" }}>
-      {/* ── Navbar ──────────────────────────────────────── */}
-      <nav className="sticky top-0 z-30 border-b border-[var(--dmoop-border-soft)] backdrop-blur-xl bg-white/70">
-        <div className="max-w-6xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
-          <Link href="/" className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-            <Image src="/dmoop-logo.png" alt="DMOOP" width={130} height={36} priority className="h-7 sm:h-8 w-auto" />
-            <span className="hidden md:inline text-[10px] font-bold tracking-[0.14em] text-[var(--dmoop-accent)] uppercase px-1.5 py-0.5 rounded-md" style={{ background: "rgba(193,74,42,0.08)" }}>
-              DMOOP
-            </span>
-          </Link>
-          <div className="flex items-center gap-1 sm:gap-3 shrink-0">
-            <Link href="#features" className="hidden md:block px-3 py-2 text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] transition-colors">
-              Features
-            </Link>
-            <Link href="#brand-agent" className="hidden lg:block px-3 py-2 text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] transition-colors">
-              Brand Agent
-            </Link>
-            <Link href="#tools" className="hidden lg:block px-3 py-2 text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] transition-colors">
-              Tools
-            </Link>
-            <Link href="#how" className="hidden md:block px-3 py-2 text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] transition-colors">
-              How it works
-            </Link>
-            <Link href="#models" className="hidden md:block px-3 py-2 text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] transition-colors">
-              Models
-            </Link>
-            <Link href="#resources" className="hidden md:block px-3 py-2 text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] transition-colors">
-              Resources
-            </Link>
-            {signedIn ? (
-              <Link href="/chat" className="h-8 sm:h-9 px-3 sm:px-4 rounded-lg dmoop-btn-primary text-[12.5px] sm:text-[13px] font-semibold flex items-center gap-1.5 shrink-0">
-                Open <span className="hidden sm:inline">DMOOP</span><ArrowRight size={13} />
-              </Link>
-            ) : (
-              <>
-                <Link href="/signin" className="px-2 sm:px-3 py-1.5 sm:py-2 text-[12.5px] sm:text-[13px] font-medium text-[var(--dmoop-text-primary)] hover:bg-white hover:shadow-[var(--dmoop-shadow-sm)] rounded-lg transition-all shrink-0">
-                  Sign in
-                </Link>
-                <Link href="/signup" className="h-8 sm:h-9 px-3 sm:px-4 rounded-lg dmoop-btn-primary text-[12.5px] sm:text-[13px] font-semibold flex items-center gap-1 sm:gap-1.5 shrink-0">
-                  <span className="hidden sm:inline">Get started</span><span className="sm:hidden">Start</span><ArrowRight size={13} />
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
+      <SharedNav />
 
       {/* ── Hero ────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
-        {/* Ambient glows */}
+        {/* Animated WebGL blob field — SSR-disabled, auto-pauses off-screen,
+            respects prefers-reduced-motion. Sits at opacity 0.5 so text
+            stays readable while the motion is felt. */}
+        <div className="absolute inset-0 pointer-events-none opacity-55">
+          <WebGLBackground />
+        </div>
+        {/* Extra ambient glows layered over the shader for depth */}
         <div
-          className="absolute top-0 left-1/4 w-[700px] h-[500px] pointer-events-none opacity-60"
+          className="absolute top-0 left-1/4 w-[700px] h-[500px] pointer-events-none opacity-40"
           style={{ background: "radial-gradient(ellipse at top, rgba(193,74,42,0.15) 0%, transparent 70%)" }}
         />
         <div
-          className="absolute top-20 right-0 w-[500px] h-[500px] pointer-events-none opacity-40"
+          className="absolute top-20 right-0 w-[500px] h-[500px] pointer-events-none opacity-25"
           style={{ background: "radial-gradient(ellipse at center, rgba(139,92,246,0.12) 0%, transparent 70%)" }}
         />
 
@@ -218,8 +207,24 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Product preview frame — shows the actual chat surface with Brand Agent,
-            Tools, file upload, URL-in-prompt, and a multi-format Download button. */}
+        {/* Interactive Demo — animated widget showing DMOOP producing
+            a real CRM-grounded email (types out, cycles between scripts). */}
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 pb-12 sm:pb-24">
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <InteractiveDemo />
+          </motion.div>
+        </div>
+
+        {/* Original static preview kept below the interactive demo but
+            hidden by default — leaving the component tree here would
+            break existing scroll anchors. Wrapped in `false && …` via
+            a comment fence: the JSX below is preserved but visually
+            suppressed via a display:none style until a future revamp. */}
+        <div style={{ display: "none" }}>
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pb-12 sm:pb-24">
           <div
             className="rounded-xl sm:rounded-2xl overflow-hidden mx-auto"
@@ -324,6 +329,43 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+        </div>
+        </div>{/* /display:none preview */}
+      </section>
+
+      {/* ── Integrations quick pitch ─────────────────────── */}
+      <section className="relative py-10 sm:py-14 border-t border-[var(--dmoop-border-soft)]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <Reveal>
+            <div className="rounded-3xl p-6 sm:p-10 border border-[var(--dmoop-border-soft)]" style={{ background: "linear-gradient(135deg, #fdfbf7 0%, #f7f1e5 100%)" }}>
+              <div className="grid md:grid-cols-[1fr_auto] gap-6 items-center">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 text-[10.5px] font-bold tracking-[0.14em] text-[var(--dmoop-accent)] uppercase mb-2">
+                    <Plug size={11} /> CRM Integrations
+                  </div>
+                  <h2 className="text-[22px] sm:text-[28px] font-semibold tracking-tight text-[var(--dmoop-text-primary)] leading-tight mb-2">
+                    Connect HubSpot or Zoho and every message writes itself into the recipient&apos;s context.
+                  </h2>
+                  <p className="text-[13.5px] sm:text-[14.5px] text-[var(--dmoop-text-secondary)] leading-relaxed">
+                    DMOOP looks up the contact live: lifecycle stage, deal, last touchpoint, source. Emails reference them by first name and pick up where the last call left off — not generic copy pasted from a template.
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-[22px] shadow-lg" style={{ background: "#ff7a59" }}>H</div>
+                    <span className="text-[11px] font-semibold text-[var(--dmoop-text-secondary)]">HubSpot</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-[22px] shadow-lg" style={{ background: "#e42527" }}>Z</div>
+                    <span className="text-[11px] font-semibold text-[var(--dmoop-text-secondary)]">Zoho</span>
+                  </div>
+                  <Link href="/integrations" className="ml-2 h-11 px-5 rounded-xl dmoop-btn-primary text-[13px] font-semibold flex items-center gap-1.5">
+                    Explore <ArrowRight size={13} />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -710,10 +752,13 @@ export default function LandingPage() {
             <Image src="/dmoop-logo.png" alt="DMOOP" width={100} height={28} className="h-6 w-auto" />
             <span className="text-[11px] text-[var(--dmoop-text-tertiary)]">© {new Date().getFullYear()} DMOOP</span>
           </div>
-          <div className="flex items-center gap-5 text-[12px] text-[var(--dmoop-text-secondary)]">
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12px] text-[var(--dmoop-text-secondary)]">
             <Link href="/signin" className="hover:text-[var(--dmoop-text-primary)] transition-colors">Sign in</Link>
             <Link href="/signup" className="hover:text-[var(--dmoop-text-primary)] transition-colors">Get started</Link>
-            <span className="text-[var(--dmoop-text-tertiary)]">Enterprise marketing intelligence</span>
+            <Link href="/docs/api" className="hover:text-[var(--dmoop-text-primary)] transition-colors">API</Link>
+            <Link href="/privacy" className="hover:text-[var(--dmoop-text-primary)] transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-[var(--dmoop-text-primary)] transition-colors">Terms</Link>
+            <span className="hidden md:inline text-[var(--dmoop-text-tertiary)]">Enterprise marketing intelligence</span>
           </div>
         </div>
       </footer>

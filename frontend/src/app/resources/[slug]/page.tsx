@@ -219,9 +219,14 @@ export default async function ResourcePage({ params }: PageProps) {
             <Image src="/dmoop-logo.png" alt="DMOOP" width={100} height={28} className="h-6 w-auto" />
             <span className="text-[11px] text-[var(--dmoop-text-tertiary)]">© {new Date().getFullYear()} DMOOP</span>
           </div>
-          <Link href="/resources" className="text-[12px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] flex items-center gap-1">
-            <ArrowLeft size={12} /> All resources
-          </Link>
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12px] font-medium text-[var(--dmoop-text-secondary)]">
+            <Link href="/docs/api" className="hover:text-[var(--dmoop-text-primary)]">API</Link>
+            <Link href="/privacy" className="hover:text-[var(--dmoop-text-primary)]">Privacy</Link>
+            <Link href="/terms" className="hover:text-[var(--dmoop-text-primary)]">Terms</Link>
+            <Link href="/resources" className="hover:text-[var(--dmoop-text-primary)] flex items-center gap-1">
+              <ArrowLeft size={12} /> All resources
+            </Link>
+          </div>
         </div>
       </footer>
     </div>

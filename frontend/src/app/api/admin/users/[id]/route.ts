@@ -26,6 +26,15 @@ export async function GET(
 
   // Profile (skip for anonymous)
   let profile: { id: string; email: string | null; created_at: string } | null = null;
+  let linkedin: {
+    sub: string | null;
+    name: string | null;
+    picture: string | null;
+    profile_url: string;
+    search_url: string;
+  } | null = null;
+  let providers: string[] = [];
+
   if (!isAnonymous) {
     const { data } = await service
       .from("profiles")
@@ -34,6 +43,32 @@ export async function GET(
       .maybeSingle();
     profile = data as typeof profile;
     if (!profile) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+    // Look up auth identities so we can attach the LinkedIn-derived
+    // profile URL + picture to the drawer. LinkedIn OIDC only gives
+    // us the OIDC standard claims (sub, name, picture, email) — no
+    // vanity URL. So we construct one URL using `sub` (resolves for
+    // users without a custom vanity slug) and a name-search fallback
+    // for the rest.
+    const { data: authUser } = await service.auth.admin.getUserById(id);
+    if (authUser?.user) {
+      providers = [...new Set((authUser.user.identities ?? []).map((i) => i.provider))];
+      const li = (authUser.user.identities ?? []).find((i) => i.provider === "linkedin_oidc");
+      if (li) {
+        const d = (li.identity_data ?? {}) as Record<string, unknown>;
+        const sub = (d.sub as string | undefined) ?? null;
+        const name = (d.name as string | undefined)
+          ?? [d.given_name, d.family_name].filter(Boolean).join(" ")
+          ?? null;
+        linkedin = {
+          sub,
+          name,
+          picture: (d.picture as string | undefined) ?? null,
+          profile_url: sub ? `https://www.linkedin.com/in/${sub}` : "https://www.linkedin.com/",
+          search_url: `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(name ?? "")}`,
+        };
+      }
+    }
   }
 
   // Build the interactions filter once
@@ -101,6 +136,7 @@ export async function GET(
     profile: isAnonymous
       ? { id: "anonymous", email: null, created_at: null, is_anonymous: true }
       : profile,
+    identity: isAnonymous ? null : { providers, linkedin },
     summary: {
       total_prompts: totalPrompts,
       sessions,

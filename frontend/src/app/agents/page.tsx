@@ -146,9 +146,14 @@ export default function AgentsPage() {
             <ArrowLeft size={13} /> Back to chat
           </Link>
           <Image src="/dmoop-logo.png" alt="DMOOP" width={110} height={30} className="h-6 sm:h-7 w-auto" />
-          <Link href="/brand" className="text-[12.5px] sm:text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)]">
-            Brand Library →
-          </Link>
+          <div className="flex items-center gap-3 shrink-0">
+            <Link href="/settings/api-keys" className="hidden sm:inline text-[12.5px] sm:text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)]">
+              API keys →
+            </Link>
+            <Link href="/brand" className="text-[12.5px] sm:text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)]">
+              Brand Library →
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -194,14 +199,14 @@ export default function AgentsPage() {
                 placeholder="e.g. Acme Corp, Beta Inc, Gamma Co"
                 className="w-full text-[13.5px] font-medium bg-white border border-[var(--dmoop-border-soft)] focus:border-[var(--dmoop-accent)] rounded-lg px-3 py-2 mb-2.5 focus:outline-none"
               />
-              <div className="flex items-center gap-1.5 mb-3">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
                 {COLOR_SWATCHES.map((c) => (
                   <button
                     key={c}
                     onClick={() => setNewColor(c)}
                     className={cn(
-                      "w-6 h-6 rounded-full transition-transform",
-                      newColor === c ? "ring-2 ring-offset-2 ring-[var(--dmoop-accent)] scale-110" : "hover:scale-110"
+                      "w-6 h-6 rounded-full transition-transform shrink-0",
+                      newColor === c ? "ring-2 ring-offset-2 ring-[var(--dmoop-accent)] scale-110" : "hover:scale-110 active:scale-95"
                     )}
                     style={{ background: c }}
                   />
@@ -243,12 +248,12 @@ export default function AgentsPage() {
             return (
               <div key={a.id} className="border-b border-[var(--dmoop-border-soft)] last:border-0">
               <div
-                className="px-4 sm:px-5 py-3 sm:py-3.5 flex items-center gap-3 hover:bg-[#faf6ef]/40"
+                className="px-3 sm:px-5 py-3 sm:py-3.5 flex items-center gap-2.5 sm:gap-3 hover:bg-[#faf6ef]/40"
               >
                 {/* Color dot */}
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0"
                   style={{ background: `${a.color}20`, boxShadow: `inset 0 0 0 1px ${a.color}40` }}>
-                  <span className="w-3.5 h-3.5 rounded-full" style={{ background: a.color }} />
+                  <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full" style={{ background: a.color }} />
                 </div>
 
                 {/* Name + meta */}
@@ -266,33 +271,41 @@ export default function AgentsPage() {
                       className="w-full text-[14px] font-semibold bg-white border border-[var(--dmoop-accent)] rounded-md px-2 py-0.5 focus:outline-none"
                     />
                   ) : (
-                    <p className="text-[14px] font-semibold text-[var(--dmoop-text-primary)] truncate flex items-center gap-2">
-                      {a.name}
+                    // Name + badges: badges flow inline on desktop, wrap to
+                    // a second line on phones when the name eats the row.
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <p className="text-[13.5px] sm:text-[14px] font-semibold text-[var(--dmoop-text-primary)] truncate max-w-full">
+                        {a.name}
+                      </p>
                       {a.is_default && (
-                        <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#fbf3ee] text-[var(--dmoop-accent-rich)]">
+                        <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#fbf3ee] text-[var(--dmoop-accent-rich)] whitespace-nowrap">
                           default
                         </span>
                       )}
                       {hasProfile && (
-                        <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-700 inline-flex items-center gap-0.5">
+                        <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-700 inline-flex items-center gap-0.5 whitespace-nowrap">
                           <Sparkles size={9} /> voice trained
                         </span>
                       )}
-                    </p>
+                    </div>
                   )}
-                  <p className="text-[11px] text-[var(--dmoop-text-tertiary)] flex items-center gap-1.5">
-                    <BookOpen size={10} /> {a.doc_count} brand doc{a.doc_count === 1 ? "" : "s"}
+                  <p className="text-[11px] text-[var(--dmoop-text-tertiary)] flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
+                    <span className="inline-flex items-center gap-1">
+                      <BookOpen size={10} /> {a.doc_count} brand doc{a.doc_count === 1 ? "" : "s"}
+                    </span>
                     {hasProfile && a.voice_profile_updated_at && (
                       <>
-                        <span>·</span>
-                        <span>voice extracted {new Date(a.voice_profile_updated_at).toLocaleDateString()}</span>
+                        <span className="hidden sm:inline">·</span>
+                        <span className="whitespace-nowrap">voice extracted {new Date(a.voice_profile_updated_at).toLocaleDateString()}</span>
                       </>
                     )}
                   </p>
                 </div>
 
-                {/* Color picker on hover */}
-                <div className="flex items-center gap-0.5 mr-1">
+                {/* Inline color picker — desktop only (≥md). On mobile the
+                    palette lives inside the expand panel so the row doesn't
+                    overflow on a 360-wide phone. */}
+                <div className="hidden md:flex items-center gap-0.5 mr-1">
                   {COLOR_SWATCHES.map((c) => (
                     <button
                       key={c}
@@ -309,7 +322,7 @@ export default function AgentsPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-1 shrink-0">
+                <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                   {!a.is_default && (
                     <button
                       onClick={() => void patchAgent(a.id, { is_default: true })}
@@ -369,7 +382,27 @@ export default function AgentsPage() {
 
               {/* Brand Voice Profile expanded panel */}
               {isExpanded && (
-                <div className="px-4 sm:px-5 pb-4 pt-1 bg-[#faf6ef]/30">
+                <div className="px-4 sm:px-5 pb-4 pt-1 bg-[#faf6ef]/30 space-y-3">
+                  {/* Mobile-only color picker — duplicates the inline
+                      desktop palette since we hide that below md. */}
+                  <div className="md:hidden rounded-xl bg-white border border-[var(--dmoop-border-soft)] p-3">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--dmoop-text-tertiary)] mb-2">Brand color</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {COLOR_SWATCHES.map((c) => (
+                        <button
+                          key={c}
+                          onClick={() => void patchAgent(a.id, { color: c })}
+                          disabled={isBusy}
+                          title="Change color"
+                          className={cn(
+                            "w-6 h-6 rounded-full transition-transform",
+                            a.color === c ? "ring-2 ring-offset-2 ring-[var(--dmoop-text-tertiary)] scale-110" : "active:scale-95"
+                          )}
+                          style={{ background: c }}
+                        />
+                      ))}
+                    </div>
+                  </div>
                   <div className="rounded-xl bg-white border border-[var(--dmoop-border-soft)] p-4 sm:p-5">
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div className="flex items-start gap-2.5 min-w-0">

@@ -66,7 +66,159 @@ export async function retrieveBrandChunks(
     console.error("retrieveBrandChunks error:", error.message);
     return [];
   }
-  return (data as BrandChunk[] | null) ?? [];
+  const hits = (data as BrandChunk[] | null) ?? [];
+  if (hits.length > 0) return hits;
+
+  // ── Fallback: recency-based retrieval ────────────────────────────
+  // The RPC filters on trigram similarity > 0.05 which is too strict
+  // for short/generic user queries ("create the h2 roadmap") against
+  // 1000-char chunks — the RPC returns empty, brand context is empty,
+  // and the model falls back to citing external training-pair URLs
+  // (the "why isn't my brand agent being used?" bug).
+  //
+  // When the similarity path yields nothing, we fall back to the top-N
+  // most recent chunks for the agent. Some brand grounding is always
+  // better than none.
+  let fallbackAgentId = agentId;
+  if (!fallbackAgentId) {
+    const { data: defaultAgent } = await supa
+      .from("brand_agents")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("is_default", true)
+      .maybeSingle();
+    fallbackAgentId = (defaultAgent?.id as string | undefined) ?? null;
+  }
+  if (!fallbackAgentId) return [];
+
+  const { data: fallbackRows, error: fallbackErr } = await supa
+    .from("brand_doc_chunks")
+    .select("id, doc_id, text, brand_documents!inner(filename, doc_type)")
+    .eq("user_id", userId)
+    .eq("agent_id", fallbackAgentId)
+    .order("chunk_index", { ascending: true })
+    .limit(limit);
+
+  if (fallbackErr || !fallbackRows) return [];
+
+  type FallbackRow = {
+    id: string;
+    doc_id: string;
+    text: string;
+    brand_documents: { filename: string; doc_type: string } | { filename: string; doc_type: string }[];
+  };
+  return (fallbackRows as FallbackRow[]).map((r) => {
+    const bd = Array.isArray(r.brand_documents) ? r.brand_documents[0] : r.brand_documents;
+    return {
+      chunk_id: r.id,
+      doc_id: r.doc_id,
+      filename: bd?.filename ?? "(unknown)",
+      doc_type: bd?.doc_type ?? "general",
+      text: r.text,
+      similarity: 0, // marker: recency fallback, not similarity match
+    };
+  });
+}
+
+interface TemplateDoc {
+  id: string;
+  filename: string;
+  text: string;
+  char_count: number;
+}
+
+/**
+ * Pull ALL `template`-typed brand documents for a given agent and reconstruct
+ * full text by concatenating chunks in order. Bypasses the similarity-search
+ * RPC because templates are structural references — we want the WHOLE doc to
+ * teach the model the section shape, not just chunks that match a query.
+ *
+ * Each doc is capped at maxCharsPerDoc to protect TPM budget — for a 30-page
+ * plan that's ~30K chars after cap (vs ~75K raw), enough to convey structure
+ * + density without choking a 12K-TPM model.
+ */
+export async function retrieveTemplateDocs(
+  userId: string,
+  agentId: string | null,
+  maxCharsPerDoc = 30_000
+): Promise<TemplateDoc[]> {
+  const supa = getSupabase();
+  if (!supa) return [];
+
+  // Resolve the actual agent. If no agent_id was passed, fall back to the
+  // user's default agent so the template still attaches to /chat sessions
+  // without an explicit binding.
+  let effectiveAgentId = agentId;
+  if (!effectiveAgentId) {
+    const { data: defaultAgent } = await supa
+      .from("brand_agents")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("is_default", true)
+      .maybeSingle();
+    effectiveAgentId = (defaultAgent?.id as string | undefined) ?? null;
+  }
+  if (!effectiveAgentId) return [];
+
+  const { data: docs, error } = await supa
+    .from("brand_documents")
+    .select("id, filename, char_count:total_chars")
+    .eq("user_id", userId)
+    .eq("agent_id", effectiveAgentId)
+    .eq("doc_type", "template")
+    .order("uploaded_at", { ascending: false });
+
+  if (error || !docs || docs.length === 0) return [];
+
+  // Fetch all chunks for these template docs in one round-trip, then
+  // reassemble per doc.
+  const docIds = docs.map((d) => d.id as string);
+  const { data: chunks, error: chErr } = await supa
+    .from("brand_doc_chunks")
+    .select("doc_id, chunk_index, text")
+    .in("doc_id", docIds)
+    .order("chunk_index", { ascending: true });
+
+  if (chErr || !chunks) return [];
+
+  const textByDocId = new Map<string, string>();
+  for (const c of chunks) {
+    const id = c.doc_id as string;
+    const prev = textByDocId.get(id) ?? "";
+    textByDocId.set(id, prev + (prev ? "\n" : "") + (c.text as string));
+  }
+
+  return docs.map((d) => {
+    const full = textByDocId.get(d.id as string) ?? "";
+    const trimmed = full.length > maxCharsPerDoc
+      ? full.slice(0, maxCharsPerDoc) + "\n…[template truncated for token budget]"
+      : full;
+    return {
+      id: d.id as string,
+      filename: d.filename as string,
+      text: trimmed,
+      char_count: trimmed.length,
+    };
+  });
+}
+
+/**
+ * Format template docs as a single system-prompt block. Marked as
+ * STRUCTURAL TEMPLATE so the model knows to mimic the shape, not the
+ * literal content.
+ */
+export function formatTemplatesForContext(docs: TemplateDoc[]): string {
+  if (docs.length === 0) return "";
+  const lines = [
+    "STRUCTURAL TEMPLATE(S) — The user has uploaded the following reference document(s) as the SHAPE/DENSITY/STRUCTURE they want this output to match. Mirror their section structure (number, naming, ordering), table count, depth of each section, voice register, and formatting conventions. ADAPT the named entities, numbers, and examples to the user's actual brand (per BRAND IDENTITY and brand documents), but produce a document of comparable length and density to these references.",
+    "",
+  ];
+  docs.forEach((d, i) => {
+    lines.push(`═══ TEMPLATE ${i + 1}: "${d.filename}" (${d.char_count.toLocaleString()} chars) ═══`);
+    lines.push(d.text);
+    lines.push("");
+  });
+  return lines.join("\n");
 }
 
 export function formatBrandContext(chunks: BrandChunk[]): string {
@@ -88,6 +240,13 @@ export function formatBrandContext(chunks: BrandChunk[]): string {
 }
 
 export const DOC_TYPES = [
+  // Templates get special treatment in the chat route: when a strategic-plan
+  // request fires, ALL template docs for the active agent are injected WHOLE
+  // (not chunked by similarity) so the model can mimic their structure,
+  // depth, and density. Upload a past 30-page execution plan, board deck
+  // outline, or campaign brief here to teach DMOOP the shape of long-form
+  // output you want. Listed first so it's discoverable.
+  { value: "template",         label: "Structural template (for long-form plans)" },
   { value: "brand_guidelines", label: "Brand guidelines" },
   { value: "style_guide",      label: "Style / voice guide" },
   { value: "product_info",     label: "Product info / datasheet" },

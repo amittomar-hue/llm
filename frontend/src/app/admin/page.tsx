@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, MessageSquare, ThumbsUp, ThumbsDown, Users, RefreshCw, Globe, ChevronRight, Search, Radar, ExternalLink, Clock, Brain, Zap, Activity, Shield, ShieldAlert, ShieldCheck, EyeOff, AlertTriangle, FileText, User as UserIcon, Mail } from "lucide-react";
+import { ArrowLeft, MessageSquare, ThumbsUp, ThumbsDown, Users, RefreshCw, Globe, ChevronRight, Search, Radar, ExternalLink, Clock, Brain, Zap, Activity, Shield, ShieldAlert, ShieldCheck, EyeOff, AlertTriangle, FileText, User as UserIcon, Mail, KeyRound, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Interaction {
@@ -131,6 +131,20 @@ interface UserRow {
   feedback_given: number;
   positive_rate: number;
   is_anonymous?: boolean;
+  providers?: string[];
+  linkedin_sub?: string | null;
+  linkedin_name?: string | null;
+  linkedin_picture?: string | null;
+  linkedin_profile_url?: string | null;
+  linkedin_search_url?: string | null;
+}
+
+function LinkedInGlyph({ size = 12 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.852 3.37-1.852 3.601 0 4.267 2.37 4.267 5.455v6.288zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  );
 }
 
 interface UserDetail {
@@ -139,6 +153,16 @@ interface UserDetail {
     email: string | null;
     created_at: string | null;
     is_anonymous?: boolean;
+  } | null;
+  identity?: {
+    providers: string[];
+    linkedin: {
+      sub: string | null;
+      name: string | null;
+      picture: string | null;
+      profile_url: string;
+      search_url: string;
+    } | null;
   } | null;
   summary: {
     total_prompts: number;
@@ -164,8 +188,26 @@ interface UserDetail {
   safety_incidents: Array<{ id: string; occurred_at: string; kind: string; severity: string; categories: string[]; excerpt: string | null; action_taken: string }>;
 }
 
+interface AdminApiKey {
+  id: string;
+  user_id: string;
+  user_email: string | null;
+  name: string;
+  key_prefix: string;
+  last_used_at: string | null;
+  created_at: string;
+  revoked_at: string | null;
+}
+
+interface AdminApiKeySummary {
+  total: number;
+  active: number;
+  revoked: number;
+  used_last_7d: number;
+}
+
 export default function AdminPage() {
-  const [tab, setTab] = useState<"prompts" | "users" | "intel" | "learning" | "safety">("prompts");
+  const [tab, setTab] = useState<"prompts" | "users" | "intel" | "learning" | "safety" | "apikeys">("prompts");
   const [stats, setStats] = useState<Stats | null>(null);
   const [items, setItems] = useState<Interaction[]>([]);
   const [total, setTotal] = useState(0);
@@ -200,6 +242,12 @@ export default function AdminPage() {
   const [usersSummary, setUsersSummary] = useState<{ total_registered: number; total_anonymous_prompts: number; total_prompts_all: number } | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserDetail | null>(null);
   const [loadingUserDetail, setLoadingUserDetail] = useState(false);
+
+  // API Keys tab state — global view of every user's issued keys so
+  // admin can spot suspicious activity + revoke without waiting on
+  // the owner to log in.
+  const [apiKeys, setApiKeys] = useState<AdminApiKey[]>([]);
+  const [apiKeysSummary, setApiKeysSummary] = useState<AdminApiKeySummary | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -287,11 +335,37 @@ export default function AdminPage() {
     }
   };
 
+  const loadApiKeys = async () => {
+    try {
+      const res = await fetch("/api/admin/api-keys").then((r) => r.json());
+      setApiKeys(res.keys ?? []);
+      setApiKeysSummary(res.summary ?? null);
+    } catch (err) {
+      console.error("apikeys load failed:", err);
+    }
+  };
+
+  const revokeApiKey = async (id: string) => {
+    if (!confirm("Revoke this API key? Any third-party app using it will stop working immediately.")) return;
+    try {
+      const res = await fetch(`/api/admin/api-keys/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        void loadApiKeys();
+      } else {
+        const j = await res.json().catch(() => ({}));
+        alert(j.error ?? "Revoke failed");
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Revoke failed");
+    }
+  };
+
   useEffect(() => { load(); loadIntel(); loadLearning(); loadSafety(); loadUsers(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (tab === "intel") loadIntel(); }, [intelCategory, intelAssetType]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (tab === "learning") loadLearning(); }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (tab === "safety") loadSafety(); }, [tab, safetyKindFilter]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (tab === "users") loadUsers(); }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (tab === "apikeys") loadApiKeys(); }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="min-h-screen" style={{ background: "var(--dmoop-bg-app)" }}>
@@ -333,6 +407,7 @@ export default function AdminPage() {
             { key: "intel" as const, label: "Marketing Intel", short: "Intel", icon: Radar },
             { key: "learning" as const, label: "Self-Learning", short: "Learning", icon: Brain },
             { key: "safety" as const, label: "Safety", short: "Safety", icon: Shield },
+            { key: "apikeys" as const, label: "API Keys", short: "API", icon: KeyRound },
           ].map((t) => (
             <button key={t.key} onClick={() => setTab(t.key)}
               className={cn(
@@ -483,13 +558,20 @@ export default function AdminPage() {
             negatives={negativePatterns}
             onRefresh={loadLearning}
           />
-        ) : (
+        ) : tab === "safety" ? (
           <SafetyPanel
             health={safetyHealth}
             incidents={safetyIncidents}
             kindFilter={safetyKindFilter}
             setKindFilter={setSafetyKindFilter}
             onRefresh={loadSafety}
+          />
+        ) : (
+          <ApiKeysPanel
+            keys={apiKeys}
+            summary={apiKeysSummary}
+            onRefresh={loadApiKeys}
+            onRevoke={revokeApiKey}
           />
         )}
       </main>
@@ -1183,8 +1265,20 @@ function UsersPanel({
                     : <UserIcon size={13} className="text-[var(--dmoop-accent)]" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold text-[var(--dmoop-text-primary)] truncate">
-                    {u.is_anonymous ? "Anonymous sessions" : (u.email ?? "—")}
+                  <p className="text-[13px] font-semibold text-[var(--dmoop-text-primary)] truncate flex items-center gap-1.5">
+                    <span className="truncate">{u.is_anonymous ? "Anonymous sessions" : (u.email ?? "—")}</span>
+                    {u.linkedin_profile_url && (
+                      <a
+                        href={u.linkedin_profile_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        title="View LinkedIn profile"
+                        className="text-[#0A66C2] hover:text-[#004182] shrink-0"
+                      >
+                        <LinkedInGlyph size={12} />
+                      </a>
+                    )}
                   </p>
                   <p className="text-[10.5px] text-[var(--dmoop-text-tertiary)] truncate">
                     {u.is_anonymous
@@ -1353,6 +1447,54 @@ function UserDetailDrawer({
           <button onClick={onClose} className="text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] text-sm font-medium shrink-0">Close</button>
         </div>
 
+        {detail.identity?.linkedin && (
+          <div className="px-4 sm:px-5 py-3 border-b border-[var(--dmoop-border-soft)] flex flex-col sm:flex-row sm:items-center gap-3 shrink-0 bg-[#f5f9fc]">
+            {detail.identity.linkedin.picture && (
+              // LinkedIn-CDN URL; rendered via plain img so we don't have
+              // to add media.licdn.com to next.config remotePatterns.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={detail.identity.linkedin.picture}
+                alt={detail.identity.linkedin.name ?? "LinkedIn profile"}
+                className="w-12 h-12 rounded-xl border border-[#cfe0ef] object-cover shrink-0"
+              />
+            )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[#0A66C2]"><LinkedInGlyph size={13} /></span>
+                <p className="text-[12px] font-semibold uppercase tracking-wider text-[#0A66C2]">
+                  Signed up via LinkedIn
+                </p>
+              </div>
+              <p className="text-[13px] text-[var(--dmoop-text-primary)] mt-0.5 font-medium truncate">
+                {detail.identity.linkedin.name ?? "—"}
+              </p>
+              <p className="text-[10.5px] text-[var(--dmoop-text-tertiary)] font-mono truncate">
+                LinkedIn ID: {detail.identity.linkedin.sub ?? "—"}
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+              <a
+                href={detail.identity.linkedin.profile_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-9 px-3 rounded-lg flex items-center justify-center gap-1.5 text-[12px] font-semibold text-white bg-[#0A66C2] hover:bg-[#004182] transition-colors"
+              >
+                <LinkedInGlyph size={12} /> View on LinkedIn
+              </a>
+              <a
+                href={detail.identity.linkedin.search_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-9 px-3 rounded-lg flex items-center justify-center gap-1.5 text-[12px] font-semibold text-[#0A66C2] bg-white border border-[#cfe0ef] hover:bg-[#eef5fb] transition-colors"
+                title="Fallback: opens LinkedIn search pre-filled with this user's name"
+              >
+                <Search size={11} /> Search by name
+              </a>
+            </div>
+          </div>
+        )}
+
         <div className="px-4 sm:px-5 py-3 border-b border-[var(--dmoop-border-soft)] grid grid-cols-2 sm:grid-cols-5 gap-3 shrink-0">
           <DrawerStat label="Prompts" value={s.total_prompts} />
           <DrawerStat label="Sessions" value={s.sessions || "—"} />
@@ -1483,5 +1625,145 @@ function DrawerStat({ label, value, accent }: { label: string; value: number | s
       <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)]">{label}</p>
       <p className={cn("text-[20px] font-semibold tracking-tight mt-0.5", color)}>{value}</p>
     </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// API Keys panel — cross-user view of every issued public-API key.
+// Admin can spot suspicious activity (unusual last-used timing,
+// suspicious names) and revoke without waiting on the owner to log in.
+// Never displays the key_hash — even to admins.
+// ─────────────────────────────────────────────────────────────────
+function ApiKeysPanel({
+  keys, summary, onRefresh, onRevoke,
+}: {
+  keys: AdminApiKey[];
+  summary: AdminApiKeySummary | null;
+  onRefresh: () => void;
+  onRevoke: (id: string) => void;
+}) {
+  const [showRevoked, setShowRevoked] = useState(false);
+  const visible = keys.filter((k) => (showRevoked ? true : !k.revoked_at));
+
+  const fmtRel = (iso: string | null) => {
+    if (!iso) return "never";
+    const ms = Date.now() - new Date(iso).getTime();
+    const min = Math.floor(ms / 60000);
+    if (min < 1) return "just now";
+    if (min < 60) return `${min}m ago`;
+    const h = Math.floor(min / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    if (d < 30) return `${d}d ago`;
+    return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  };
+  const fmtAbs = (iso: string | null) => {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  };
+
+  return (
+    <>
+      <div className="rounded-2xl p-4 sm:p-5 mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        style={{ background: "var(--dmoop-gradient-card)", border: "1px solid var(--dmoop-border-soft)", boxShadow: "var(--dmoop-shadow-md)" }}>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: "var(--dmoop-gradient-accent)", boxShadow: "var(--dmoop-shadow-accent)" }}>
+            <KeyRound size={17} className="text-white" />
+          </div>
+          <div>
+            <p className="text-[13.5px] font-semibold text-[var(--dmoop-text-primary)]">Public API keys</p>
+            <p className="text-[11.5px] text-[var(--dmoop-text-secondary)] mt-0.5">
+              Every third-party integration key issued from <code className="text-[11px] px-1 py-0.5 rounded bg-[#f5f1ea]">/settings/api-keys</code>. Revoke any key immediately if something looks off.
+            </p>
+          </div>
+        </div>
+        <button onClick={onRefresh}
+          className="h-9 px-3 rounded-lg text-[12.5px] font-semibold text-[var(--dmoop-text-secondary)] hover:bg-white hover:shadow-[var(--dmoop-shadow-sm)] hover:text-[var(--dmoop-text-primary)] flex items-center gap-2 shrink-0">
+          <RefreshCw size={13} /> Refresh
+        </button>
+      </div>
+
+      {summary && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <MiniStat label="Total issued" value={summary.total} icon={KeyRound} accent="violet" />
+          <MiniStat label="Active" value={summary.active} icon={ShieldCheck} accent="emerald" />
+          <MiniStat label="Revoked" value={summary.revoked} icon={ShieldAlert} accent="rose" />
+          <MiniStat label="Used last 7d" value={summary.used_last_7d} icon={Activity} accent="amber" />
+        </div>
+      )}
+
+      <div className="rounded-2xl overflow-hidden"
+        style={{ background: "var(--dmoop-gradient-card)", border: "1px solid var(--dmoop-border-soft)", boxShadow: "var(--dmoop-shadow-md)" }}>
+        <div className="px-4 sm:px-5 py-3 border-b border-[var(--dmoop-border-soft)] flex items-center justify-between gap-3">
+          <p className="text-[13.5px] font-semibold text-[var(--dmoop-text-primary)]">
+            {visible.length} {showRevoked ? "total" : "active"} key{visible.length === 1 ? "" : "s"}
+          </p>
+          <label className="flex items-center gap-2 text-[11.5px] font-medium text-[var(--dmoop-text-secondary)] cursor-pointer">
+            <input type="checkbox" checked={showRevoked} onChange={(e) => setShowRevoked(e.target.checked)}
+              className="h-3.5 w-3.5 accent-[var(--dmoop-accent)] cursor-pointer" />
+            Include revoked
+          </label>
+        </div>
+
+        <div className="hidden sm:grid grid-cols-[2fr_1.6fr_1.2fr_1fr_1fr_32px] gap-3 px-4 sm:px-5 py-2.5 border-b border-[var(--dmoop-border-soft)] bg-[#faf6ef] text-[10.5px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)]">
+          <div>Owner · Name</div>
+          <div>Key prefix</div>
+          <div>Last used</div>
+          <div>Created</div>
+          <div>Status</div>
+          <div />
+        </div>
+
+        {visible.length === 0 && (
+          <p className="text-center text-[12.5px] text-[var(--dmoop-text-tertiary)] py-10">
+            No keys {showRevoked ? "issued yet" : "active right now"}.
+          </p>
+        )}
+
+        {visible.map((k) => {
+          const isRevoked = !!k.revoked_at;
+          return (
+            <div key={k.id}
+              className={cn(
+                "flex flex-col sm:grid sm:grid-cols-[2fr_1.6fr_1.2fr_1fr_1fr_32px] gap-2 sm:gap-3 px-4 sm:px-5 py-3 sm:py-3.5 border-b border-[var(--dmoop-border-soft)] last:border-0 sm:items-center",
+                isRevoked ? "opacity-60" : ""
+              )}>
+              <div className="min-w-0">
+                <p className="text-[13px] font-semibold text-[var(--dmoop-text-primary)] truncate">{k.name}</p>
+                <p className="text-[10.5px] text-[var(--dmoop-text-tertiary)] truncate">{k.user_email ?? k.user_id.slice(0, 8) + "…"}</p>
+              </div>
+              <p className="text-[11.5px] font-mono text-[var(--dmoop-text-secondary)] truncate">{k.key_prefix}…</p>
+              <div className="text-[11.5px]">
+                <p className="text-[var(--dmoop-text-primary)] font-medium">{fmtRel(k.last_used_at)}</p>
+                {k.last_used_at && (
+                  <p className="text-[10px] text-[var(--dmoop-text-tertiary)]">{fmtAbs(k.last_used_at)}</p>
+                )}
+              </div>
+              <p className="text-[11.5px] text-[var(--dmoop-text-secondary)]">{fmtAbs(k.created_at)}</p>
+              <div>
+                {isRevoked ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded-md">
+                    <ShieldAlert size={9} /> revoked
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md">
+                    <ShieldCheck size={9} /> active
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => onRevoke(k.id)}
+                disabled={isRevoked}
+                title={isRevoked ? "Already revoked" : "Revoke this key"}
+                className="p-1.5 rounded-md text-rose-500 hover:bg-rose-50 disabled:text-[var(--dmoop-text-tertiary)] disabled:hover:bg-transparent disabled:cursor-not-allowed sm:justify-self-end"
+              >
+                <Trash2 size={13} />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }

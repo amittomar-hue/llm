@@ -20,6 +20,44 @@ interface UserRow {
   feedback_given: number;
   positive_rate: number;
   is_anonymous?: boolean;
+  providers?: string[];
+  linkedin_sub?: string | null;
+  linkedin_name?: string | null;
+  linkedin_picture?: string | null;
+  linkedin_profile_url?: string | null;
+  linkedin_search_url?: string | null;
+}
+
+// LinkedIn OIDC ("Sign In with LinkedIn") gives us standard OIDC claims
+// only — sub, name, email, picture, locale. It does NOT include the
+// vanity profile URL (that requires r_basicprofile, gated behind LinkedIn
+// Partner Program). So we surface two URLs per LinkedIn user:
+//   1. A direct attempt: linkedin.com/in/{sub} — resolves for users who
+//      never set a custom vanity slug (their public id == sub).
+//   2. A search fallback: linkedin.com/search/results/people/?keywords=…
+//      pre-filled with the user's LinkedIn-provided name. Always opens
+//      a usable result page, just one extra click.
+interface LinkedInIdentity {
+  sub: string | null;
+  name: string | null;
+  picture: string | null;
+  profile_url: string;
+  search_url: string;
+}
+
+function buildLinkedInIdentity(identityData: Record<string, unknown>): LinkedInIdentity {
+  const sub = (identityData.sub as string | undefined) ?? null;
+  const name = (identityData.name as string | undefined)
+    ?? [identityData.given_name, identityData.family_name].filter(Boolean).join(" ")
+    ?? null;
+  const picture = (identityData.picture as string | undefined) ?? null;
+  return {
+    sub,
+    name,
+    picture,
+    profile_url: sub ? `https://www.linkedin.com/in/${sub}` : "https://www.linkedin.com/",
+    search_url: `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(name ?? "")}`,
+  };
 }
 
 export async function GET() {
@@ -36,6 +74,26 @@ export async function GET() {
   const { data: profiles } = await service
     .from("profiles")
     .select("id, email, created_at");
+
+  // Pull every auth.user with their identities so we can surface which
+  // provider(s) each user signed up with — LinkedIn especially, since
+  // the admin wants a "View on LinkedIn" link in the user row.
+  // listUsers is paginated to 1000/page which is plenty for now; revisit
+  // when we cross that threshold (use materialized join table at that
+  // point so we're not pulling auth.users on every admin refresh).
+  const { data: { users: authUsers } } = await service.auth.admin.listUsers({ perPage: 1000 });
+  const linkedinByUser = new Map<string, LinkedInIdentity>();
+  const providersByUser = new Map<string, string[]>();
+  for (const u of authUsers ?? []) {
+    const provs: string[] = [];
+    for (const ident of u.identities ?? []) {
+      provs.push(ident.provider);
+      if (ident.provider === "linkedin_oidc") {
+        linkedinByUser.set(u.id, buildLinkedInIdentity(ident.identity_data ?? {}));
+      }
+    }
+    if (provs.length > 0) providersByUser.set(u.id, [...new Set(provs)]);
+  }
 
   // Pull all interactions for aggregation. With <10K rows this is fine;
   // when it grows we'll switch to materialized views.
@@ -121,6 +179,7 @@ export async function GET() {
     const fb = feedbackAgg[k];
     const intents = agg?.intents ?? {};
     const top = Object.entries(intents).sort(([, a], [, b]) => b - a)[0];
+    const li = linkedinByUser.get(k);
     return {
       id: k,
       email: (p.email as string | null) ?? null,
@@ -136,6 +195,12 @@ export async function GET() {
       safety_incidents: safetyCount[k] ?? 0,
       feedback_given: fb?.total ?? 0,
       positive_rate: fb && fb.total > 0 ? fb.positive / fb.total : 0,
+      providers: providersByUser.get(k) ?? [],
+      linkedin_sub: li?.sub ?? null,
+      linkedin_name: li?.name ?? null,
+      linkedin_picture: li?.picture ?? null,
+      linkedin_profile_url: li?.profile_url ?? null,
+      linkedin_search_url: li?.search_url ?? null,
     };
   });
 

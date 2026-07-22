@@ -52,12 +52,15 @@ export default function InputBar() {
     outputLanguage, setOutputLanguage,
     pendingAttachments, addPendingAttachment, removePendingAttachment, clearPendingAttachments,
   } = useChatStore();
-  // Effective agent name: conversation binding → selected → default-flagged.
-  // Same resolution as AgentSwitcher so chat input and header stay aligned.
+  // Effective agent name: selected (fresh pick) → conversation binding →
+  // default-flagged. Priority order matches the message-send resolution
+  // below (line ~410) so the chip label always reflects the agent the
+  // NEXT message will actually go to. Previous order (conv binding first)
+  // caused the chip to briefly show a stale agent after a switch.
   const agentName = useAgentStore((s) => {
     const conv = useChatStore.getState().activeConversation();
     const effectiveId =
-      conv?.agentId ?? s.selectedAgentId ?? s.agents.find((a) => a.is_default)?.id ?? null;
+      s.selectedAgentId ?? conv?.agentId ?? s.agents.find((a) => a.is_default)?.id ?? null;
     return s.agents.find((a) => a.id === effectiveId)?.name ?? "Brand Agent";
   });
 
@@ -405,9 +408,18 @@ export default function InputBar() {
     try {
       const conv = useChatStore.getState().conversations.find((c) => c.id === convId);
       const history = conv?.messages.filter((m) => m.id !== asstId) ?? [];
-      // Resolve agent: conversation binding wins, else user-level selection.
-      const agentId =
-        conv?.agentId ?? useAgentStore.getState().selectedAgentId ?? null;
+      // Resolve agent: fresh session pick wins over conversation binding.
+      // Previous order (conv.agentId first) caused stale-binding bugs when
+      // users switched agents mid-chat — the setActive/setConversationAgent
+      // update path had a race where the request read an unsynced value.
+      // Preferring selectedAgentId — which pickAgent updates synchronously
+      // — guarantees the freshest user intent goes to the server. Falls
+      // back to conv binding for the very first message on a fresh page
+      // load (before the user has touched the picker).
+      const selectedAgentId = useAgentStore.getState().selectedAgentId;
+      const agentId = selectedAgentId ?? conv?.agentId ?? null;
+      // eslint-disable-next-line no-console
+      console.debug("[chat] sending agent_id=", agentId, "(selected=", selectedAgentId, "conv=", conv?.agentId, ")");
       const { text: final, interactionId, researchTrace } = await streamChat({
         messages: history,
         model: selectedModel,
@@ -448,11 +460,14 @@ export default function InputBar() {
 
   const hasValue = value.trim().length > 0 || pendingAttachments.length > 0;
 
+  // Two-state toggle behavior (previously three-state cycle: auto→on→off→auto).
+  // The "auto" middle state made "Search Off → click → Search On" take two
+  // clicks, which is what users kept hitting. Now: if search is explicitly on,
+  // one click turns it off; from any other state (off OR the initial auto
+  // default), one click turns it on. Auto stays as the fresh-session default
+  // so smart-search still fires until the user first touches the button.
   const cycleWebSearch = () => {
-    setWebSearchMode(
-      webSearchForced === "auto" ? "on" :
-      webSearchForced === "on" ? "off" : "auto"
-    );
+    setWebSearchMode(webSearchForced === "on" ? "off" : "on");
   };
 
   return (

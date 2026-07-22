@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useChatStore } from "@/lib/chat-store";
-import { useAgentStore } from "@/lib/agent-store";
+import { useAgentStore, type BrandAgent as BrandAgentType } from "@/lib/agent-store";
 import {
   BookOpen, ChevronDown, Upload, AlertCircle,
   Megaphone, Mail, Share2, Newspaper, LayoutTemplate,
   Mic2, FileText, Building2, Star, Wand2,
+  Check, Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -152,18 +153,30 @@ Structure: hero metric, customer background, challenge, why they chose us (in ou
 export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) => void }) {
   const [open, setOpen] = useState(false);
   const [docs, setDocs] = useState<BrandDoc[] | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [busy, setBusy] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
   const setWebSearchMode = useChatStore((s) => s.setWebSearchMode);
-  // Read the effective agent name from the active conversation's bound
-  // agent, falling back to the user-level selected agent, then the
-  // default-flagged one. Mirrors AgentSwitcher's resolution order so
-  // the chat input bar shows the same name as the header chip.
-  const agentName = useAgentStore((s) => {
-    const conv = useChatStore.getState().activeConversation();
-    const effectiveId =
-      conv?.agentId ?? s.selectedAgentId ?? s.agents.find((a) => a.is_default)?.id ?? null;
-    return s.agents.find((a) => a.id === effectiveId)?.name ?? "Brand Agent";
-  });
+  const conv = useChatStore((s) => s.activeConversation());
+  const setConversationAgent = useChatStore((s) => s.setConversationAgent);
+
+  const agents = useAgentStore((s) => s.agents);
+  const selectedAgentId = useAgentStore((s) => s.selectedAgentId);
+  const setSelected = useAgentStore((s) => s.setSelected);
+  const upsertAgent = useAgentStore((s) => s.upsert);
+  const refreshAgents = useAgentStore((s) => s.refresh);
+
+  // Effective agent: selected (fresh pick) → conversation binding →
+  // default-flagged. Priority matches InputBar's send-time resolution so
+  // this dropdown, the input chip, and the actual request all agree on
+  // which agent is "active." Previously conv.agentId came first, which
+  // could race with a fresh pick and show stale state.
+  const effectiveAgentId =
+    selectedAgentId ?? conv?.agentId ?? agents.find((a) => a.is_default)?.id ?? null;
+  const effective = agents.find((a) => a.id === effectiveAgentId);
+  const agentName = effective?.name ?? "Brand Agent";
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
@@ -173,13 +186,26 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
+  // Refresh the agent list whenever the dropdown opens so freshly
+  // created agents from /agents show up without a hard refresh.
+  useEffect(() => {
+    if (open) void refreshAgents();
+  }, [open, refreshAgents]);
+
   useEffect(() => {
     if (!open || docs) return;
-    fetch("/api/brand/documents")
+    // Scope the count to the ACTIVE agent — otherwise the badge shows total
+    // docs across every agent the user owns, which is what caused "wrong
+    // doc count on brand agent." pickAgent() calls setDocs(null) which
+    // re-triggers this effect with the new effectiveAgentId.
+    const url = effectiveAgentId
+      ? `/api/brand/documents?agent_id=${encodeURIComponent(effectiveAgentId)}`
+      : "/api/brand/documents";
+    fetch(url)
       .then((r) => r.json())
       .then((d) => setDocs(d.documents ?? []))
       .catch(() => setDocs([]));
-  }, [open, docs]);
+  }, [open, docs, effectiveAgentId]);
 
   const hasDocs = (docs?.length ?? 0) > 0;
 
@@ -187,6 +213,43 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
     onInsert(asset.buildPrompt());
     setWebSearchMode("off"); // brand assets are about your docs, not the web
     setOpen(false);
+  };
+
+  const pickAgent = (a: BrandAgentType) => {
+    setSelected(a.id);
+    if (conv) setConversationAgent(conv.id, a.id);
+    // Bust the doc cache so the count badge reflects the new agent's
+    // library on the next render of this dropdown. /api/brand/documents
+    // returns the user's full library today, but if it ever becomes
+    // agent-scoped this guarantees we re-fetch.
+    setDocs(null);
+    // Keep the dropdown open so the user can switch then pick an asset
+    // in one fluid motion — closing here would force a second click.
+  };
+
+  const createAgent = async () => {
+    const name = newName.trim();
+    if (!name) return;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/brand/agents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const agent: BrandAgentType = { ...json.agent, doc_count: 0 };
+        upsertAgent(agent);
+        setSelected(agent.id);
+        if (conv) setConversationAgent(conv.id, agent.id);
+        setNewName("");
+        setCreating(false);
+      }
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -233,7 +296,14 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
           {/* Header */}
           <div className="px-4 pt-3.5 pb-3 border-b border-[var(--dmoop-border-soft)]">
             <div className="flex items-center gap-2 mb-1">
-              <Wand2 size={12} className="text-[var(--dmoop-accent)] shrink-0" />
+              {effective ? (
+                <span
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ background: effective.color }}
+                />
+              ) : (
+                <Wand2 size={12} className="text-[var(--dmoop-accent)] shrink-0" />
+              )}
               <p className="text-[11.5px] font-bold tracking-tight text-[var(--dmoop-text-primary)] truncate">
                 {agentName}
               </p>
@@ -247,6 +317,93 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
               Generate assets grounded in your uploaded brand documents.
             </p>
           </div>
+
+          {/* Agent picker — switch between brand agents without leaving
+              this dropdown. Single-agent users still see "+ New brand"
+              so they can spin up a second one in two clicks. */}
+          {(agents.length > 0 || creating) && (
+            <div className="border-b border-[var(--dmoop-border-soft)] py-1.5 bg-[#fbf8f4]">
+              <div className="flex items-center justify-between px-4 pt-1 pb-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)]">
+                  Brand agents {agents.length > 0 && `· ${agents.length}`}
+                </p>
+                <Link
+                  href="/agents"
+                  onClick={() => setOpen(false)}
+                  className="text-[10px] font-semibold text-[var(--dmoop-accent)] hover:underline"
+                >
+                  Manage
+                </Link>
+              </div>
+
+              <div className="max-h-[160px] overflow-y-auto dmoop-scroll">
+                {agents.map((a) => {
+                  const active = effectiveAgentId === a.id;
+                  return (
+                    <button
+                      key={a.id}
+                      onClick={() => pickAgent(a)}
+                      className={cn(
+                        "w-full flex items-center gap-2.5 px-3.5 py-1.5 text-left transition-colors",
+                        active ? "bg-[#fbf3ee]" : "hover:bg-[#faf6ef]"
+                      )}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ background: a.color }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[12px] font-medium text-[var(--dmoop-text-primary)] truncate">
+                          {a.name}
+                          {a.is_default && (
+                            <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wider text-[var(--dmoop-accent)]">
+                              default
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      <span className="text-[10px] text-[var(--dmoop-text-tertiary)] shrink-0">
+                        {a.doc_count} doc{a.doc_count === 1 ? "" : "s"}
+                      </span>
+                      {active && <Check size={11} className="text-[var(--dmoop-accent)] shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Inline create — same pattern as AgentSwitcher so users
+                  who learn it in one place find it the same in the other. */}
+              {creating ? (
+                <div className="px-3.5 py-1.5 flex items-center gap-2">
+                  <input
+                    autoFocus
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value.slice(0, 60))}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") void createAgent();
+                      if (e.key === "Escape") { setCreating(false); setNewName(""); }
+                    }}
+                    placeholder="e.g. Acme Co"
+                    className="flex-1 text-[12px] font-medium bg-white border border-[var(--dmoop-accent)] rounded-md px-2 py-1 focus:outline-none"
+                  />
+                  <button
+                    onClick={() => void createAgent()}
+                    disabled={busy || !newName.trim()}
+                    className="px-2.5 py-1 rounded-md text-[11.5px] font-semibold dmoop-btn-primary disabled:opacity-50"
+                  >
+                    Add
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setCreating(true)}
+                  className="w-full flex items-center gap-2 px-3.5 py-1.5 text-[12px] font-medium text-[var(--dmoop-accent)] hover:bg-[#faf6ef] transition-colors"
+                >
+                  <Plus size={11} strokeWidth={2.5} /> New brand
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Empty state */}
           {docs !== null && !hasDocs && (

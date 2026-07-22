@@ -3,10 +3,9 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Upload, FileText, Trash2, Loader2, BookOpen, AlertCircle, CheckCircle2, Wand2, Check } from "lucide-react";
+import { ArrowLeft, Upload, FileText, Trash2, Loader2, BookOpen, AlertCircle, CheckCircle2, Wand2, Check, ChevronDown, Plus } from "lucide-react";
 import { DOC_TYPES, classifyDocType } from "@/lib/brand";
-import { useAgentStore } from "@/lib/agent-store";
-import AgentSwitcher from "@/components/chat/AgentSwitcher";
+import { useAgentStore, type BrandAgent as BrandAgentType } from "@/lib/agent-store";
 import { parseDocumentClient } from "@/lib/parse-document-client";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +29,13 @@ export default function BrandPage() {
   const [list, setList] = useState<DocList | null>(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState<string>("");
+  // Agent picker dropdown state (lives inside the Brand Agent card so
+  // the user can see and switch their upload destination in one place).
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [creatingAgent, setCreatingAgent] = useState(false);
+  const [newAgentName, setNewAgentName] = useState("");
+  const [creatingBusy, setCreatingBusy] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
   // "auto" = let classifyDocType pick from filename + content after parse.
   // The dropdown defaults to Auto; user can pin a specific type to force
   // every subsequent upload to use that label.
@@ -54,11 +60,53 @@ export default function BrandPage() {
   const selectedAgentId = useAgentStore((s) => s.selectedAgentId);
   const refreshAgents = useAgentStore((s) => s.refresh);
   const upsertAgent = useAgentStore((s) => s.upsert);
+  const setSelectedAgent = useAgentStore((s) => s.setSelected);
   const agents = useAgentStore((s) => s.agents);
   const selectedAgent = useAgentStore((s) =>
     s.agents.find((a) => a.id === s.selectedAgentId) ?? null
   );
   const agentName = selectedAgent?.name ?? "Brand Agent";
+
+  // Outside-click closes the agent picker.
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setPickerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, []);
+
+  const pickAgent = (a: BrandAgentType) => {
+    setSelectedAgent(a.id);
+    setPickerOpen(false);
+  };
+
+  const createAgent = async () => {
+    const name = newAgentName.trim();
+    if (!name) return;
+    setCreatingBusy(true);
+    try {
+      const res = await fetch("/api/brand/agents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const agent: BrandAgentType = { ...json.agent, doc_count: 0 };
+        upsertAgent(agent);
+        setSelectedAgent(agent.id);
+        setNewAgentName("");
+        setCreatingAgent(false);
+        setPickerOpen(false);
+      }
+    } finally {
+      setCreatingBusy(false);
+    }
+  };
 
   // Keep draftName in sync with the currently-selected agent's name
   // whenever the user switches agents in the header dropdown.
@@ -183,7 +231,16 @@ export default function BrandPage() {
         }),
       });
       const result = await uploadRes.json();
-      if (!uploadRes.ok) throw new Error(result.error ?? "Upload failed");
+      if (!uploadRes.ok) {
+        // Surface the full server diagnostic (stage + detail) so PPTX/DOCX
+        // parse/insert failures don't require a DevTools trip to debug.
+        const parts = [
+          result.error ?? "Upload failed",
+          result.stage ? `stage=${result.stage}` : null,
+          result.detail ? `detail=${result.detail}` : null,
+        ].filter(Boolean);
+        throw new Error(parts.join("  ·  "));
+      }
 
       await load();
       // Doc counts on agent chips might have changed — refresh.
@@ -248,57 +305,180 @@ export default function BrandPage() {
             <BookOpen size={18} className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <h1 className="text-[24px] sm:text-[28px] font-semibold tracking-tight text-[var(--dmoop-text-primary)] leading-tight">
-                Brand Library
-              </h1>
-              {/* In-page agent switcher — users can re-scope the library
-                  without bouncing through /chat. Same dropdown component
-                  the chat header uses, so state stays consistent. */}
-              <AgentSwitcher />
-            </div>
+            <h1 className="text-[24px] sm:text-[28px] font-semibold tracking-tight text-[var(--dmoop-text-primary)] leading-tight">
+              Brand Library
+            </h1>
             <p className="text-[13px] sm:text-[14px] text-[var(--dmoop-text-secondary)] mt-1">
-              Upload your brand guidelines, style guides, product info, past campaigns, or personas. DMOOP will use them as authoritative context in every response — scoped to the agent shown above.
+              Upload your brand guidelines, style guides, product info, past campaigns, or personas. DMOOP will use them as authoritative context in every response — scoped to the agent picked below.
             </p>
           </div>
         </div>
 
-        {/* Brand Agent name card */}
+        {/* Brand Agent card — picker first, rename second. The picker
+            drives both the docs shown below AND which library new uploads
+            land in. Switching here = switching everywhere in this session. */}
         <div className="rounded-2xl p-5 sm:p-6 mb-4"
           style={{ background: "var(--dmoop-gradient-card)", border: "1px solid var(--dmoop-border-soft)", boxShadow: "var(--dmoop-shadow-md)" }}>
-          <div className="flex items-start gap-3 mb-3">
+          <div className="flex items-start gap-3 mb-4">
             <div className="w-9 h-9 rounded-xl bg-[#fbf3ee] flex items-center justify-center shrink-0">
               <Wand2 size={14} className="text-[var(--dmoop-accent)]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[13.5px] font-semibold text-[var(--dmoop-text-primary)]">Name your Brand Agent</p>
+              <p className="text-[13.5px] font-semibold text-[var(--dmoop-text-primary)]">Brand Agent</p>
               <p className="text-[12px] text-[var(--dmoop-text-secondary)] mt-0.5">
-                This name appears in the chat toolbar and Tools menu so your team knows which brand voice they&apos;re writing in.
+                Pick which agent&apos;s library this page is showing — and where new uploads land.
               </p>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <input
-              value={draftName}
-              onChange={(e) => setDraftName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && saveAgentName()}
-              placeholder='e.g. "Acme Brand Voice"'
-              maxLength={40}
-              className="flex-1 min-w-0 h-10 px-3 rounded-lg text-[13px] bg-white border border-[var(--dmoop-border-soft)] focus:outline-none focus:border-[var(--dmoop-accent)] focus:ring-4 focus:ring-[var(--dmoop-accent)]/10"
-            />
-            <button
-              onClick={saveAgentName}
-              disabled={!draftName.trim() || draftName === agentName}
-              className={cn(
-                "h-10 px-4 rounded-lg text-[12.5px] font-semibold transition-all flex items-center justify-center gap-1.5 shrink-0",
-                !draftName.trim() || draftName === agentName
-                  ? "bg-[#f5f1ea] text-[var(--dmoop-text-tertiary)] cursor-not-allowed"
-                  : "dmoop-btn-primary"
+
+          {/* Picker row */}
+          <div className="mb-4">
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)] mb-1.5">
+              Upload to
+            </label>
+            <div ref={pickerRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setPickerOpen((o) => !o)}
+                className="w-full h-11 px-3 rounded-lg bg-white border border-[var(--dmoop-border-soft)] hover:border-[var(--dmoop-accent)] focus:outline-none focus:border-[var(--dmoop-accent)] focus:ring-4 focus:ring-[var(--dmoop-accent)]/10 flex items-center gap-2.5 text-left transition-all"
+              >
+                {selectedAgent ? (
+                  <>
+                    <span className="w-3 h-3 rounded-full shrink-0" style={{ background: selectedAgent.color }} />
+                    <span className="text-[13.5px] font-semibold text-[var(--dmoop-text-primary)] truncate">
+                      {selectedAgent.name}
+                    </span>
+                    {selectedAgent.is_default && (
+                      <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#fbf3ee] text-[var(--dmoop-accent-rich)] shrink-0">
+                        default
+                      </span>
+                    )}
+                    <span className="ml-auto text-[11.5px] text-[var(--dmoop-text-tertiary)] shrink-0">
+                      {selectedAgent.doc_count} doc{selectedAgent.doc_count === 1 ? "" : "s"}
+                    </span>
+                    <ChevronDown size={14} className={cn("text-[var(--dmoop-text-tertiary)] shrink-0 transition-transform", pickerOpen && "rotate-180")} />
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[13px] text-[var(--dmoop-text-tertiary)]">Select a brand agent…</span>
+                    <ChevronDown size={14} className="text-[var(--dmoop-text-tertiary)] shrink-0 ml-auto" />
+                  </>
+                )}
+              </button>
+
+              {pickerOpen && (
+                <div
+                  className="absolute left-0 right-0 top-full mt-1.5 rounded-xl overflow-hidden z-30 dmoop-scale-in"
+                  style={{
+                    background: "var(--dmoop-gradient-card)",
+                    border: "1px solid var(--dmoop-border-soft)",
+                    boxShadow: "var(--dmoop-shadow-xl)",
+                  }}
+                >
+                  <div className="max-h-[260px] overflow-y-auto dmoop-scroll">
+                    {agents.map((a) => {
+                      const active = selectedAgentId === a.id;
+                      return (
+                        <button
+                          key={a.id}
+                          onClick={() => pickAgent(a)}
+                          className={cn(
+                            "w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left transition-colors",
+                            active ? "bg-[#fbf3ee]" : "hover:bg-[#faf6ef]"
+                          )}
+                        >
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: a.color }} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[13px] font-medium text-[var(--dmoop-text-primary)] truncate">
+                              {a.name}
+                              {a.is_default && (
+                                <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wider text-[var(--dmoop-accent)]">
+                                  default
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                          <span className="text-[10.5px] text-[var(--dmoop-text-tertiary)] shrink-0">
+                            {a.doc_count} doc{a.doc_count === 1 ? "" : "s"}
+                          </span>
+                          {active && <Check size={12} className="text-[var(--dmoop-accent)] shrink-0" />}
+                        </button>
+                      );
+                    })}
+                    {agents.length === 0 && (
+                      <p className="px-3.5 py-4 text-center text-[12px] text-[var(--dmoop-text-tertiary)]">
+                        No agents yet. Create your first below.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="border-t border-[var(--dmoop-border-soft)]">
+                    {creatingAgent ? (
+                      <div className="px-3.5 py-2.5 flex items-center gap-2">
+                        <input
+                          autoFocus
+                          value={newAgentName}
+                          onChange={(e) => setNewAgentName(e.target.value.slice(0, 60))}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") void createAgent();
+                            if (e.key === "Escape") { setCreatingAgent(false); setNewAgentName(""); }
+                          }}
+                          placeholder="e.g. Acme Co"
+                          className="flex-1 text-[12.5px] font-medium bg-white border border-[var(--dmoop-accent)] rounded-md px-2 py-1 focus:outline-none"
+                        />
+                        <button
+                          onClick={() => void createAgent()}
+                          disabled={creatingBusy || !newAgentName.trim()}
+                          className="px-2.5 py-1 rounded-md text-[11.5px] font-semibold dmoop-btn-primary disabled:opacity-50"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setCreatingAgent(true)}
+                        className="w-full flex items-center gap-2 px-3.5 py-2.5 text-[12.5px] font-medium text-[var(--dmoop-accent)] hover:bg-[#faf6ef] transition-colors"
+                      >
+                        <Plus size={12} strokeWidth={2.5} /> New brand agent
+                      </button>
+                    )}
+                  </div>
+                </div>
               )}
-            >
-              {savedTick ? <><Check size={13} /> Saved</> : "Save"}
-            </button>
+            </div>
           </div>
+
+          {/* Rename row — operates on the currently-selected agent. Kept
+              below the picker so the relationship is obvious. */}
+          {selectedAgent && (
+            <div>
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)] mb-1.5">
+                Rename this agent
+              </label>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <input
+                  value={draftName}
+                  onChange={(e) => setDraftName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && saveAgentName()}
+                  placeholder='e.g. "Acme Brand Voice"'
+                  maxLength={40}
+                  className="flex-1 min-w-0 h-10 px-3 rounded-lg text-[13px] bg-white border border-[var(--dmoop-border-soft)] focus:outline-none focus:border-[var(--dmoop-accent)] focus:ring-4 focus:ring-[var(--dmoop-accent)]/10"
+                />
+                <button
+                  onClick={saveAgentName}
+                  disabled={!draftName.trim() || draftName === agentName}
+                  className={cn(
+                    "h-10 px-4 rounded-lg text-[12.5px] font-semibold transition-all flex items-center justify-center gap-1.5 shrink-0",
+                    !draftName.trim() || draftName === agentName
+                      ? "bg-[#f5f1ea] text-[var(--dmoop-text-tertiary)] cursor-not-allowed"
+                      : "dmoop-btn-primary"
+                  )}
+                >
+                  {savedTick ? <><Check size={13} /> Saved</> : "Save"}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Upload card */}
@@ -323,6 +503,8 @@ export default function BrandPage() {
               <p className="text-[10.5px] text-[var(--dmoop-text-tertiary)] mt-1">
                 {docType === "auto"
                   ? "DMOOP scans filename + content to pick the right category."
+                  : docType === "template"
+                  ? "Template docs are injected WHOLE into strategic-plan requests so DMOOP mimics their structure, depth, and density. Best for: past GTM plans, execution playbooks, board-deck outlines, 20-30 page campaign briefs."
                   : "Pinned — every upload uses this label until you change it."}
               </p>
             </div>

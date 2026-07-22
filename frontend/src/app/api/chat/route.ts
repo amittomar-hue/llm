@@ -13,7 +13,9 @@ import { hfStreamGenerate, isFineTunedModelConfigured } from "@/lib/huggingface"
 import { SUPPORTED_LANGUAGES, getLanguage } from "@/lib/languages";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { getLatestIntel, formatIntelAsContext } from "@/lib/intel";
-import { retrieveBrandChunks, formatBrandContext } from "@/lib/brand";
+import { retrieveBrandChunks, formatBrandContext, retrieveTemplateDocs, formatTemplatesForContext } from "@/lib/brand";
+import { getHubspotContext, formatContactForContext, getHubspotContactList, formatContactListForContext, getHubspotContactJourneys } from "@/lib/crm/hubspot";
+import { getZohoContext, getZohoContactList, getZohoContactJourneys } from "@/lib/crm/zoho";
 import { formatVoiceProfileForContext, type VoiceProfile } from "@/lib/voice-profile";
 import { getSupabase } from "@/lib/supabase";
 import {
@@ -59,6 +61,23 @@ const GROQ_MODEL_MAP: Record<string, string> = {
   // which is what we actually need given training-pair + brand context payload.
   // Fallback chain below tries scout → kimi-k2 (10K TPM) → 8B-instant.
   "dmoop-tuned": "meta-llama/llama-4-scout-17b-16e-instruct",
+  // Strategic-plan path: Llama-3.3-70B with the long-form system prompt.
+  // We previously routed this to Kimi-K2 (1T-param MoE) which gives better
+  // long-form coherence, but Groq removed/gated it from this account in
+  // early 2026 (returns 404). Llama 70B is the next best free-tier option
+  // and the strategic system prompt is doing most of the depth work anyway
+  // (dropping the conciseness/clarifier rules + skipping short-asset
+  // examples context). The 404 fallback handler in the catch block now
+  // also auto-degrades if any specific model path goes 404 in the future.
+  "dmoop-strategic": "llama-3.3-70b-versatile",
+  // Strategic + template path: Llama-4-Scout-17B because it has 30K TPM
+  // (vs 12K for Llama-70B) — we need the budget headroom to fit a 30K-char
+  // template doc + brand identity + voice profile + user query in input
+  // without trimming. Scout's long-form coherence is slightly weaker than
+  // 70B but with a template providing the structural scaffold, the model
+  // is mostly filling in brand-specific content rather than designing a
+  // doc structure from scratch — Scout handles that fine.
+  "dmoop-strategic-template": "meta-llama/llama-4-scout-17b-16e-instruct",
 };
 
 // Per-model fallback chains. Ordered by TPM headroom so we degrade gracefully
@@ -71,7 +90,71 @@ const FALLBACK_CHAIN: Record<string, string[]> = {
     "moonshotai/kimi-k2-instruct",               // 10K TPM
     "llama-3.1-8b-instant",                      // 6K TPM — last resort
   ],
+  "moonshotai/kimi-k2-instruct": [
+    "moonshotai/kimi-k2-instruct",   // 10K TPM — best for long-form strategy
+    "llama-3.3-70b-versatile",       // 30K TPM — broader knowledge, slightly less long-form-coherent
+    "llama-3.1-8b-instant",          // 6K TPM — last resort
+  ],
 };
+
+// Detect "build me a comprehensive plan" type requests so we can route them
+// down a long-form path: Kimi-K2 + system prompt that drops the conciseness/
+// clarifier rules + skip short-asset examples context. The FORMAT CONTRACT
+// in DEPTH_AND_FORMAT_CONTRACT actively suppresses multi-section depth
+// ("Lead with the answer", "first sentence does work", clarifier trigger
+// on vague prompts) — fine for ad copy, wrong for 30-page execution plans.
+function looksLikeStrategicPlan(text: string): boolean {
+  if (text.length < 40) return false;
+  const t = text.toLowerCase();
+  // Anchor: some kind of multi-section strategic document being requested
+  const docAnchor =
+    /\b(execution\s+plan|gtm\s+plan|go.?to.?market\s+plan|marketing\s+plan|strategic\s+plan|integrated\s+plan|complete\s+plan|comprehensive\s+plan|full\s+plan|growth\s+plan|launch\s+plan|annual\s+plan|marketing\s+strategy|growth\s+strategy|gtm\s+strategy|marketing\s+playbook|growth\s+playbook|gtm\s+playbook|marketing\s+roadmap|growth\s+roadmap|integrated\s+execution|business\s+plan|operating\s+plan)\b/.test(t);
+  // Action: user wants us to BUILD/WRITE it, not just discuss it
+  const buildAction =
+    /\b(build|create|generate|produce|write|draft|give\s+me|need|design|develop|prepare|put\s+together)\b/.test(t);
+  return docAnchor && buildAction;
+}
+
+// System prompt for strategic-plan path. Replaces SYSTEM_PROMPT/TUNED_SYSTEM_PROMPT
+// when looksLikeStrategicPlan() fires. Drops the CLARIFY-OR-COMMIT contract,
+// the "Lead with the answer" rule, and the "Next 3 actions" / "Sources"
+// footer requirements — all of which suppress multi-section depth. Keeps the
+// banned-phrases and named-entity rules because they raise quality at any
+// length. Built specifically for Kimi-K2's long-form output style.
+const STRATEGIC_PLAN_SYSTEM_PROMPT = `You are DMOOP — an enterprise marketing intelligence platform. The user has asked for a STRATEGIC PLAN — a comprehensive, multi-section executive document. NOT a short asset, NOT a summary, NOT a TL;DR.
+
+DELIVERABLE FORMAT FOR STRATEGIC PLANS:
+- This is a 5,000–8,000 word document, structured like a Big-4-consultancy execution plan. Do NOT summarize. Do NOT lead with a TL;DR. Do NOT ask clarifying questions — even if the prompt seems vague, COMMIT to the most likely interpretation and deliver the document.
+- Structure as numbered top-level sections: "01 | Section Name", "02 | Section Name", etc. Aim for 6–9 top-level sections.
+- Every top-level section has 3–6 subsections (### H3 headings) with their own substantive content.
+- Use markdown tables liberally — for page/asset matrices, budget breakdowns, channel allocations, KPI grids, timelines, audience segments, journey stages. Tables are how strategy docs convey density.
+- Bulleted lists for tactics, deliverables, criteria, steps.
+- Include NAMED entities throughout: real tool names (HubSpot, Ahrefs, SEMrush, 6sense, Bombora, GA4, B2B Rocket, Apollo, Sales Navigator, Tavily), real frameworks (JTBD, StoryBrand, MEDDIC, RACE, Pirate Metrics), real partner ecosystems where the brand context names them (Databricks, Snowflake, AWS, TestGrid, etc.), and specific client/case-study references when the brand context provides them.
+- Include specific numbers where reasonable: monthly search volumes, target CPLs, target conversion rates, budget allocations per channel, percentages. Label estimates "[industry-typical range — verify against your data]" rather than presenting guesses as facts.
+- Final section is ALWAYS a measurement framework + budget table.
+
+IF A STRUCTURAL TEMPLATE IS PROVIDED IN CONTEXT (look for a system message labelled "STRUCTURAL TEMPLATE(S)"):
+- The template is the AUTHORITATIVE SHAPE for this output. Mirror its section structure (number, naming convention, ordering), table count and density per section, formatting conventions (numbered "01 |" headers, "###" subsections, bulleted vs. numbered lists, blockquote usage), tone register, and overall length.
+- The template's CONTENT (specific entities, numbers, examples) is reference only — SUBSTITUTE those with the user's actual brand entities per BRAND IDENTITY + brand documents + voice profile.
+- Example: if the template's Section 03 is "User Journey" with 8 stages and a 5-column table, your Section 03 is also "User Journey" with 8 stages and a 5-column table, but populated with the user's brand specifics.
+- Match the template's depth — if its sections average 800 words, yours should too. Don't summarize.
+- DO NOT copy verbatim text from the template (other than structural conventions like section numbering). The brand context (BRAND IDENTITY, brand voice, brand documents) is the source of CONTENT; the template is the source of SHAPE.
+
+USE THE BRAND CONTEXT AS GROUND TRUTH:
+- The "BRAND IDENTITY" system message gives you the exact brand name. Use it directly throughout the document — title, intro, every section. NEVER substitute a placeholder for the brand name.
+- The brand voice profile + brand documents are authoritative for the brand's tone, products, ICP, accelerators, named clients, partners, vertical focus. When they name a specific product/accelerator/client/partner/segment, USE IT BY NAME — do not invent variants, do not abstract to a placeholder.
+- BRACKETED PLACEHOLDERS are reserved EXCLUSIVELY for specific tactical numbers you genuinely cannot derive: exact monthly ad budgets, target CPL/CAC, target conversion rates, specific keyword monthly search volumes. NEVER use placeholders for: the brand name, product names, audience descriptors, partner names, vertical names, or any qualitative entity.
+- If the brand documents are sparse on a section's substance (e.g. you have brand voice but no ICP doc), still WRITE the section with concrete recommendations grounded in the brand's industry — placeholder is the last resort, not the default.
+
+WHAT NOT TO DO:
+- Do NOT ask clarifying questions. The user wants the document; deliver it.
+- Do NOT include a TL;DR, "executive summary", or "Lead with the answer" preamble.
+- Do NOT include "## Next 3 actions" at the end. This is a strategic plan, not a tactical recommendation.
+- Do NOT include "## Sources" unless web search context was actually injected.
+- Do NOT cap your output early. The user expects 5,000-8,000 words minimum. Do NOT trail off into vague generalities to fill space — every section must be substantive.
+- Do NOT use banned phrases: "leverage", "synergy", "robust solution", "cutting-edge", "innovative approach", "in today's fast-paced world", "best practices include", "consider implementing", "various strategies", "tailored solutions". Name the specific thing instead.
+
+Never call yourself Llama / Groq / Kimi / Moonshot. You are DMOOP.`;
 
 // Shared depth + format contract — applies to BOTH personas. Repeating this
 // in every system prompt is expensive but vagueness/output-shape is the #1
@@ -184,11 +267,11 @@ IMAGE PROMPTS ARE ENGLISH-ONLY — REGARDLESS of what language the rest of the r
 
 const TUNED_SYSTEM_PROMPT = `You are DMOOP Tuned — DMOOP's custom marketing model. Your knowledge of marketing is the continuously-updated training corpus (scraped marketing intel → asset-type-aware Q&A pairs). The most relevant pairs are injected as system context labeled "DMOOP TUNED — KNOWLEDGE BASE".
 
-KNOWLEDGE RULES:
-- Training pairs are your primary source. Match their STRUCTURE (case study → Situation/Approach/Result; playbook → numbered steps; social post → hook+CTA breakdown).
-- Cite source_url when you pull a tactic/number/framework from a pair (e.g. [1]).
-- If no closely-matched pair: say so in one line and give the best grounded baseline (don't make up sources).
-- Brand documents = authoritative on user's brand voice and product.
+KNOWLEDGE RULES (in strict precedence order — read carefully):
+1. If a system message labelled "USER'S BRAND DOCUMENTS" is present, it is AUTHORITATIVE and takes precedence over training pairs. Ground your answer in the brand documents first — the user's own uploaded materials (their strategy decks, past plans, playbooks, brand guidelines) always beat generic scraped intel. Cite brand chunks as [Brand-1], [Brand-2], etc. matching their labels in the injected context.
+2. Training pairs are your general knowledge base for marketing craft — use them for STRUCTURE (case study → Situation/Approach/Result; playbook → numbered steps; social post → hook+CTA breakdown) and for TACTICS the brand documents don't cover. Cite source_url from a pair as [1], [2], etc.
+3. Training pairs are SUPPORTING context when brand documents are present — never cite a training pair over an on-topic brand document. If a brand doc says one thing and a training pair says another, the brand doc wins.
+4. If neither brand documents nor training pairs address the question: give the best grounded baseline from the model's general knowledge and say so in one line. Don't invent sources.
 - Never call yourself Llama / Groq / Marketing LLM. You are DMOOP Tuned.
 ${DEPTH_AND_FORMAT_CONTRACT}`;
 
@@ -387,6 +470,13 @@ export async function POST(req: NextRequest) {
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   const userQuery = lastUser?.content ?? "";
   const intent = classifyIntent(userQuery);
+  // Auto-route requests like "build me a comprehensive GTM plan" to the
+  // long-form path: Kimi-K2 + strategic-plan system prompt + skip the
+  // short-asset examples context (which would otherwise pull output toward
+  // 200-word marketing assets). The user keeps whatever model is selected
+  // in the dropdown for non-strategic prompts; this only kicks in when the
+  // request is unambiguously a multi-section strategic document.
+  const isStrategicPlan = looksLikeStrategicPlan(userQuery);
 
   // Identify the authenticated user (if any)
   let userId: string | null = null;
@@ -487,8 +577,14 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Decide model-specific behavior ────────────────────────────
-  // Map any legacy model IDs to DMOOP defaults
-  const effectiveModelIdEarly = (modelId in GROQ_MODEL_MAP || modelId === "dmoop-tuned")
+  // Map any legacy model IDs to DMOOP defaults. The strategic-plan auto-route
+  // wins over whatever the user picked in the dropdown — long-form coherence
+  // is materially better with the right model + system prompt combo and the
+  // user can't be expected to know that. Later, if a template doc is in play,
+  // we further upgrade to Scout (30K TPM) so the template fits in the input.
+  let effectiveModelIdEarly = isStrategicPlan
+    ? "dmoop-strategic"
+    : (modelId in GROQ_MODEL_MAP || modelId === "dmoop-tuned")
     ? modelId
     : "dmoop-core";
   const isTuned = effectiveModelIdEarly === "dmoop-tuned";
@@ -544,12 +640,49 @@ export async function POST(req: NextRequest) {
     console.error("retrieveNegativePatterns failed:", err);
   }
 
+  // ── Structural templates (template-typed brand docs) ───────────
+  // For strategic-plan requests, pull ALL template docs for the active
+  // agent and inject them WHOLE so the model can mimic their structure.
+  // Templates are big — capped at 30K chars per doc to protect TPM budget.
+  // Only fetched on strategic-plan path; normal chat ignores them
+  // (similarity search wouldn't pick up structural docs anyway).
+  let templatesContext = "";
+  let templateCount = 0;
+  if (userId && isStrategicPlan) {
+    try {
+      const templates = await retrieveTemplateDocs(userId, conversationAgentId, 30_000);
+      templatesContext = formatTemplatesForContext(templates);
+      templateCount = templates.length;
+    } catch (err) {
+      console.error("retrieveTemplateDocs failed:", err);
+    }
+  }
+  const hasTemplate = templateCount > 0;
+
+  // Template injection requires materially more input budget (a 30K-char
+  // template = ~10K tokens). Llama-3.3-70B's free tier only has 12K TPM,
+  // not enough room. Llama-4-Scout-17B has 30K TPM — slightly lower
+  // long-form quality but with the template doing the structural heavy
+  // lifting the model is mostly substituting brand entities. Better trade.
+  if (isStrategicPlan && hasTemplate) {
+    effectiveModelIdEarly = "dmoop-strategic-template";
+  }
+
   // ── Brand documents: pull the user's uploaded brand context ─
+  // When a template is present, brand chunks become noise — the template
+  // provides the structural scaffold and brand identity message + voice
+  // profile cover the brand-naming/voice grounding. Skipping chunks here
+  // also frees ~3-5K tokens of input budget for the template itself.
   let brandContext = "";
   let brandChunkCount = 0;
-  if (userId) {
+  if (userId && !hasTemplate) {
     try {
-      const brandLimit = isTuned ? 3 : 4;
+      // Strategic plans need WAY more brand chunks — a generic prompt like
+      // "build me a GTM plan" doesn't match many chunks by similarity, but
+      // the strategic doc itself needs ICP, products, partners, named
+      // clients all woven through. Pull a wide net (12) and let fitToBudget
+      // trim under TPM pressure.
+      const brandLimit = isStrategicPlan ? 12 : isTuned ? 3 : 4;
       const brandChunks = await retrieveBrandChunks(userId, userQuery, brandLimit, conversationAgentId);
       brandContext = formatBrandContext(brandChunks);
       brandChunkCount = brandChunks.length;
@@ -569,13 +702,14 @@ export async function POST(req: NextRequest) {
   // user query. Resolution mirrors retrieveBrandChunks: explicit agent
   // first, else user's default agent. Cheap — one indexed SELECT.
   let voiceProfileContext = "";
+  let brandIdentityContext = "";
   if (userId) {
     try {
       const service = getSupabase();
       if (service) {
         let q = service
           .from("brand_agents")
-          .select("voice_profile")
+          .select("name, voice_profile")
           .eq("user_id", userId);
         q = conversationAgentId
           ? q.eq("id", conversationAgentId)
@@ -583,6 +717,22 @@ export async function POST(req: NextRequest) {
         const { data: agentRow } = await q.maybeSingle();
         const profile = (agentRow?.voice_profile as VoiceProfile | null) ?? null;
         voiceProfileContext = formatVoiceProfileForContext(profile);
+        // Surface the agent name explicitly — voice_profile doesn't include
+        // it, so without this the model literally never sees the brand
+        // name in any system message and falls back to placeholders for
+        // basic identity. This single message is the difference between
+        // "Compunnel Digital — comprehensive marketing strategy…" and
+        // "[BRACKETED PLACEHOLDER: Insert brand name]".
+        const agentName = (agentRow?.name as string | null) ?? null;
+        if (agentName) {
+          brandIdentityContext =
+            `BRAND IDENTITY (HIGHEST PRIORITY — overrides any user framing): ` +
+            `The brand you are writing this document FOR is "${agentName}". ` +
+            `Every section is FOR ${agentName}, ABOUT ${agentName}, grounded in ${agentName}'s actual products/services described in the brand documents and voice profile. ` +
+            `Use the literal name "${agentName}" in the title, section headers, and throughout the body. ` +
+            `NEVER substitute a [BRACKETED PLACEHOLDER]. NEVER invent a different brand name (e.g. "Apexion", "Acme", "BrandX"). NEVER swap to a generic descriptor like "the SaaS" or "the platform" — say "${agentName}". ` +
+            `If the user's prompt mentions a different industry, business type, audience, or vibe (e.g. "for a B2B SaaS", "for a fintech", "for a startup") that doesn't match ${agentName}'s actual business as described in the brand context, interpret the user's wording as STYLE/FORMAT guidance — apply that flavor to ${agentName}'s real business. Do NOT replace ${agentName} with a fictional company that matches the user's framing.`;
+        }
       }
     } catch (err) {
       console.error("voice profile fetch failed:", err);
@@ -606,7 +756,14 @@ export async function POST(req: NextRequest) {
   const dateInjection = `Current date: ${todayStr} (${now.toISOString().slice(0, 10)}). When the user says "latest"/"current"/"best of <year>", anchor on this date. Flag any data older than 12 months as potentially stale.`;
 
   const groqMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-    { role: "system", content: isTuned ? TUNED_SYSTEM_PROMPT : SYSTEM_PROMPT },
+    {
+      role: "system",
+      content: isStrategicPlan
+        ? STRATEGIC_PLAN_SYSTEM_PROMPT
+        : isTuned
+        ? TUNED_SYSTEM_PROMPT
+        : SYSTEM_PROMPT,
+    },
     { role: "system", content: dateInjection },
   ];
 
@@ -628,6 +785,21 @@ export async function POST(req: NextRequest) {
     groqMessages.push({ role: "system", content: trainingPairsContext });
   }
 
+  // Brand identity (name) — pushed FIRST among brand-related messages so
+  // it survives even when fitToBudget aggressively trims under TPM pressure.
+  // Tiny payload (~250 chars) so it never gets dropped.
+  if (brandIdentityContext) {
+    groqMessages.push({ role: "system", content: brandIdentityContext });
+  }
+
+  // Structural template(s) — when present, this is the most important
+  // context the model sees. Pushed before voice/brand/web so it anchors
+  // the output shape. fitToBudget treats it as high-priority (only one
+  // step below brand identity in the drop-priority order).
+  if (templatesContext) {
+    groqMessages.push({ role: "system", content: templatesContext });
+  }
+
   // Brand Voice Profile — applies on every answer regardless of retrieval.
   // Pushed BEFORE brandContext so the model anchors on voice first, then
   // adapts that voice to whatever specific brand chunks were retrieved.
@@ -640,7 +812,210 @@ export async function POST(req: NextRequest) {
     groqMessages.push({ role: "system", content: brandContext });
   }
 
-  if (examplesContext) {
+  // ── CRM CONTEXT: if the user mentioned an email address in their query
+  // AND they have a connected CRM, look up that contact and inject a
+  // recipient-specific system message. The brand agent covers WHO IS
+  // WRITING; this covers WHO IS RECEIVING. Order matters: brand identity
+  // → voice → brand docs → CRM. So the model has "I am Compunnel, this
+  // is my voice, this is what I sell, and I'm writing to Alice at Acme
+  // who is in Discovery on a $50K deal."
+  //
+  // Kept intentionally cheap: only fires when a plausible email is in
+  // the prompt AND we have a userId. HubSpot API cost is one contact
+  // search + up to two association lookups (~300ms budget total).
+  const EMAIL_REGEX = /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/gi;
+  const emailMatches = userQuery.match(EMAIL_REGEX) ?? [];
+  if (userId && emailMatches.length > 0) {
+    // De-dupe + cap at 3 lookups per turn so a prompt full of emails
+    // doesn't stall the response. Most nurture/reply prompts reference
+    // exactly one recipient anyway.
+    const uniqueEmails = Array.from(new Set(emailMatches.map((e) => e.toLowerCase()))).slice(0, 3);
+    // For each email, try HubSpot AND Zoho in parallel. A user might have
+    // one, the other, or both connected — whichever returns a match wins.
+    // If both return a match (same contact synced to both CRMs), we inject
+    // both so the model sees the union of available detail.
+    const contactResults = await Promise.all(
+      uniqueEmails.map(async (email) => {
+        const [hs, zo] = await Promise.all([
+          getHubspotContext(userId, email).catch((err) => {
+            console.error("[chat] hubspot lookup failed for", email, err);
+            return null;
+          }),
+          getZohoContext(userId, email).catch((err) => {
+            console.error("[chat] zoho lookup failed for", email, err);
+            return null;
+          }),
+        ]);
+        return { email, hs, zo };
+      })
+    );
+    const misses = contactResults
+      .filter((r) => r.hs === null && r.zo === null)
+      .map((r) => r.email);
+    for (const { hs, zo } of contactResults) {
+      if (hs) groqMessages.push({ role: "system", content: formatContactForContext(hs) });
+      if (zo) groqMessages.push({ role: "system", content: formatContactForContext(zo) });
+    }
+    // See below: also fire a list-intent detection so combined prompts
+    // ("write to alice@acme.com and also show me my recent contacts") work.
+
+    // When emails are in the prompt but not in the connected CRM, tell the
+    // model explicitly. Otherwise the tuned/strategic personas will silently
+    // fall back to web knowledge and hallucinate a "last email" for a
+    // stranger — which is exactly the failure mode we're trying to prevent.
+    if (misses.length > 0) {
+      const emailList = misses.map((e) => `"${e}"`).join(", ");
+      groqMessages.push({
+        role: "system",
+        content:
+          `CRM LOOKUP RESULT: The following email address(es) mentioned in the user's prompt were ` +
+          `NOT found in the user's connected HubSpot CRM: ${emailList}. ` +
+          `\n\nSTRICT RULES for these unknown recipients:\n` +
+          `1. Do NOT invent or guess past interactions, deal stages, roles, companies, or activity ` +
+          `history for these people. There is no CRM history available.\n` +
+          `2. Do NOT do web research to backfill facts about the person as if it were CRM data — ` +
+          `the user asked about their CRM, not the public internet.\n` +
+          `3. Tell the user directly that this contact is not in their connected HubSpot, and ` +
+          `offer to draft a cold-outreach template based on the brand agent's voice instead of a ` +
+          `follow-up based on non-existent history.\n` +
+          `4. If the user asked about "the last email sent" or similar journey questions, answer ` +
+          `plainly: "This contact isn't in your HubSpot, so I don't have send history for them."`,
+      });
+    }
+  }
+
+  // ── CRM LIST INTENT: any prompt mentioning HubSpot/CRM alongside a
+  // data-shaped noun (contacts/leads/journey/list/etc.) triggers a live
+  // fetch of the top N most-recently-modified contacts.
+  //
+  // We match generously here on purpose: a false positive costs one
+  // ~200ms search API call and the model can ignore the injected list,
+  // whereas a false negative (like the current bug) lets the model
+  // hallucinate fake contacts with plausible-looking HubSpot demo emails
+  // (emailmaria@hubspot.com, bh@hubspot.com, Contact1@…). Wrong data
+  // is worse than a wasted API call.
+  //
+  // Two conditions, either triggers:
+  //   A) Prompt contains "hubspot" or "crm" AND a data noun
+  //   B) Prompt contains "my contacts" / "my leads" / "contact list" / etc.
+  const hasCrmMention = /\b(?:hubspot|zoho|salesforce|pipedrive|crm)\b/i.test(userQuery);
+  const hasDataNoun = /\b(?:contacts?|leads?|deals?|companies|company|journey|journeys|touchpoints?|list|lists|pipeline|activit(?:y|ies)|engagements?|records?|people|prospects?|customers?|accounts?)\b/i.test(userQuery);
+  // Allow zero-or-one provider tokens between the prefix and the data noun
+  // (e.g. "show me my zoho contact list", "list our hubspot deals").
+  const hasMyDataPhrase = /\b(?:my|our|show\s+me|list|top|recent|latest)\s+(?:(?:hubspot|zoho|salesforce|pipedrive|crm)\s+)?(?:contacts?|leads?|deals?|companies|prospects?|customers?|accounts?|list)\b/i.test(userQuery);
+  const shouldFetchList = (hasCrmMention && hasDataNoun) || hasMyDataPhrase;
+
+  // Journey intent: user asking for touchpoints, timeline, activity, history,
+  // engagement — needs richer per-contact enrichment, not just the summary.
+  const wantsJourney = /\b(journey|journeys|touchpoints?|timeline|engagements?|activit(?:y|ies)|history|interactions?|last\s+(?:email|call|meeting|contact|activity))\b/i.test(userQuery);
+
+  if (userId && shouldFetchList) {
+    try {
+      // Fetch summary lists from BOTH CRMs in parallel. Each returns null
+      // if the user hasn't connected that provider.
+      const [hubspotList, zohoList] = await Promise.all([
+        getHubspotContactList(userId, 20).catch((err) => {
+          console.error("[chat] hubspot list fetch failed:", err);
+          return null;
+        }),
+        getZohoContactList(userId, 20).catch((err) => {
+          console.error("[chat] zoho list fetch failed:", err);
+          return null;
+        }),
+      ]);
+      if (hubspotList) {
+        groqMessages.push({
+          role: "system",
+          content: `[Source: HubSpot]\n${formatContactListForContext(hubspotList)}`,
+        });
+      }
+      if (zohoList) {
+        groqMessages.push({
+          role: "system",
+          content: `[Source: Zoho CRM]\n${formatContactListForContext(zohoList)}`,
+        });
+      }
+
+      // If neither CRM is connected, tell the model explicitly.
+      if (!hubspotList && !zohoList) {
+        groqMessages.push({
+          role: "system",
+          content:
+            "CRM DATA STATUS: The user asked about CRM data, but their DMOOP account has NO " +
+            "connected CRM (neither HubSpot nor Zoho). Do NOT invent contacts, journeys, or " +
+            "activity — those would be fabricated. Tell the user to connect a CRM at " +
+            "/settings/integrations, then retry.",
+        });
+      }
+
+      // If they specifically asked about journeys/touchpoints/timeline, pay
+      // the extra API cost to enrich the top 3 with full engagement history
+      // per provider. Runs both in parallel — if only one CRM is connected,
+      // the other silently returns null.
+      if (wantsJourney) {
+        const [hsJourneys, zoJourneys] = await Promise.all([
+          hubspotList
+            ? getHubspotContactJourneys(userId, 3).catch(() => null)
+            : Promise.resolve(null),
+          zohoList
+            ? getZohoContactJourneys(userId, 3).catch(() => null)
+            : Promise.resolve(null),
+        ]);
+        const allJourneys = [
+          ...(hsJourneys ?? []).map((j) => ({ source: "HubSpot", ctx: j })),
+          ...(zoJourneys ?? []).map((j) => ({ source: "Zoho CRM", ctx: j })),
+        ];
+        if (allJourneys.length > 0) {
+          groqMessages.push({
+            role: "system",
+            content:
+              `FULL JOURNEY DATA for ${allJourneys.length} contacts follows. Each block below ` +
+              `is real, live data from the labeled CRM for THAT specific person. When answering ` +
+              `journey questions, use ONLY the RECENT TOUCHPOINTS lines from these blocks — do NOT ` +
+              `invent generic journey steps like "Website visit / Form submission / downloaded ` +
+              `resource" that aren't in the data.`,
+          });
+          for (const { source, ctx } of allJourneys) {
+            groqMessages.push({
+              role: "system",
+              content: `[Source: ${source}]\n${formatContactForContext(ctx)}`,
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[chat] crm list fetch failed:", err);
+    }
+  }
+
+  // Anti-hallucination guard whenever the user prompt mentions HubSpot/Zoho/CRM.
+  // Even if the list-fetch block above fires, add an explicit "never invent
+  // recognizable-fake CRM emails" rule. These emails come from vendor demo-
+  // training data and the model reaches for them under uncertainty.
+  if (hasCrmMention || hasDataNoun && /contact|lead|deal|company|journey/i.test(userQuery)) {
+    groqMessages.push({
+      role: "system",
+      content:
+        "CRM DATA INTEGRITY RULES (STRICT — override any tendency to be helpful with made-up data):\n" +
+        "1. When answering with 'contacts', 'leads', 'deals', or 'journeys', use ONLY the CRM DATA " +
+        "message(s) injected above. If no CRM DATA message is present, you have no CRM data — say so " +
+        "directly instead of guessing.\n" +
+        "2. NEVER invent emails like emailmaria@hubspot.com, bh@hubspot.com, jane.doe@company.com, " +
+        "amit@nisarg.com, or any other placeholder-looking address. Those are training-set demos, not " +
+        "real user data.\n" +
+        "3. NEVER invent journey steps like 'downloaded eBook', 'requested demo', 'Form submission — 3 " +
+        "emails' unless those specific facts appear verbatim in an injected RECENT TOUCHPOINTS block.\n" +
+        "4. If the user asks about their CRM and you have no injected CRM data to lean on, respond: " +
+        "'I don't see any CRM data injected for this turn — try rephrasing your request, or check " +
+        "your HubSpot connection at /settings/integrations.' Do NOT fill the void with fabrications.",
+    });
+  }
+
+  // Skip the examples context on strategic-plan path. Examples are short
+  // marketing assets (200-word ad copy, 5-line emails) and injecting them
+  // here pulls Kimi-K2 toward short outputs via implicit pattern-matching,
+  // which is the exact thing we're trying to avoid for 6K-word plans.
+  if (examplesContext && !isStrategicPlan) {
     const label = isTuned
       ? `Style/voice reference — past thumbs-up responses for intent="${intent}" (use ONLY for tone, NOT for content — the training pairs above are your knowledge source):`
       : `High-rated past examples for intent="${intent}":`;
@@ -767,6 +1142,21 @@ NO TEXT IN THE IMAGE — same rule as the baseline contract. Do NOT put the asse
       })()
     : messages;
 
+  // Final brand-identity reminder right before the user message —
+  // recency wins in LLM attention, so anything after the brand identity
+  // (web search context, intel, etc.) tends to drown out the rule unless
+  // we re-state it. The model invented "Apexion" once before this; this
+  // push prevents that recurrence. Strategic-plan path only — short
+  // payload so doesn't materially affect budgeting.
+  if (isStrategicPlan && brandIdentityContext) {
+    groqMessages.push({
+      role: "system",
+      content:
+        `FINAL REMINDER BEFORE YOU WRITE: ${brandIdentityContext.split(":")[1]?.trim() ?? brandIdentityContext} ` +
+        `If the prompt below says "for a B2B SaaS" or "for a startup" or names any other business type that conflicts with the brand identity above, those are STYLE descriptors — apply them as flavor TO the brand identity, do not replace the brand. Title every section header with the actual brand name. Never write "Apexion", "Acme Corp", or any other invented name.`,
+    });
+  }
+
   historyForRequest.forEach((m) => {
     groqMessages.push({ role: m.role, content: m.content });
   });
@@ -779,7 +1169,12 @@ NO TEXT IN THE IMAGE — same rule as the baseline contract. Do NOT put the asse
   // ─────────────────────────────────────────────────────────────
   const MODEL_TPM: Record<string, number> = {
     "meta-llama/llama-4-scout-17b-16e-instruct": 30000,
-    "moonshotai/kimi-k2-instruct": 10000,
+    // Kimi-K2 free-tier TPM bumped to 30K (Groq raised the limit; previous
+    // 10K value forced the slim-retry path on every strategic-plan request
+    // because 10K - 8192 output - 800 margin = ~1K input which can't hold
+    // the strategic system prompt). If Groq throttles us back down, the
+    // fallback chain catches it and degrades to Llama-70B/8B.
+    "moonshotai/kimi-k2-instruct": 30000,
     "llama-3.3-70b-versatile": 12000,
     "llama-3.1-8b-instant": 6000,
   };
@@ -1013,10 +1408,21 @@ NO TEXT IN THE IMAGE — same rule as the baseline contract. Do NOT put the asse
             ...(lastUserMsg ? [lastUserMsg] : []),
           ];
 
-          // Output budget — bumped so detailed multi-section answers actually fit.
-          // Tuned uses llama-4-scout (30K TPM bucket) so it can afford 2048.
-          // Apex/Core/Pulse use llama-3.3-70b / 8B which can produce 4K-token answers cleanly.
-          const maxTokensForModel = isTuned ? 2048 : 4096;
+          // Output budget — raised to Groq's actual per-request ceiling so
+          // long-form strategic answers (GTM plans, multi-section docs) aren't
+          // truncated mid-thought. Both llama-3.3-70b and llama-4-scout-17b
+          // accept up to 8192 completion tokens per Groq's published limits.
+          //
+          // Strategic-plan path uses 6144 instead of 8192 — Llama-70B's free
+          // TPM is 12K, so reserving 8K output leaves only ~3K input which
+          // can't hold persona + 12 brand chunks. 6K output (~4500 words)
+          // leaves ~5K input tokens (~15K chars) — enough for the strategic
+          // system prompt + brand identity + voice profile + 12 brand chunks
+          // to all fit without aggressive trimming.
+          //
+          // Slim-retry path still caps lower (see reservedOutput below) as a
+          // safety net when TPM headroom is tight.
+          const maxTokensForModel = isStrategicPlan ? 6144 : 8192;
 
           let succeeded = false;
           let lastError: Error | null = null;
@@ -1039,7 +1445,10 @@ NO TEXT IN THE IMAGE — same rule as the baseline contract. Do NOT put the asse
                   model: modelName,
                   messages: messagesToUse,
                   stream: true,
-                  temperature: 0.7,
+                  // 0.5 over 0.7 — at the 8K-token cap, slightly tighter
+                  // sampling holds coherence across 6K-word answers
+                  // (cross-section references, table consistency).
+                  temperature: 0.5,
                   max_tokens: reservedOutput,
                 });
 
@@ -1063,13 +1472,26 @@ NO TEXT IN THE IMAGE — same rule as the baseline contract. Do NOT put the asse
                   lower.includes("context_length_exceeded") ||
                   lower.includes("maximum context") ||
                   lower.includes("tokens per minute");
+                // Model deprecated, gated to a paid tier, or otherwise gone
+                // from our access. Skip to the next model in the chain
+                // instead of surfacing a "404 model does not exist" error
+                // to the user. Groq does silently retire model paths and
+                // we got bitten by this when moonshotai/kimi-k2-instruct
+                // disappeared.
+                const isModelGone =
+                  msg.includes("404") ||
+                  lower.includes("does not exist") ||
+                  lower.includes("do not have access") ||
+                  lower.includes("model_not_found") ||
+                  lower.includes("not found");
 
                 if (isTooLarge && attempt === "full") {
                   // Try slim on the same model before moving to the next one
                   continue;
                 }
-                if (isTooLarge || isRateLimit) {
-                  // Slim already failed OR pure rate-limit — move to next model in chain
+                if (isTooLarge || isRateLimit || isModelGone) {
+                  // Slim already failed, rate-limit, or model is gone —
+                  // move to next model in chain
                   break;
                 }
                 // Some other error (auth, 500, bad request) — surface immediately
