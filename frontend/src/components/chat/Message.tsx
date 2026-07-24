@@ -5,7 +5,6 @@ import { Message as MessageType, ResearchTrace, useChatStore } from "@/lib/chat-
 import { getModel } from "@/lib/models";
 import { submitFeedback, streamChat } from "@/lib/stream-chat";
 import { downloadAs, FORMAT_LABELS, type ExportFormat } from "@/lib/export";
-import Image from "next/image";
 import { Copy, ThumbsUp, ThumbsDown, RotateCcw, Check, Download, Pencil, ChevronDown, Loader2, Globe, BookOpen, Database, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Markdown from "./Markdown";
@@ -261,14 +260,7 @@ export default function Message({ message }: { message: MessageType }) {
           boxShadow: "var(--reverb-shadow-sm)",
         }}
       >
-        <Image
-          src="/reverb-logo.png"
-          alt="Reverb"
-          width={64}
-          height={20}
-          priority
-          className="w-full h-auto object-contain"
-        />
+        <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-xs">Reverb</span>
       </div>
 
       <div className="flex-1 min-w-0 pt-1">

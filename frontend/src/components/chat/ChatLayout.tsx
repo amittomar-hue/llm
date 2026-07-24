@@ -12,7 +12,6 @@ import OnboardingTour from "./OnboardingTour";
 import PreviewDrawer from "./PreviewDrawer";
 import AgentSwitcher from "./AgentSwitcher";
 import { getModel } from "@/lib/models";
-import Image from "next/image";
 import {
   Share2, MoreHorizontal, Menu,
   Copy, Download, Check, Pencil, Trash2, HelpCircle,
@@ -237,7 +236,7 @@ export default function ChatLayout() {
             </button>
             <div className="flex items-center gap-2 min-w-0">
               <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-white border border-[var(--reverb-border-soft)] p-0.5 shrink-0">
-                <Image src="/reverb-logo.png" alt="Reverb" width={40} height={12} className="w-full h-auto object-contain" />
+                <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
               </span>
               {renaming && conv ? (
                 <input

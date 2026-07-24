@@ -9,7 +9,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft, Plus, Pencil, Trash2, Star, BookOpen, Check, X as XIcon, Sparkles, ChevronDown, RefreshCw } from "lucide-react";
 import { useAgentStore } from "@/lib/agent-store";
 import { cn } from "@/lib/utils";
@@ -145,7 +144,7 @@ export default function AgentsPage() {
           <Link href="/chat" className="flex items-center gap-2 text-[12.5px] sm:text-[13px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]">
             <ArrowLeft size={13} /> Back to chat
           </Link>
-          <Image src="/reverb-logo.png" alt="Reverb" width={110} height={30} className="h-6 sm:h-7 w-auto" />
+          <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
           <div className="flex items-center gap-3 shrink-0">
             <Link href="/settings/api-keys" className="hidden sm:inline text-[12.5px] sm:text-[13px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]">
               API keys →

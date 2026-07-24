@@ -3,7 +3,6 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { Loader2, Mail, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
 
@@ -128,7 +127,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
       <div className="relative w-full max-w-md reverb-fade-in">
         <div className="flex justify-center mb-7">
           <div className="relative">
-            <Image src="/reverb-logo.png" alt="Reverb" width={180} height={56} priority className="h-12 w-auto" />
+            <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
           </div>
         </div>
 

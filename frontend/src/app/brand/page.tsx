@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft, Upload, FileText, Trash2, Loader2, BookOpen, AlertCircle, CheckCircle2, Wand2, Check, ChevronDown, Plus } from "lucide-react";
 import { DOC_TYPES, classifyDocType } from "@/lib/brand";
 import { useAgentStore, type BrandAgent as BrandAgentType } from "@/lib/agent-store";
@@ -277,7 +276,7 @@ export default function BrandPage() {
               <span className="hidden sm:inline">Back to chat</span>
             </Link>
             <span className="h-4 w-px bg-[var(--reverb-border-soft)] hidden sm:block" />
-            <Image src="/reverb-logo.png" alt="Reverb" width={100} height={32} className="h-6 sm:h-7 w-auto" />
+            <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
             <span className="text-[10px] font-bold tracking-[0.12em] text-[var(--reverb-accent)] uppercase px-1.5 sm:px-2 py-0.5 rounded-md shrink-0" style={{ background: "rgba(193,74,42,0.1)" }}>
               Brand
             </span>

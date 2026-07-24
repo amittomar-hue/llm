@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft, MessageSquare, ThumbsUp, ThumbsDown, Users, RefreshCw, Globe, ChevronRight, Search, Radar, ExternalLink, Clock, Brain, Zap, Activity, Shield, ShieldAlert, ShieldCheck, EyeOff, AlertTriangle, FileText, User as UserIcon, Mail, KeyRound, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -378,7 +377,7 @@ export default function AdminPage() {
               <span className="hidden sm:inline">Back to chat</span>
             </Link>
             <span className="h-4 w-px bg-[var(--reverb-border-soft)] hidden sm:block" />
-            <Image src="/reverb-logo.png" alt="Reverb" width={100} height={32} className="h-6 sm:h-7 w-auto" />
+            <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
             <span className="text-[9.5px] sm:text-[10px] font-bold tracking-[0.12em] text-[var(--reverb-accent)] uppercase px-1.5 sm:px-2 py-0.5 rounded-md shrink-0" style={{ background: "rgba(193,74,42,0.1)" }}>
               Admin
             </span>

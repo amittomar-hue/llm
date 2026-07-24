@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import {
   Sparkles, Globe, Paperclip, Hammer, ThumbsUp, ThumbsDown, Radar,
   Shield, ArrowRight, ArrowLeft, X, CheckCircle2, BookOpen, FileText,
@@ -468,7 +467,7 @@ export default function OnboardingTour() {
         <div className="relative p-5 sm:p-7 pb-5 overflow-y-auto reverb-scroll flex-1 min-h-0">
           {/* Logo + step counter */}
           <div className="flex items-center justify-between mb-5">
-            <Image src="/reverb-logo.png" alt="Reverb" width={90} height={28} className="h-6 w-auto" />
+            <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
             <span className="text-[11px] font-semibold text-[var(--reverb-text-tertiary)] tracking-wide">
               Step {step + 1} of {STEPS.length}
             </span>
@@ -482,7 +481,7 @@ export default function OnboardingTour() {
             >
               {step === 0 ? (
                 <span className="absolute inset-1.5 rounded-xl bg-white flex items-center justify-center p-1">
-                  <Image src="/reverb-logo.png" alt="Reverb" width={72} height={20} className="w-full h-auto object-contain" />
+                  <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
                 </span>
               ) : (
                 <current.icon size={20} className="text-white" strokeWidth={2.2} />

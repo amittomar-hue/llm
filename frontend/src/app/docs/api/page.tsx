@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft, ArrowRight, Key } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -16,7 +15,7 @@ export default function ApiDocsPage() {
       <nav className="sticky top-0 z-30 border-b border-[var(--reverb-border-soft)] backdrop-blur-xl bg-white/70">
         <div className="max-w-4xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
           <Link href="/" className="flex items-center gap-2 min-w-0">
-            <Image src="/reverb-logo.png" alt="Reverb" width={130} height={36} priority className="h-7 sm:h-8 w-auto" />
+            <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
           </Link>
           <div className="flex items-center gap-3 shrink-0">
             <Link href="/" className="text-[12.5px] sm:text-[13px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)] flex items-center gap-1">

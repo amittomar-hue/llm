@@ -9,7 +9,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowLeft, Key, Plus, Trash2, Copy, Check, AlertTriangle, Loader2, ExternalLink, ShieldCheck,
 } from "lucide-react";
@@ -113,7 +112,7 @@ export default function ApiKeysPage() {
           <Link href="/chat" className="flex items-center gap-2 text-[12.5px] sm:text-[13px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]">
             <ArrowLeft size={13} /> Back to chat
           </Link>
-          <Image src="/reverb-logo.png" alt="Reverb" width={110} height={30} className="h-6 sm:h-7 w-auto" />
+          <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
           <div className="flex items-center gap-4">
             <Link href="/settings/integrations" className="text-[12.5px] sm:text-[13px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]">
               Integrations

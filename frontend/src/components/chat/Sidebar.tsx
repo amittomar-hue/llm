@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useChatStore, Conversation } from "@/lib/chat-store";
@@ -116,7 +115,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         {/* Logo + new chat */}
         <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2.5">
-            <Image src="/reverb-logo.png" alt="Reverb" width={120} height={36} priority className="h-8 w-auto" />
+            <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
           </div>
           <div className="flex items-center gap-1">
             <button onClick={handleNew}

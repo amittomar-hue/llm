@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import { useChatStore } from "@/lib/chat-store";
 import { MODELS, getModel } from "@/lib/models";
 import { Check, ChevronDown, Zap } from "lucide-react";
@@ -34,7 +33,7 @@ export default function ModelSelector() {
         title={current.name}
       >
         <span className="inline-flex items-center justify-center w-4 h-4 rounded bg-white border border-[var(--reverb-border-soft)] p-0.5 shrink-0">
-          <Image src="/reverb-logo.png" alt="Reverb" width={32} height={10} className="w-full h-auto object-contain" />
+          <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
         </span>
         <span className="font-semibold tracking-tight hidden min-[420px]:inline">{current.name}</span>
         <ChevronDown
@@ -98,7 +97,7 @@ export default function ModelSelector() {
                     )}
                     style={{ boxShadow: "var(--reverb-shadow-xs)", border: "1px solid var(--reverb-border-soft)" }}
                   >
-                    <Image src="/reverb-logo.png" alt="Reverb" width={48} height={16} className="w-full h-auto object-contain" />
+                    <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">

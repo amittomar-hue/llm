@@ -18,7 +18,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { Loader2, Lock, AlertCircle } from "lucide-react";
 
@@ -113,7 +112,7 @@ function ResetPasswordForm() {
         style={{ background: "radial-gradient(ellipse at top, rgba(193,74,42,0.12) 0%, transparent 70%)" }} />
       <div className="relative w-full max-w-md reverb-fade-in">
         <div className="flex justify-center mb-7">
-          <Image src="/reverb-logo.png" alt="Reverb" width={180} height={56} priority className="h-12 w-auto" />
+          <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
         </div>
 
         <div className="p-6 sm:p-8 rounded-2xl" style={{ background: "var(--reverb-gradient-card)", border: "1px solid var(--reverb-border-soft)", boxShadow: "var(--reverb-shadow-xl)" }}>
