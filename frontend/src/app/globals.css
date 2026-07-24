@@ -362,7 +362,7 @@ h1, h2, h3, h4, h5, h6 {
   display: none;
 }
 
-/* Long-form prose styles for /resources/[slug] reader pages */
+/* Long-form prose styles used by /privacy, /terms, and /docs/api reader pages */
 .resource-prose {
   color: var(--dmoop-text-primary);
   font-size: 16px;
