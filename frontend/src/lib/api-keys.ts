@@ -1,8 +1,8 @@
 // ─────────────────────────────────────────────────────────────────
 // API key helpers — generation, hashing, and Bearer-token
-// verification for DMOOP's public /api/v1/* surface.
+// verification for Reverb's public /api/v1/* surface.
 //
-// Format: `dmoop_live_<40-char base64url secret>`
+// Format: `reverb_live_<40-char base64url secret>`
 //   • ~30 bytes of crypto randomness → 40 char URL-safe encoding
 //   • "live" prefix reserved for future "test" mode if we ever add it
 //   • Hashed with SHA-256 before persistence (irreversible)
@@ -15,7 +15,7 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { getSupabase } from "./supabase";
 
-const KEY_PREFIX = "dmoop_live_";
+const KEY_PREFIX = "reverb_live_";
 const PLAINTEXT_LENGTH = KEY_PREFIX.length + 40; // 11 + 40 = 51 chars
 
 export interface GeneratedApiKey {
@@ -36,7 +36,7 @@ export function generateApiKey(): GeneratedApiKey {
   const secret = randomBytes(30).toString("base64url");
   const plaintext = `${KEY_PREFIX}${secret}`;
   const hash = sha256(plaintext);
-  const prefix = plaintext.slice(0, 20); // "dmoop_live_" + 9 secret chars
+  const prefix = plaintext.slice(0, 20); // "reverb_live_" + 9 secret chars
   return { plaintext, hash, prefix };
 }
 

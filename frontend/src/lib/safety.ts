@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { getSupabase } from "./supabase";
 
 // ─────────────────────────────────────────────────────────────────
-// Responsible-AI guardrails for DMOOP. Three layers:
+// Responsible-AI guardrails for Reverb. Three layers:
 //   1. moderateText() — Llama Guard 4 on Groq (free, ~80ms). Classifies
 //      content under MLCommons hazard taxonomy S1..S14. Used on both
 //      user input AND assistant output.
@@ -57,7 +57,7 @@ export const HAZARD_LABELS: Record<string, string> = {
   S14: "Code interpreter abuse",
 };
 
-// Categories DMOOP will not block on (low salience for a marketing tool).
+// Categories Reverb will not block on (low salience for a marketing tool).
 // Everything else is blocked when Llama Guard flags it.
 const ALLOWLIST: ReadonlySet<string> = new Set([
   "S13", // election content is allowed — marketers may discuss it
@@ -276,15 +276,15 @@ export async function logSafetyIncident(args: {
 export function refusalForUnsafeInput(categories: string[]): string {
   const labels = categories.map((c) => HAZARD_LABELS[c] ?? c).filter(Boolean);
   const detail = labels.length > 0 ? ` (${labels.join(", ")})` : "";
-  return `⚠️ **DMOOP can't help with this request${detail}.**\n\nThe message was flagged by the safety layer (Llama Guard 4) because it falls under content categories DMOOP doesn't generate. Try rephrasing your marketing question, or [contact support](mailto:support@dmoop.com) if you think this was caught in error.`;
+  return `⚠️ **Reverb can't help with this request${detail}.**\n\nThe message was flagged by the safety layer (Llama Guard 4) because it falls under content categories Reverb doesn't generate. Try rephrasing your marketing question, or [contact support](mailto:support@reverb.com) if you think this was caught in error.`;
 }
 
 export function refusalForUnsafeOutput(categories: string[]): string {
   const labels = categories.map((c) => HAZARD_LABELS[c] ?? c).filter(Boolean);
   const detail = labels.length > 0 ? ` (${labels.join(", ")})` : "";
-  return `⚠️ **DMOOP suppressed this response${detail}.**\n\nThe generated answer was flagged by the safety layer. This sometimes happens when retrieved context contains content that would be unsafe to repeat. Try rephrasing your question with more specificity.`;
+  return `⚠️ **Reverb suppressed this response${detail}.**\n\nThe generated answer was flagged by the safety layer. This sometimes happens when retrieved context contains content that would be unsafe to repeat. Try rephrasing your question with more specificity.`;
 }
 
 export function refusalForInjection(patterns: string[]): string {
-  return `⚠️ **DMOOP detected a prompt-injection attempt.**\n\nPatterns flagged: \`${patterns.join("`, `")}\`.\n\nDMOOP's brand documents, training pairs, and system rules are protected. Please send a real marketing question instead.`;
+  return `⚠️ **Reverb detected a prompt-injection attempt.**\n\nPatterns flagged: \`${patterns.join("`, `")}\`.\n\nReverb's brand documents, training pairs, and system rules are protected. Please send a real marketing question instead.`;
 }

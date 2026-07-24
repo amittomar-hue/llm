@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────
 // CRM OAuth token encryption at rest.
 //
-// OAuth access + refresh tokens grant DMOOP the ability to read a
+// OAuth access + refresh tokens grant Reverb the ability to read a
 // user's HubSpot/Salesforce/etc. data. A DB leak that also leaks
 // these tokens = attacker gets read access to every connected CRM.
 // So we encrypt symmetrically at rest with AES-256-GCM.

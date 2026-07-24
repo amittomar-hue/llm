@@ -59,7 +59,7 @@ export function getLanguage(code: string): Language {
  *  zh-CN), then falls back to the base language tag (covers en-US → "en",
  *  es-MX → "es", hi-IN → "hi", fr-CA → "fr"). Returns "auto" when no match
  *  found so the LANGUAGE CONTRACT's auto-match behavior still applies for
- *  users whose browser is in a language DMOOP doesn't support yet. */
+ *  users whose browser is in a language Reverb doesn't support yet. */
 export function detectBrowserLanguage(navigatorLang: string | undefined): string {
   if (!navigatorLang) return "auto";
   // 1. Exact BCP-47 match (pt-BR, zh-CN currently)

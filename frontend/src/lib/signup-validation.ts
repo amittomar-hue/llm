@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────
-// Server-side signup heuristics. Every bot that hit DMOOP between
+// Server-side signup heuristics. Every bot that hit Reverb between
 // 2026-06-17 and 2026-06-22 followed the same pattern:
 //   • full_name = random 15-25 char mixed-case alphanumeric (e.g.
 //     "eYCnJIuTPOvPSKTBUVZU") — no human types that as their name

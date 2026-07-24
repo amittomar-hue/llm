@@ -260,17 +260,17 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
         className={cn(
           "flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg text-[13px] transition-all duration-150 active:scale-95 max-w-[180px] shrink-0 whitespace-nowrap",
           open
-            ? "bg-[#f5f1ea] text-[var(--dmoop-text-primary)]"
+            ? "bg-[#f5f1ea] text-[var(--reverb-text-primary)]"
             : hasDocs
-            ? "text-[var(--dmoop-accent)] hover:bg-[#fbf3ee]"
-            : "text-[var(--dmoop-text-secondary)] hover:bg-[#f5f1ea] hover:text-[var(--dmoop-text-primary)]"
+            ? "text-[var(--reverb-accent)] hover:bg-[#fbf3ee]"
+            : "text-[var(--reverb-text-secondary)] hover:bg-[#f5f1ea] hover:text-[var(--reverb-text-primary)]"
         )}
         title={`${agentName} — generate assets in your brand voice`}
       >
         <BookOpen size={13} strokeWidth={2} />
         <span className="font-medium hidden sm:inline truncate">{agentName}</span>
         {hasDocs && (
-          <span className="hidden sm:inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-md bg-[var(--dmoop-accent)] text-white text-[9.5px] font-bold shrink-0">
+          <span className="hidden sm:inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-md bg-[var(--reverb-accent)] text-white text-[9.5px] font-bold shrink-0">
             {docs?.length}
           </span>
         )}
@@ -280,21 +280,21 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
       {open && (
         <>
           {/* Mobile backdrop */}
-          <div className="sm:hidden fixed inset-0 bg-black/30 z-40 dmoop-fade-in" onClick={() => setOpen(false)} />
+          <div className="sm:hidden fixed inset-0 bg-black/30 z-40 reverb-fade-in" onClick={() => setOpen(false)} />
         <div
           className={cn(
-            "rounded-2xl overflow-hidden z-50 dmoop-scale-in",
-            "fixed left-3 right-3 bottom-[110px] max-h-[70vh] overflow-y-auto dmoop-scroll",
+            "rounded-2xl overflow-hidden z-50 reverb-scale-in",
+            "fixed left-3 right-3 bottom-[110px] max-h-[70vh] overflow-y-auto reverb-scroll",
             "sm:absolute sm:inset-auto sm:bottom-full sm:left-0 sm:mb-2 sm:w-[340px] sm:max-h-none sm:overflow-visible"
           )}
           style={{
-            background: "var(--dmoop-gradient-card)",
-            border: "1px solid var(--dmoop-border-soft)",
-            boxShadow: "var(--dmoop-shadow-xl)",
+            background: "var(--reverb-gradient-card)",
+            border: "1px solid var(--reverb-border-soft)",
+            boxShadow: "var(--reverb-shadow-xl)",
           }}
         >
           {/* Header */}
-          <div className="px-4 pt-3.5 pb-3 border-b border-[var(--dmoop-border-soft)]">
+          <div className="px-4 pt-3.5 pb-3 border-b border-[var(--reverb-border-soft)]">
             <div className="flex items-center gap-2 mb-1">
               {effective ? (
                 <span
@@ -302,9 +302,9 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
                   style={{ background: effective.color }}
                 />
               ) : (
-                <Wand2 size={12} className="text-[var(--dmoop-accent)] shrink-0" />
+                <Wand2 size={12} className="text-[var(--reverb-accent)] shrink-0" />
               )}
-              <p className="text-[11.5px] font-bold tracking-tight text-[var(--dmoop-text-primary)] truncate">
+              <p className="text-[11.5px] font-bold tracking-tight text-[var(--reverb-text-primary)] truncate">
                 {agentName}
               </p>
               {hasDocs && (
@@ -313,7 +313,7 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
                 </span>
               )}
             </div>
-            <p className="text-[11.5px] text-[var(--dmoop-text-secondary)] leading-relaxed">
+            <p className="text-[11.5px] text-[var(--reverb-text-secondary)] leading-relaxed">
               Generate assets grounded in your uploaded brand documents.
             </p>
           </div>
@@ -322,21 +322,21 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
               this dropdown. Single-agent users still see "+ New brand"
               so they can spin up a second one in two clicks. */}
           {(agents.length > 0 || creating) && (
-            <div className="border-b border-[var(--dmoop-border-soft)] py-1.5 bg-[#fbf8f4]">
+            <div className="border-b border-[var(--reverb-border-soft)] py-1.5 bg-[#fbf8f4]">
               <div className="flex items-center justify-between px-4 pt-1 pb-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)]">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--reverb-text-tertiary)]">
                   Brand agents {agents.length > 0 && `· ${agents.length}`}
                 </p>
                 <Link
                   href="/agents"
                   onClick={() => setOpen(false)}
-                  className="text-[10px] font-semibold text-[var(--dmoop-accent)] hover:underline"
+                  className="text-[10px] font-semibold text-[var(--reverb-accent)] hover:underline"
                 >
                   Manage
                 </Link>
               </div>
 
-              <div className="max-h-[160px] overflow-y-auto dmoop-scroll">
+              <div className="max-h-[160px] overflow-y-auto reverb-scroll">
                 {agents.map((a) => {
                   const active = effectiveAgentId === a.id;
                   return (
@@ -353,19 +353,19 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
                         style={{ background: a.color }}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-[12px] font-medium text-[var(--dmoop-text-primary)] truncate">
+                        <p className="text-[12px] font-medium text-[var(--reverb-text-primary)] truncate">
                           {a.name}
                           {a.is_default && (
-                            <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wider text-[var(--dmoop-accent)]">
+                            <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wider text-[var(--reverb-accent)]">
                               default
                             </span>
                           )}
                         </p>
                       </div>
-                      <span className="text-[10px] text-[var(--dmoop-text-tertiary)] shrink-0">
+                      <span className="text-[10px] text-[var(--reverb-text-tertiary)] shrink-0">
                         {a.doc_count} doc{a.doc_count === 1 ? "" : "s"}
                       </span>
-                      {active && <Check size={11} className="text-[var(--dmoop-accent)] shrink-0" />}
+                      {active && <Check size={11} className="text-[var(--reverb-accent)] shrink-0" />}
                     </button>
                   );
                 })}
@@ -384,12 +384,12 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
                       if (e.key === "Escape") { setCreating(false); setNewName(""); }
                     }}
                     placeholder="e.g. Acme Co"
-                    className="flex-1 text-[12px] font-medium bg-white border border-[var(--dmoop-accent)] rounded-md px-2 py-1 focus:outline-none"
+                    className="flex-1 text-[12px] font-medium bg-white border border-[var(--reverb-accent)] rounded-md px-2 py-1 focus:outline-none"
                   />
                   <button
                     onClick={() => void createAgent()}
                     disabled={busy || !newName.trim()}
-                    className="px-2.5 py-1 rounded-md text-[11.5px] font-semibold dmoop-btn-primary disabled:opacity-50"
+                    className="px-2.5 py-1 rounded-md text-[11.5px] font-semibold reverb-btn-primary disabled:opacity-50"
                   >
                     Add
                   </button>
@@ -397,7 +397,7 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
               ) : (
                 <button
                   onClick={() => setCreating(true)}
-                  className="w-full flex items-center gap-2 px-3.5 py-1.5 text-[12px] font-medium text-[var(--dmoop-accent)] hover:bg-[#faf6ef] transition-colors"
+                  className="w-full flex items-center gap-2 px-3.5 py-1.5 text-[12px] font-medium text-[var(--reverb-accent)] hover:bg-[#faf6ef] transition-colors"
                 >
                   <Plus size={11} strokeWidth={2.5} /> New brand
                 </button>
@@ -418,7 +418,7 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
                   <Link
                     href="/brand"
                     onClick={() => setOpen(false)}
-                    className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[var(--dmoop-accent)] hover:text-[var(--dmoop-accent-rich)]"
+                    className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[var(--reverb-accent)] hover:text-[var(--reverb-accent-rich)]"
                   >
                     <Upload size={11} /> Upload your first document
                   </Link>
@@ -429,30 +429,30 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
 
           {/* Loading */}
           {docs === null && (
-            <div className="px-4 py-6 text-center text-[12px] text-[var(--dmoop-text-tertiary)]">
+            <div className="px-4 py-6 text-center text-[12px] text-[var(--reverb-text-tertiary)]">
               Loading your brand library…
             </div>
           )}
 
           {/* Asset list */}
           {hasDocs && (
-            <div className="max-h-[400px] overflow-y-auto dmoop-scroll py-1.5">
+            <div className="max-h-[400px] overflow-y-auto reverb-scroll py-1.5">
               {ASSETS.map((a, i) => (
                 <button
                   key={a.label}
                   onClick={() => pick(a)}
                   style={{ animationDelay: `${i * 30}ms` }}
-                  className="w-full px-3.5 py-2.5 hover:bg-[#faf6ef] transition-colors flex items-start gap-2.5 text-left dmoop-stagger-in"
+                  className="w-full px-3.5 py-2.5 hover:bg-[#faf6ef] transition-colors flex items-start gap-2.5 text-left reverb-stagger-in"
                 >
                   <div className={cn("w-8 h-8 shrink-0 rounded-lg flex items-center justify-center", a.bg)}
-                    style={{ boxShadow: "var(--dmoop-shadow-xs)" }}>
+                    style={{ boxShadow: "var(--reverb-shadow-xs)" }}>
                     <a.icon size={14} className={a.color} strokeWidth={2.2} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[12.5px] font-semibold text-[var(--dmoop-text-primary)] tracking-tight leading-snug">
+                    <p className="text-[12.5px] font-semibold text-[var(--reverb-text-primary)] tracking-tight leading-snug">
                       {a.label}
                     </p>
-                    <p className="text-[11px] text-[var(--dmoop-text-secondary)] leading-relaxed mt-0.5">{a.desc}</p>
+                    <p className="text-[11px] text-[var(--reverb-text-secondary)] leading-relaxed mt-0.5">{a.desc}</p>
                   </div>
                 </button>
               ))}
@@ -461,11 +461,11 @@ export default function BrandAgent({ onInsert }: { onInsert: (prompt: string) =>
 
           {/* Footer */}
           {hasDocs && (
-            <div className="px-4 py-2.5 border-t border-[var(--dmoop-border-soft)] bg-[#fbf8f4]">
+            <div className="px-4 py-2.5 border-t border-[var(--reverb-border-soft)] bg-[#fbf8f4]">
               <Link
                 href="/brand"
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-between gap-2 text-[11.5px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-accent)] transition-colors"
+                className="flex items-center justify-between gap-2 text-[11.5px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-accent)] transition-colors"
               >
                 <span>Manage brand library</span>
                 <Upload size={11} />

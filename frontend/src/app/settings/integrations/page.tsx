@@ -102,7 +102,7 @@ function friendlyStatus(
 
 export default function IntegrationsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen" style={{ background: "var(--dmoop-bg-app)" }} />}>
+    <Suspense fallback={<div className="min-h-screen" style={{ background: "var(--reverb-bg-app)" }} />}>
       <IntegrationsPageInner />
     </Suspense>
   );
@@ -156,7 +156,7 @@ function IntegrationsPageInner() {
   useEffect(() => { void load(); }, [load]);
 
   const disconnect = async (provider: string) => {
-    if (!confirm(`Disconnect ${provider}? DMOOP will stop pulling CRM context from this provider immediately.`)) return;
+    if (!confirm(`Disconnect ${provider}? Reverb will stop pulling CRM context from this provider immediately.`)) return;
     setBusyProvider(provider);
     try {
       const res = await fetch(`/api/settings/integrations?provider=${provider}`, { method: "DELETE" });
@@ -187,14 +187,14 @@ function IntegrationsPageInner() {
   const findConn = (id: string) => connections?.find((c) => c.provider === id);
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--dmoop-bg-app)" }}>
-      <nav className="sticky top-0 z-30 border-b border-[var(--dmoop-border-soft)] backdrop-blur-xl bg-white/70">
+    <div className="min-h-screen" style={{ background: "var(--reverb-bg-app)" }}>
+      <nav className="sticky top-0 z-30 border-b border-[var(--reverb-border-soft)] backdrop-blur-xl bg-white/70">
         <div className="max-w-4xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
-          <Link href="/chat" className="flex items-center gap-2 text-[12.5px] sm:text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)]">
+          <Link href="/chat" className="flex items-center gap-2 text-[12.5px] sm:text-[13px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]">
             <ArrowLeft size={13} /> Back to chat
           </Link>
-          <Image src="/dmoop-logo.png" alt="DMOOP" width={110} height={30} className="h-6 sm:h-7 w-auto" />
-          <Link href="/settings/api-keys" className="text-[12.5px] sm:text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)]">
+          <Image src="/reverb-logo.png" alt="Reverb" width={110} height={30} className="h-6 sm:h-7 w-auto" />
+          <Link href="/settings/api-keys" className="text-[12.5px] sm:text-[13px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]">
             API keys
           </Link>
         </div>
@@ -203,18 +203,18 @@ function IntegrationsPageInner() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <div className="flex items-start gap-3 mb-6 sm:mb-8">
           <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: "var(--dmoop-gradient-accent)", boxShadow: "var(--dmoop-shadow-accent)" }}>
+            style={{ background: "var(--reverb-gradient-accent)", boxShadow: "var(--reverb-shadow-accent)" }}>
             <Plug size={18} className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10.5px] sm:text-[11px] font-bold tracking-[0.14em] text-[var(--dmoop-accent)] uppercase mb-1">
+            <p className="text-[10.5px] sm:text-[11px] font-bold tracking-[0.14em] text-[var(--reverb-accent)] uppercase mb-1">
               Settings
             </p>
-            <h1 className="text-[24px] sm:text-[30px] font-semibold tracking-tight text-[var(--dmoop-text-primary)] leading-tight mb-1">
+            <h1 className="text-[24px] sm:text-[30px] font-semibold tracking-tight text-[var(--reverb-text-primary)] leading-tight mb-1">
               Integrations
             </h1>
-            <p className="text-[13px] sm:text-[14px] text-[var(--dmoop-text-secondary)]">
-              Connect DMOOP to your CRM so generated emails and messages are grounded in real contact history, deal stage, and company context.
+            <p className="text-[13px] sm:text-[14px] text-[var(--reverb-text-secondary)]">
+              Connect Reverb to your CRM so generated emails and messages are grounded in real contact history, deal stage, and company context.
             </p>
           </div>
         </div>
@@ -290,8 +290,8 @@ CREATE POLICY crm_connections_owner_delete ON public.crm_connections
 
         <div className="space-y-3 mb-6">
           {loading && !connections && (
-            <div className="rounded-2xl border border-[var(--dmoop-border-soft)] bg-white/60 px-4 py-6 text-center">
-              <Loader2 size={16} className="animate-spin mx-auto text-[var(--dmoop-text-tertiary)]" />
+            <div className="rounded-2xl border border-[var(--reverb-border-soft)] bg-white/60 px-4 py-6 text-center">
+              <Loader2 size={16} className="animate-spin mx-auto text-[var(--reverb-text-tertiary)]" />
             </div>
           )}
 
@@ -300,7 +300,7 @@ CREATE POLICY crm_connections_owner_delete ON public.crm_connections
             const isConnected = Boolean(conn);
             return (
               <div key={p.id} className="rounded-2xl overflow-hidden"
-                style={{ background: "var(--dmoop-gradient-card)", border: "1px solid var(--dmoop-border-soft)", boxShadow: "var(--dmoop-shadow-md)" }}>
+                style={{ background: "var(--reverb-gradient-card)", border: "1px solid var(--reverb-border-soft)", boxShadow: "var(--reverb-shadow-md)" }}>
                 <div className="px-4 sm:px-5 py-4 flex items-start gap-4">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white font-bold text-[15px]"
                     style={{ background: p.brand_color }}>
@@ -308,21 +308,21 @@ CREATE POLICY crm_connections_owner_delete ON public.crm_connections
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <p className="text-[14.5px] font-semibold text-[var(--dmoop-text-primary)]">{p.name}</p>
+                      <p className="text-[14.5px] font-semibold text-[var(--reverb-text-primary)]">{p.name}</p>
                       {isConnected && (
                         <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded">
                           <Check size={9} strokeWidth={3} /> Connected
                         </span>
                       )}
                       {!p.enabled && (
-                        <span className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)] bg-[#f2ede4] px-1.5 py-0.5 rounded">
+                        <span className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--reverb-text-tertiary)] bg-[#f2ede4] px-1.5 py-0.5 rounded">
                           Coming soon
                         </span>
                       )}
                     </div>
-                    <p className="text-[12.5px] text-[var(--dmoop-text-secondary)] leading-snug">{p.tagline}</p>
+                    <p className="text-[12.5px] text-[var(--reverb-text-secondary)] leading-snug">{p.tagline}</p>
                     {isConnected && conn && (
-                      <p className="text-[11px] text-[var(--dmoop-text-tertiary)] mt-1.5">
+                      <p className="text-[11px] text-[var(--reverb-text-tertiary)] mt-1.5">
                         Connected {fmt(conn.connected_at)}
                         {conn.portal_id ? `  ·  Portal ${conn.portal_id}` : ""}
                         {"  ·  "}Scopes: {conn.scopes.length}
@@ -342,14 +342,14 @@ CREATE POLICY crm_connections_owner_delete ON public.crm_connections
                     ) : p.enabled ? (
                       <a
                         href={p.connect_href}
-                        className="h-9 px-4 rounded-lg dmoop-btn-primary text-[12.5px] font-semibold inline-flex items-center gap-1.5"
+                        className="h-9 px-4 rounded-lg reverb-btn-primary text-[12.5px] font-semibold inline-flex items-center gap-1.5"
                       >
                         Connect
                       </a>
                     ) : (
                       <button
                         disabled
-                        className="h-9 px-4 rounded-lg text-[12.5px] font-semibold bg-[#f2ede4] text-[var(--dmoop-text-tertiary)] cursor-not-allowed"
+                        className="h-9 px-4 rounded-lg text-[12.5px] font-semibold bg-[#f2ede4] text-[var(--reverb-text-tertiary)] cursor-not-allowed"
                       >
                         Connect
                       </button>
@@ -361,13 +361,13 @@ CREATE POLICY crm_connections_owner_delete ON public.crm_connections
           })}
         </div>
 
-        <div className="rounded-2xl p-4 sm:p-5 bg-[#fbf8f4] border border-[var(--dmoop-border-soft)]">
+        <div className="rounded-2xl p-4 sm:p-5 bg-[#fbf8f4] border border-[var(--reverb-border-soft)]">
           <div className="flex items-start gap-2.5">
             <ShieldCheck size={16} className="text-emerald-700 shrink-0 mt-0.5" />
-            <div className="text-[12.5px] text-[var(--dmoop-text-secondary)] leading-relaxed">
-              <strong className="text-[var(--dmoop-text-primary)]">How CRM grounding works:</strong>{" "}
+            <div className="text-[12.5px] text-[var(--reverb-text-secondary)] leading-relaxed">
+              <strong className="text-[var(--reverb-text-primary)]">How CRM grounding works:</strong>{" "}
               When you mention a recipient by email in a prompt (e.g. <em>&quot;write a nurture email for alice@acme.com&quot;</em>),
-              DMOOP looks up that contact in your connected CRM and injects their name, role, company, deal stage, and lifecycle stage into the
+              Reverb looks up that contact in your connected CRM and injects their name, role, company, deal stage, and lifecycle stage into the
               generation context alongside your brand agent. Tokens are encrypted at rest and only ever read to service your own account.
             </div>
           </div>

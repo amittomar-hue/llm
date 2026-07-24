@@ -65,7 +65,7 @@ Rules for label voice — make them sound like a person reasoning, not a system 
 - BAD examples (do NOT use):
     "Pulling 3 recent Forrester reports on ABM tier-1 motions"  ← robotic, lists task
     "Cross-referencing your brand voice for cold-email tone"      ← machine-speak
-    "Checking the DMOOP training corpus for proven openers"       ← system-speak
+    "Checking the Reverb training corpus for proven openers"       ← system-speak
 
 Step composition:
 - 2-4 steps total. Always include exactly one brand_voice step ("Want to double-check your brand voice..." or similar) and exactly one training_pairs step ("Curious if we've written something similar..." or similar). The remaining 0-2 slots are web_search steps.

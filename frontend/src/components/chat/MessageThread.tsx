@@ -15,7 +15,7 @@ export default function MessageThread() {
   if (!conv) return null;
 
   return (
-    <div className="flex-1 overflow-y-auto dmoop-scroll relative z-10">
+    <div className="flex-1 overflow-y-auto reverb-scroll relative z-10">
       <div className="max-w-3xl mx-auto px-3 sm:px-4 py-5 sm:py-8 flex flex-col gap-5 sm:gap-7">
         {conv.messages.map((m) => (
           <div key={m.id} className="group">

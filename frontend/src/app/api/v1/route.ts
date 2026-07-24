@@ -27,18 +27,18 @@ export async function OPTIONS() {
 export async function GET() {
   return NextResponse.json(
     {
-      name: "DMOOP Public API",
+      name: "Reverb Public API",
       version: "v1",
       status: "operational",
       description:
         "Bearer-authenticated REST API for generating brand-grounded marketing content. " +
         "Authenticate with keys from /settings/api-keys.",
-      documentation: "https://www.dmoop.com/docs/api",
-      key_management: "https://www.dmoop.com/settings/api-keys",
+      documentation: "https://llm-amits-projects-d3468251.vercel.app/docs/api",
+      key_management: "https://llm-amits-projects-d3468251.vercel.app/settings/api-keys",
       auth: {
         scheme: "Bearer",
-        header_format: "Authorization: Bearer dmoop_live_<40-char-secret>",
-        key_prefix: "dmoop_live_",
+        header_format: "Authorization: Bearer reverb_live_<40-char-secret>",
+        key_prefix: "reverb_live_",
       },
       endpoints: [
         {
@@ -62,8 +62,8 @@ export async function GET() {
         },
       ],
       example_curl:
-        "curl https://www.dmoop.com/api/v1/chat \\\n" +
-        '  -H "Authorization: Bearer dmoop_live_YOUR_KEY" \\\n' +
+        "curl https://llm-amits-projects-d3468251.vercel.app/api/v1/chat \\\n" +
+        '  -H "Authorization: Bearer reverb_live_YOUR_KEY" \\\n' +
         '  -H "Content-Type: application/json" \\\n' +
         "  -d '{\"prompt\":\"Write 3 LinkedIn ad headlines.\",\"agent_id\":\"YOUR_AGENT_UUID\"}'",
     },

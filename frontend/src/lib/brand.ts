@@ -244,7 +244,7 @@ export const DOC_TYPES = [
   // request fires, ALL template docs for the active agent are injected WHOLE
   // (not chunked by similarity) so the model can mimic their structure,
   // depth, and density. Upload a past 30-page execution plan, board deck
-  // outline, or campaign brief here to teach DMOOP the shape of long-form
+  // outline, or campaign brief here to teach Reverb the shape of long-form
   // output you want. Listed first so it's discoverable.
   { value: "template",         label: "Structural template (for long-form plans)" },
   { value: "brand_guidelines", label: "Brand guidelines" },

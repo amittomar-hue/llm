@@ -390,7 +390,7 @@ export const useChatStore = create<ChatState>()(
       // ─────────────────────────────────────────────────────────
       hydrateFromServer: async (userId: string) => {
         // Preserve activeId if it's the same user being re-hydrated —
-        // otherwise tabbing away from DMOOP wipes the active conversation
+        // otherwise tabbing away from Reverb wipes the active conversation
         // every time INITIAL_SESSION / TOKEN_REFRESHED fires. ChatLayout's
         // listener already guards against calling this on transient
         // events, but if some other caller does, this keeps the active
@@ -443,7 +443,7 @@ export const useChatStore = create<ChatState>()(
       },
     }),
     {
-      name: "dmoop-chat-store",
+      name: "reverb-chat-store",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         conversations: state.conversations,

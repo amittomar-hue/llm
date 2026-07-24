@@ -33,7 +33,7 @@ const RESEND_COOLDOWN_SEC = 45;
 
 export default function VerifyPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen" style={{ background: "var(--dmoop-bg-app)" }} />}>
+    <Suspense fallback={<div className="min-h-screen" style={{ background: "var(--reverb-bg-app)" }} />}>
       <VerifyInner />
     </Suspense>
   );
@@ -165,27 +165,27 @@ function VerifyInner() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--dmoop-bg-app)" }}>
+    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--reverb-bg-app)" }}>
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none opacity-50"
         style={{ background: "radial-gradient(ellipse at top, rgba(193,74,42,0.12) 0%, transparent 70%)" }}
       />
-      <div className="relative w-full max-w-md dmoop-fade-in">
+      <div className="relative w-full max-w-md reverb-fade-in">
         <div className="flex justify-center mb-7">
-          <Image src="/dmoop-logo.png" alt="DMOOP" width={180} height={56} priority className="h-12 w-auto" />
+          <Image src="/reverb-logo.png" alt="Reverb" width={180} height={56} priority className="h-12 w-auto" />
         </div>
         <div
           className="p-6 sm:p-8 rounded-2xl"
           style={{
-            background: "var(--dmoop-gradient-card)",
-            border: "1px solid var(--dmoop-border-soft)",
-            boxShadow: "var(--dmoop-shadow-xl)",
+            background: "var(--reverb-gradient-card)",
+            border: "1px solid var(--reverb-border-soft)",
+            boxShadow: "var(--reverb-shadow-xl)",
           }}
         >
           <div className="text-center mb-6">
             <div
               className="mx-auto w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
-              style={{ background: "var(--dmoop-gradient-accent)", boxShadow: "var(--dmoop-shadow-accent)" }}
+              style={{ background: "var(--reverb-gradient-accent)", boxShadow: "var(--reverb-shadow-accent)" }}
             >
               {success ? (
                 <CheckCircle2 size={20} className="text-white" />
@@ -193,17 +193,17 @@ function VerifyInner() {
                 <Mail size={20} className="text-white" />
               )}
             </div>
-            <h1 className="text-[24px] font-semibold tracking-tight text-[var(--dmoop-text-primary)] mb-1.5">
+            <h1 className="text-[24px] font-semibold tracking-tight text-[var(--reverb-text-primary)] mb-1.5">
               {success ? "You're in!" : "Check your email"}
             </h1>
-            <p className="text-[13.5px] text-[var(--dmoop-text-secondary)] leading-relaxed">
+            <p className="text-[13.5px] text-[var(--reverb-text-secondary)] leading-relaxed">
               {success
-                ? "Taking you to DMOOP…"
+                ? "Taking you to Reverb…"
                 : (
                   <>
                     We sent a 6-digit code to
                     <br />
-                    <strong className="font-semibold text-[var(--dmoop-text-primary)]">{email || "your email"}</strong>
+                    <strong className="font-semibold text-[var(--reverb-text-primary)]">{email || "your email"}</strong>
                   </>
                 )}
             </p>
@@ -213,7 +213,7 @@ function VerifyInner() {
             <>
               {!emailFromQuery && (
                 <div className="mb-4">
-                  <label className="block text-[11.5px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)] mb-1.5">
+                  <label className="block text-[11.5px] font-semibold uppercase tracking-wider text-[var(--reverb-text-tertiary)] mb-1.5">
                     Email
                   </label>
                   <input
@@ -222,14 +222,14 @@ function VerifyInner() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@company.com"
                     autoComplete="email"
-                    className="w-full h-11 px-3.5 rounded-xl bg-white border border-[var(--dmoop-border-soft)] text-[14px] focus:outline-none focus:border-[var(--dmoop-accent)] focus:ring-4 focus:ring-[var(--dmoop-accent)]/10"
+                    className="w-full h-11 px-3.5 rounded-xl bg-white border border-[var(--reverb-border-soft)] text-[14px] focus:outline-none focus:border-[var(--reverb-accent)] focus:ring-4 focus:ring-[var(--reverb-accent)]/10"
                   />
                 </div>
               )}
 
               <form onSubmit={handleVerify} className="flex flex-col gap-4">
                 <div>
-                  <label className="block text-[11.5px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)] mb-1.5 text-center">
+                  <label className="block text-[11.5px] font-semibold uppercase tracking-wider text-[var(--reverb-text-tertiary)] mb-1.5 text-center">
                     Verification code
                   </label>
                   <div className="flex items-center justify-center gap-2 sm:gap-2.5" onPaste={handlePaste}>
@@ -244,7 +244,7 @@ function VerifyInner() {
                         onChange={(e) => setDigit(i, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(e, i)}
                         onFocus={(e) => e.currentTarget.select()}
-                        className="w-10 h-12 sm:w-11 sm:h-14 rounded-xl bg-white border border-[var(--dmoop-border-soft)] text-center text-[20px] sm:text-[22px] font-semibold text-[var(--dmoop-text-primary)] focus:outline-none focus:border-[var(--dmoop-accent)] focus:ring-4 focus:ring-[var(--dmoop-accent)]/10 transition-all"
+                        className="w-10 h-12 sm:w-11 sm:h-14 rounded-xl bg-white border border-[var(--reverb-border-soft)] text-center text-[20px] sm:text-[22px] font-semibold text-[var(--reverb-text-primary)] focus:outline-none focus:border-[var(--reverb-accent)] focus:ring-4 focus:ring-[var(--reverb-accent)]/10 transition-all"
                         aria-label={`Digit ${i + 1}`}
                       />
                     ))}
@@ -261,7 +261,7 @@ function VerifyInner() {
                 <button
                   type="submit"
                   disabled={loading || digits.join("").length !== CODE_LENGTH}
-                  className="h-11 rounded-xl dmoop-btn-primary text-[14px] font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="h-11 rounded-xl reverb-btn-primary text-[14px] font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {loading ? (
                     <>
@@ -273,12 +273,12 @@ function VerifyInner() {
                 </button>
               </form>
 
-              <div className="mt-5 text-center text-[12.5px] text-[var(--dmoop-text-secondary)]">
+              <div className="mt-5 text-center text-[12.5px] text-[var(--reverb-text-secondary)]">
                 Didn&apos;t get the code?{" "}
                 <button
                   onClick={handleResend}
                   disabled={resending || resendCooldown > 0 || !email}
-                  className="font-semibold text-[var(--dmoop-accent)] hover:text-[var(--dmoop-accent-rich)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="font-semibold text-[var(--reverb-accent)] hover:text-[var(--reverb-accent-rich)] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {resending
                     ? "Sending…"
@@ -288,10 +288,10 @@ function VerifyInner() {
                 </button>
               </div>
 
-              <div className="mt-5 pt-4 border-t border-[var(--dmoop-border-soft)] text-center">
+              <div className="mt-5 pt-4 border-t border-[var(--reverb-border-soft)] text-center">
                 <Link
                   href="/signup"
-                  className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)]"
+                  className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]"
                 >
                   <ArrowLeft size={12} /> Use a different email
                 </Link>

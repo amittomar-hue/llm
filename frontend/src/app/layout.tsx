@@ -9,18 +9,18 @@ const poppins = Poppins({
   display: "swap",
 });
 
-const SITE_URL = "https://www.dmoop.com";
-const SITE_NAME = "DMOOP";
-const SITE_TITLE = "DMOOP — Enterprise Marketing Intelligence";
+const SITE_URL = "https://llm-amits-projects-d3468251.vercel.app";
+const SITE_NAME = "Reverb";
+const SITE_TITLE = "Reverb — Enterprise Marketing Intelligence";
 const SITE_DESCRIPTION =
-  "DMOOP is the enterprise AI for the full marketing surface — SEO, AEO, GEO, ABM, ad copy, GTM strategy, brand voice. Upload brand docs, name your Brand Agent, paste any URL, and get answers grounded in 130+ marketing topics scraped every 6 hours.";
+  "Reverb is the enterprise AI for the full marketing surface — SEO, AEO, GEO, ABM, ad copy, GTM strategy, brand voice. Upload brand docs, name your Brand Agent, paste any URL, and get answers grounded in 130+ marketing topics scraped every 6 hours.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: SITE_TITLE, template: "%s · DMOOP" },
+  title: { default: SITE_TITLE, template: "%s · Reverb" },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  authors: [{ name: "DMOOP" }],
+  authors: [{ name: "Reverb" }],
   generator: "Next.js",
   keywords: [
     "marketing AI", "AI marketing", "brand agent",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
       url: "/opengraph-image",
       width: 1200,
       height: 630,
-      alt: "DMOOP — Enterprise Marketing Intelligence",
+      alt: "Reverb — Enterprise Marketing Intelligence",
     }],
   },
   twitter: {
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${poppins.variable} h-full`}>
-      <body className="h-full bg-[var(--dmoop-bg-app)] text-[var(--dmoop-text-primary)] antialiased font-sans">
+      <body className="h-full bg-[var(--reverb-bg-app)] text-[var(--reverb-text-primary)] antialiased font-sans">
         {children}
       </body>
     </html>

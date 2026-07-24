@@ -19,7 +19,7 @@ import { buildAuthorizeUrl } from "@/lib/crm/zoho";
 export const runtime = "nodejs";
 
 const STATE_TTL_MS = 10 * 60 * 1000; // 10 minutes
-export const ZOHO_PKCE_COOKIE = "dmoop_zoho_pkce";
+export const ZOHO_PKCE_COOKIE = "reverb_zoho_pkce";
 
 function signState(userId: string): string {
   const secret = process.env.CRM_OAUTH_STATE_SECRET;

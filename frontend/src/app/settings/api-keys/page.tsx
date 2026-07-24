@@ -4,7 +4,7 @@
 // /settings/api-keys — user-facing management for third-party
 // integration keys. On create, the plaintext is shown once behind
 // a copy-to-clipboard + explicit "I've saved it" dismiss. After
-// that, only the prefix (`dmoop_live_abc123…`) is visible.
+// that, only the prefix (`reverb_live_abc123…`) is visible.
 // ─────────────────────────────────────────────────────────────────
 
 import { useEffect, useState } from "react";
@@ -107,18 +107,18 @@ export default function ApiKeysPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--dmoop-bg-app)" }}>
-      <nav className="sticky top-0 z-30 border-b border-[var(--dmoop-border-soft)] backdrop-blur-xl bg-white/70">
+    <div className="min-h-screen" style={{ background: "var(--reverb-bg-app)" }}>
+      <nav className="sticky top-0 z-30 border-b border-[var(--reverb-border-soft)] backdrop-blur-xl bg-white/70">
         <div className="max-w-4xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
-          <Link href="/chat" className="flex items-center gap-2 text-[12.5px] sm:text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)]">
+          <Link href="/chat" className="flex items-center gap-2 text-[12.5px] sm:text-[13px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]">
             <ArrowLeft size={13} /> Back to chat
           </Link>
-          <Image src="/dmoop-logo.png" alt="DMOOP" width={110} height={30} className="h-6 sm:h-7 w-auto" />
+          <Image src="/reverb-logo.png" alt="Reverb" width={110} height={30} className="h-6 sm:h-7 w-auto" />
           <div className="flex items-center gap-4">
-            <Link href="/settings/integrations" className="text-[12.5px] sm:text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)]">
+            <Link href="/settings/integrations" className="text-[12.5px] sm:text-[13px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]">
               Integrations
             </Link>
-            <Link href="/docs/api" className="text-[12.5px] sm:text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] flex items-center gap-1">
+            <Link href="/docs/api" className="text-[12.5px] sm:text-[13px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)] flex items-center gap-1">
               API docs <ExternalLink size={11} />
             </Link>
           </div>
@@ -128,19 +128,19 @@ export default function ApiKeysPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <div className="flex items-start gap-3 mb-6 sm:mb-8">
           <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: "var(--dmoop-gradient-accent)", boxShadow: "var(--dmoop-shadow-accent)" }}>
+            style={{ background: "var(--reverb-gradient-accent)", boxShadow: "var(--reverb-shadow-accent)" }}>
             <Key size={18} className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10.5px] sm:text-[11px] font-bold tracking-[0.14em] text-[var(--dmoop-accent)] uppercase mb-1">
+            <p className="text-[10.5px] sm:text-[11px] font-bold tracking-[0.14em] text-[var(--reverb-accent)] uppercase mb-1">
               Developer
             </p>
-            <h1 className="text-[24px] sm:text-[30px] font-semibold tracking-tight text-[var(--dmoop-text-primary)] leading-tight mb-1">
+            <h1 className="text-[24px] sm:text-[30px] font-semibold tracking-tight text-[var(--reverb-text-primary)] leading-tight mb-1">
               API Keys
             </h1>
-            <p className="text-[13px] sm:text-[14px] text-[var(--dmoop-text-secondary)]">
-              Mint keys to call the DMOOP API from your third-party app. Each key inherits your brand agents and library.
-              See <Link href="/docs/api" className="text-[var(--dmoop-accent)] font-medium underline underline-offset-2">API docs</Link> for the endpoint reference.
+            <p className="text-[13px] sm:text-[14px] text-[var(--reverb-text-secondary)]">
+              Mint keys to call the Reverb API from your third-party app. Each key inherits your brand agents and library.
+              See <Link href="/docs/api" className="text-[var(--reverb-accent)] font-medium underline underline-offset-2">API docs</Link> for the endpoint reference.
             </p>
           </div>
         </div>
@@ -159,7 +159,7 @@ export default function ApiKeysPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 bg-white border border-amber-200 rounded-lg p-2.5">
-              <code className="flex-1 text-[12.5px] font-mono text-[var(--dmoop-text-primary)] break-all">
+              <code className="flex-1 text-[12.5px] font-mono text-[var(--reverb-text-primary)] break-all">
                 {revealedKey.plaintext}
               </code>
               <button
@@ -179,15 +179,15 @@ export default function ApiKeysPage() {
         )}
 
         <div className="rounded-2xl overflow-hidden mb-4"
-          style={{ background: "var(--dmoop-gradient-card)", border: "1px solid var(--dmoop-border-soft)", boxShadow: "var(--dmoop-shadow-md)" }}>
-          <div className="px-4 sm:px-5 py-3 border-b border-[var(--dmoop-border-soft)] flex items-center justify-between">
-            <p className="text-[12.5px] font-semibold text-[var(--dmoop-text-primary)]">
+          style={{ background: "var(--reverb-gradient-card)", border: "1px solid var(--reverb-border-soft)", boxShadow: "var(--reverb-shadow-md)" }}>
+          <div className="px-4 sm:px-5 py-3 border-b border-[var(--reverb-border-soft)] flex items-center justify-between">
+            <p className="text-[12.5px] font-semibold text-[var(--reverb-text-primary)]">
               {loading ? "Loading…" : `${keys?.length ?? 0} active key${keys?.length === 1 ? "" : "s"}`}
             </p>
             {!creating && (
               <button
                 onClick={() => setCreating(true)}
-                className="h-8 px-3 rounded-lg text-[12px] font-semibold dmoop-btn-primary flex items-center gap-1.5"
+                className="h-8 px-3 rounded-lg text-[12px] font-semibold reverb-btn-primary flex items-center gap-1.5"
               >
                 <Plus size={12} strokeWidth={2.5} /> New API key
               </button>
@@ -195,8 +195,8 @@ export default function ApiKeysPage() {
           </div>
 
           {creating && (
-            <div className="px-4 sm:px-5 py-3.5 border-b border-[var(--dmoop-border-soft)] bg-[#faf6ef]">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--dmoop-text-tertiary)] mb-2">
+            <div className="px-4 sm:px-5 py-3.5 border-b border-[var(--reverb-border-soft)] bg-[#faf6ef]">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--reverb-text-tertiary)] mb-2">
                 Name this key
               </p>
               <input
@@ -205,19 +205,19 @@ export default function ApiKeysPage() {
                 onChange={(e) => setNewName(e.target.value.slice(0, 80))}
                 onKeyDown={(e) => { if (e.key === "Enter") void createKey(); if (e.key === "Escape") { setCreating(false); setNewName(""); } }}
                 placeholder='e.g. "Production Zapier", "n8n integration", "Local dev"'
-                className="w-full text-[13.5px] font-medium bg-white border border-[var(--dmoop-border-soft)] focus:border-[var(--dmoop-accent)] rounded-lg px-3 py-2 mb-3 focus:outline-none"
+                className="w-full text-[13.5px] font-medium bg-white border border-[var(--reverb-border-soft)] focus:border-[var(--reverb-accent)] rounded-lg px-3 py-2 mb-3 focus:outline-none"
               />
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => void createKey()}
                   disabled={!newName.trim() || busy}
-                  className="h-9 px-4 rounded-lg dmoop-btn-primary text-[12.5px] font-semibold disabled:opacity-50 flex items-center gap-1.5"
+                  className="h-9 px-4 rounded-lg reverb-btn-primary text-[12.5px] font-semibold disabled:opacity-50 flex items-center gap-1.5"
                 >
                   {busy ? <><Loader2 size={13} className="animate-spin" /> Creating…</> : "Create key"}
                 </button>
                 <button
                   onClick={() => { setCreating(false); setNewName(""); }}
-                  className="h-9 px-3 rounded-lg text-[12.5px] font-semibold text-[var(--dmoop-text-secondary)] hover:bg-white hover:shadow-[var(--dmoop-shadow-sm)]"
+                  className="h-9 px-3 rounded-lg text-[12.5px] font-semibold text-[var(--reverb-text-secondary)] hover:bg-white hover:shadow-[var(--reverb-shadow-sm)]"
                 >
                   Cancel
                 </button>
@@ -233,22 +233,22 @@ export default function ApiKeysPage() {
 
           {!loading && keys?.length === 0 && (
             <div className="px-4 sm:px-5 py-10 text-center">
-              <Key size={24} className="mx-auto text-[var(--dmoop-text-tertiary)] mb-2 opacity-40" />
-              <p className="text-[13px] text-[var(--dmoop-text-secondary)] font-medium">No API keys yet</p>
-              <p className="text-[12px] text-[var(--dmoop-text-tertiary)] mt-1">
+              <Key size={24} className="mx-auto text-[var(--reverb-text-tertiary)] mb-2 opacity-40" />
+              <p className="text-[13px] text-[var(--reverb-text-secondary)] font-medium">No API keys yet</p>
+              <p className="text-[12px] text-[var(--reverb-text-tertiary)] mt-1">
                 Click <strong>New API key</strong> above to mint your first one.
               </p>
             </div>
           )}
 
           {(keys ?? []).map((k) => (
-            <div key={k.id} className="px-4 sm:px-5 py-3.5 border-b border-[var(--dmoop-border-soft)] last:border-0 flex items-center gap-3">
+            <div key={k.id} className="px-4 sm:px-5 py-3.5 border-b border-[var(--reverb-border-soft)] last:border-0 flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-[#fbf3ee] flex items-center justify-center shrink-0">
-                <Key size={14} className="text-[var(--dmoop-accent)]" />
+                <Key size={14} className="text-[var(--reverb-accent)]" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13.5px] font-semibold text-[var(--dmoop-text-primary)] truncate">{k.name}</p>
-                <p className="text-[11px] text-[var(--dmoop-text-tertiary)] font-mono mt-0.5">
+                <p className="text-[13.5px] font-semibold text-[var(--reverb-text-primary)] truncate">{k.name}</p>
+                <p className="text-[11px] text-[var(--reverb-text-tertiary)] font-mono mt-0.5">
                   {k.key_prefix}…{"  ·  "}
                   <span className="font-sans">
                     Last used: {fmt(k.last_used_at)}  ·  Created: {fmt(k.created_at)}
@@ -258,7 +258,7 @@ export default function ApiKeysPage() {
               <button
                 onClick={() => void revokeKey(k.id)}
                 disabled={busy}
-                className="p-2 rounded-lg text-[var(--dmoop-text-secondary)] hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
+                className="p-2 rounded-lg text-[var(--reverb-text-secondary)] hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
                 title="Revoke this key"
               >
                 <Trash2 size={14} />
@@ -267,11 +267,11 @@ export default function ApiKeysPage() {
           ))}
         </div>
 
-        <div className="rounded-2xl p-4 sm:p-5 bg-[#fbf8f4] border border-[var(--dmoop-border-soft)]">
+        <div className="rounded-2xl p-4 sm:p-5 bg-[#fbf8f4] border border-[var(--reverb-border-soft)]">
           <div className="flex items-start gap-2.5">
             <ShieldCheck size={16} className="text-emerald-700 shrink-0 mt-0.5" />
-            <div className="text-[12.5px] text-[var(--dmoop-text-secondary)] leading-relaxed">
-              <strong className="text-[var(--dmoop-text-primary)]">Key hygiene:</strong>{" "}
+            <div className="text-[12.5px] text-[var(--reverb-text-secondary)] leading-relaxed">
+              <strong className="text-[var(--reverb-text-primary)]">Key hygiene:</strong>{" "}
               treat these like passwords. Store them in a secrets manager, never in client-side JS or a public repo.
               Revoke and regenerate the moment a key is exposed. Each key can be identified by its prefix in the table above.
             </div>

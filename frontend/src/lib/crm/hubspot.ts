@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────
-// HubSpot CRM client for DMOOP.
+// HubSpot CRM client for Reverb.
 //
 // Handles:
 //   • OAuth code → token exchange
@@ -24,7 +24,7 @@ const HUBSPOT_AUTH_URL = "https://app.hubspot.com/oauth/authorize";
 const HUBSPOT_TOKEN_URL = "https://api.hubapi.com/oauth/v1/token";
 const HUBSPOT_API_BASE = "https://api.hubapi.com";
 
-// Scopes required by DMOOP's read-only contact-context lookups.
+// Scopes required by Reverb's read-only contact-context lookups.
 // crm.objects.contacts.read       — resolve name + email + basic props
 // crm.objects.companies.read      — associated company (name, domain, industry, size)
 // crm.objects.deals.read          — latest deal (stage, amount, close date)
@@ -303,7 +303,7 @@ async function hubspotPost<T>(
 }
 
 /**
- * The context DMOOP injects into the chat when it detects a CRM contact
+ * The context Reverb injects into the chat when it detects a CRM contact
  * in the user's prompt. Structured so the model can copy specific values
  * ("Alice", "Discovery stage", "$50K deal") into the generated content
  * without paraphrasing them wrong.

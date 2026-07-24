@@ -130,48 +130,48 @@
 }
 
 /* ──────────────────────────────────────────────────────────────
-   DMOOP — Enterprise design tokens
+   Reverb — Enterprise design tokens
    ────────────────────────────────────────────────────────────── */
 :root {
   /* Brand palette */
-  --dmoop-accent: #c14a2a;
-  --dmoop-accent-rich: #a83a1f;
-  --dmoop-accent-soft: #f4d4c5;
-  --dmoop-bg-app: #faf8f5;
-  --dmoop-bg-elev: #ffffff;
-  --dmoop-bg-sidebar: linear-gradient(180deg, #f3eee6 0%, #ebe5da 100%);
-  --dmoop-border-soft: rgba(165, 138, 110, 0.18);
-  --dmoop-text-primary: #1a1614;
-  --dmoop-text-secondary: #5c534b;
-  --dmoop-text-tertiary: #94887d;
+  --reverb-accent: #c14a2a;
+  --reverb-accent-rich: #a83a1f;
+  --reverb-accent-soft: #f4d4c5;
+  --reverb-bg-app: #faf8f5;
+  --reverb-bg-elev: #ffffff;
+  --reverb-bg-sidebar: linear-gradient(180deg, #f3eee6 0%, #ebe5da 100%);
+  --reverb-border-soft: rgba(165, 138, 110, 0.18);
+  --reverb-text-primary: #1a1614;
+  --reverb-text-secondary: #5c534b;
+  --reverb-text-tertiary: #94887d;
 
   /* Multi-layered shadows for depth */
-  --dmoop-shadow-xs: 0 1px 2px rgba(78, 52, 32, 0.04);
-  --dmoop-shadow-sm:
+  --reverb-shadow-xs: 0 1px 2px rgba(78, 52, 32, 0.04);
+  --reverb-shadow-sm:
     0 1px 2px rgba(78, 52, 32, 0.04),
     0 2px 6px rgba(78, 52, 32, 0.04);
-  --dmoop-shadow-md:
+  --reverb-shadow-md:
     0 1px 3px rgba(78, 52, 32, 0.05),
     0 6px 20px rgba(78, 52, 32, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  --dmoop-shadow-lg:
+  --reverb-shadow-lg:
     0 2px 4px rgba(78, 52, 32, 0.06),
     0 16px 40px rgba(78, 52, 32, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  --dmoop-shadow-xl:
+  --reverb-shadow-xl:
     0 4px 12px rgba(78, 52, 32, 0.08),
     0 24px 56px rgba(78, 52, 32, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  --dmoop-shadow-accent:
+  --reverb-shadow-accent:
     0 1px 2px rgba(193, 74, 42, 0.18),
     0 8px 24px rgba(193, 74, 42, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  --dmoop-shadow-inner: inset 0 2px 4px rgba(78, 52, 32, 0.04);
+  --reverb-shadow-inner: inset 0 2px 4px rgba(78, 52, 32, 0.04);
 
   /* Gradients */
-  --dmoop-gradient-accent: linear-gradient(135deg, #d8593a 0%, #b03e21 100%);
-  --dmoop-gradient-card: linear-gradient(180deg, #ffffff 0%, #fbf8f4 100%);
-  --dmoop-gradient-sheen:
+  --reverb-gradient-accent: linear-gradient(135deg, #d8593a 0%, #b03e21 100%);
+  --reverb-gradient-card: linear-gradient(180deg, #ffffff 0%, #fbf8f4 100%);
+  --reverb-gradient-sheen:
     linear-gradient(105deg,
       rgba(255, 255, 255, 0) 0%,
       rgba(255, 255, 255, 0.4) 45%,
@@ -197,119 +197,119 @@ h1, h2, h3, h4, h5, h6 {
 /* ──────────────────────────────────────────────────────────────
    Animations
    ────────────────────────────────────────────────────────────── */
-@keyframes dmoop-fade-in {
+@keyframes reverb-fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes dmoop-fade-in-soft {
+@keyframes reverb-fade-in-soft {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-@keyframes dmoop-scale-in {
+@keyframes reverb-scale-in {
   from { opacity: 0; transform: scale(0.96); }
   to   { opacity: 1; transform: scale(1); }
 }
 
-@keyframes dmoop-shimmer {
+@keyframes reverb-shimmer {
   0%   { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 
-@keyframes dmoop-pulse-ring {
+@keyframes reverb-pulse-ring {
   0%   { box-shadow: 0 0 0 0 rgba(193, 74, 42, 0.4); }
   100% { box-shadow: 0 0 0 12px rgba(193, 74, 42, 0); }
 }
 
-@keyframes dmoop-stagger-in {
+@keyframes reverb-stagger-in {
   from { opacity: 0; transform: translateY(12px) scale(0.98); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.dmoop-fade-in   { animation: dmoop-fade-in 0.35s ease-out both; }
-.dmoop-scale-in  { animation: dmoop-scale-in 0.25s ease-out both; }
-.dmoop-stagger-in { animation: dmoop-stagger-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.dmoop-slide-in-right { animation: dmoop-slide-in-right 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
-@keyframes dmoop-slide-in-right {
+.reverb-fade-in   { animation: reverb-fade-in 0.35s ease-out both; }
+.reverb-scale-in  { animation: reverb-scale-in 0.25s ease-out both; }
+.reverb-stagger-in { animation: reverb-stagger-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.reverb-slide-in-right { animation: reverb-slide-in-right 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes reverb-slide-in-right {
   from { opacity: 0; transform: translateX(28px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-.dmoop-shimmer {
+.reverb-shimmer {
   background-image: linear-gradient(90deg,
     transparent 0%,
     rgba(255, 255, 255, 0.4) 50%,
     transparent 100%);
   background-size: 200% 100%;
-  animation: dmoop-shimmer 2s ease-in-out infinite;
+  animation: reverb-shimmer 2s ease-in-out infinite;
 }
 
 /* Utility classes */
-.dmoop-card {
-  background: var(--dmoop-gradient-card);
-  border: 1px solid var(--dmoop-border-soft);
-  box-shadow: var(--dmoop-shadow-md);
+.reverb-card {
+  background: var(--reverb-gradient-card);
+  border: 1px solid var(--reverb-border-soft);
+  box-shadow: var(--reverb-shadow-md);
   border-radius: 16px;
   transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.dmoop-card:hover {
+.reverb-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--dmoop-shadow-lg);
+  box-shadow: var(--reverb-shadow-lg);
   border-color: rgba(193, 74, 42, 0.3);
 }
 
-.dmoop-btn-primary {
-  background: var(--dmoop-gradient-accent);
+.reverb-btn-primary {
+  background: var(--reverb-gradient-accent);
   color: white;
-  box-shadow: var(--dmoop-shadow-accent);
+  box-shadow: var(--reverb-shadow-accent);
   transition: all 0.15s ease-out;
 }
-.dmoop-btn-primary:hover:not(:disabled) {
+.reverb-btn-primary:hover:not(:disabled) {
   transform: translateY(-1px);
   filter: brightness(1.05);
 }
-.dmoop-btn-primary:active {
+.reverb-btn-primary:active {
   transform: translateY(0) scale(0.97);
 }
-.dmoop-btn-primary:disabled {
+.reverb-btn-primary:disabled {
   background: #e5e0d8;
   color: #aaa;
   box-shadow: none;
 }
 
-.dmoop-glass {
+.reverb-glass {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.dmoop-input-elev {
+.reverb-input-elev {
   background: #ffffff;
-  border: 1px solid var(--dmoop-border-soft);
-  box-shadow: var(--dmoop-shadow-md);
+  border: 1px solid var(--reverb-border-soft);
+  box-shadow: var(--reverb-shadow-md);
   transition: all 0.2s ease-out;
 }
-.dmoop-input-elev:focus-within {
+.reverb-input-elev:focus-within {
   border-color: rgba(193, 74, 42, 0.45);
   box-shadow:
-    var(--dmoop-shadow-lg),
+    var(--reverb-shadow-lg),
     0 0 0 4px rgba(193, 74, 42, 0.08);
 }
 
 /* Subtle scrollbar */
-.dmoop-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-.dmoop-scroll::-webkit-scrollbar-track { background: transparent; }
-.dmoop-scroll::-webkit-scrollbar-thumb {
+.reverb-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.reverb-scroll::-webkit-scrollbar-track { background: transparent; }
+.reverb-scroll::-webkit-scrollbar-thumb {
   background: rgba(78, 52, 32, 0.15);
   border-radius: 3px;
 }
-.dmoop-scroll::-webkit-scrollbar-thumb:hover {
+.reverb-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(78, 52, 32, 0.3);
 }
 
 /* ──────────────────────────────────────────────────────────────
-   Syntax highlighting (warm-toned, matches DMOOP code blocks)
+   Syntax highlighting (warm-toned, matches Reverb code blocks)
    ────────────────────────────────────────────────────────────── */
 .hljs               { color: #e8d9c5; background: transparent; }
 .hljs-comment,
@@ -349,22 +349,22 @@ h1, h2, h3, h4, h5, h6 {
 .hljs-class .hljs-title { color: #80c1ff; }
 
 /* Override default first/last margins inside markdown blocks */
-.dmoop-md > :first-child { margin-top: 0; }
-.dmoop-md > :last-child  { margin-bottom: 0; }
+.reverb-md > :first-child { margin-top: 0; }
+.reverb-md > :last-child  { margin-bottom: 0; }
 
 /* Hide scrollbars on horizontally-scrolling tab strips and similar.
    Used by the admin dashboard tabs row on mobile. */
-.dmoop-no-scrollbar {
+.reverb-no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-.dmoop-no-scrollbar::-webkit-scrollbar {
+.reverb-no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
 /* Long-form prose styles used by /privacy, /terms, and /docs/api reader pages */
 .resource-prose {
-  color: var(--dmoop-text-primary);
+  color: var(--reverb-text-primary);
   font-size: 16px;
   line-height: 1.7;
 }
@@ -374,7 +374,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 24px;
   font-weight: 600;
   letter-spacing: -0.01em;
-  color: var(--dmoop-text-primary);
+  color: var(--reverb-text-primary);
   margin-top: 2.25rem;
   margin-bottom: 0.9rem;
   line-height: 1.25;
@@ -383,7 +383,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 19px;
   font-weight: 600;
   letter-spacing: -0.005em;
-  color: var(--dmoop-text-primary);
+  color: var(--reverb-text-primary);
   margin-top: 1.6rem;
   margin-bottom: 0.6rem;
   line-height: 1.3;
@@ -391,9 +391,9 @@ h1, h2, h3, h4, h5, h6 {
 .resource-prose p {
   margin-top: 0;
   margin-bottom: 1.15rem;
-  color: var(--dmoop-text-primary);
+  color: var(--reverb-text-primary);
 }
-.resource-prose strong { font-weight: 600; color: var(--dmoop-text-primary); }
+.resource-prose strong { font-weight: 600; color: var(--reverb-text-primary); }
 .resource-prose em { font-style: italic; }
 .resource-prose ul,
 .resource-prose ol {
@@ -402,34 +402,34 @@ h1, h2, h3, h4, h5, h6 {
 }
 .resource-prose ul { list-style: disc; }
 .resource-prose ol { list-style: decimal; }
-.resource-prose ul li::marker { color: var(--dmoop-accent); }
-.resource-prose ol li::marker { color: var(--dmoop-accent); font-weight: 600; }
+.resource-prose ul li::marker { color: var(--reverb-accent); }
+.resource-prose ol li::marker { color: var(--reverb-accent); font-weight: 600; }
 .resource-prose li {
   margin: 0.35rem 0;
   padding-left: 0.35rem;
-  color: var(--dmoop-text-primary);
+  color: var(--reverb-text-primary);
 }
 .resource-prose li > p { margin-bottom: 0.35rem; }
 .resource-prose blockquote {
-  border-left: 3px solid var(--dmoop-accent);
+  border-left: 3px solid var(--reverb-accent);
   padding: 0.4rem 1rem;
   margin: 1.25rem 0;
-  color: var(--dmoop-text-secondary);
+  color: var(--reverb-text-secondary);
   background: rgba(193,74,42,0.04);
   border-radius: 0 6px 6px 0;
   font-style: italic;
 }
 .resource-prose a {
-  color: var(--dmoop-accent);
+  color: var(--reverb-accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.resource-prose a:hover { color: var(--dmoop-accent-rich); }
+.resource-prose a:hover { color: var(--reverb-accent-rich); }
 .resource-prose code {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
   font-size: 0.88em;
   background: #f5f1ea;
-  color: var(--dmoop-text-primary);
+  color: var(--reverb-text-primary);
   padding: 0.12em 0.4em;
   border-radius: 4px;
 }
@@ -449,7 +449,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .resource-prose hr {
   border: 0;
-  border-top: 1px solid var(--dmoop-border-soft);
+  border-top: 1px solid var(--reverb-border-soft);
   margin: 2rem 0;
 }
 .resource-prose table {
@@ -457,25 +457,25 @@ h1, h2, h3, h4, h5, h6 {
   border-collapse: collapse;
   margin: 1.25rem 0;
   font-size: 14px;
-  border: 1px solid var(--dmoop-border-soft);
+  border: 1px solid var(--reverb-border-soft);
   border-radius: 8px;
   overflow: hidden;
 }
 .resource-prose thead th {
   background: #f9f5ee;
-  color: var(--dmoop-text-secondary);
+  color: var(--reverb-text-secondary);
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding: 0.6rem 0.75rem;
   text-align: left;
-  border-bottom: 1px solid var(--dmoop-border-soft);
+  border-bottom: 1px solid var(--reverb-border-soft);
 }
 .resource-prose tbody td {
   padding: 0.55rem 0.75rem;
-  border-top: 1px solid var(--dmoop-border-soft);
-  color: var(--dmoop-text-primary);
+  border-top: 1px solid var(--reverb-border-soft);
+  color: var(--reverb-text-primary);
   vertical-align: top;
 }
 .resource-prose tbody tr:nth-child(even) { background: #fbf8f1; }

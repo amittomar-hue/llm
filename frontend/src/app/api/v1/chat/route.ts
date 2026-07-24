@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────
 // /api/v1/chat — PUBLIC third-party endpoint.
 //
-// Auth: Authorization: Bearer dmoop_live_<40-char>
+// Auth: Authorization: Bearer reverb_live_<40-char>
 // Body: { prompt: string, agent_id?: string, model?: string,
 //         messages?: OpenAI-style messages, web_search?: boolean }
 // Response: { response: string, model_used: string,
@@ -15,7 +15,7 @@
 // that agent, we inject brand voice profile + top brand chunks
 // exactly like the internal /api/chat flow (but without the heavy
 // FORMAT CONTRACT persona — third parties want raw content, not
-// DMOOP's opinionated formatting).
+// Reverb's opinionated formatting).
 // ─────────────────────────────────────────────────────────────────
 
 import { NextRequest, NextResponse } from "next/server";
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   const auth = await verifyApiKey(token);
   if (!auth) {
     return json(
-      { error: "Invalid or missing API key. Include: Authorization: Bearer dmoop_live_..." },
+      { error: "Invalid or missing API key. Include: Authorization: Bearer reverb_live_..." },
       401
     );
   }

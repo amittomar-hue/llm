@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
         // Generic message — never reveal which heuristic caught them.
         reason:
           "We couldn't create your account. If you believe this is an error, " +
-          "email support@dmoop.com.",
+          "email support@reverb.com.",
       },
       { status: 400 }
     );

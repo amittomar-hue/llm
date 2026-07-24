@@ -100,13 +100,13 @@ export default function Message({ message }: { message: MessageType }) {
 
     if (editing) {
       return (
-        <div className="flex justify-end dmoop-fade-in">
+        <div className="flex justify-end reverb-fade-in">
           <div
-            className="w-full max-w-[92%] sm:max-w-[80%] rounded-[20px] px-3.5 sm:px-4 py-2.5 sm:py-3 text-[14px] sm:text-[15px] text-[var(--dmoop-text-primary)] leading-relaxed"
+            className="w-full max-w-[92%] sm:max-w-[80%] rounded-[20px] px-3.5 sm:px-4 py-2.5 sm:py-3 text-[14px] sm:text-[15px] text-[var(--reverb-text-primary)] leading-relaxed"
             style={{
               background: "linear-gradient(135deg, #f3eee6 0%, #ebe5da 100%)",
-              border: "1px solid var(--dmoop-accent)",
-              boxShadow: "var(--dmoop-shadow-md)",
+              border: "1px solid var(--reverb-accent)",
+              boxShadow: "var(--reverb-shadow-md)",
             }}
           >
             <textarea
@@ -115,25 +115,25 @@ export default function Message({ message }: { message: MessageType }) {
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={onKey}
               rows={1}
-              className="w-full bg-transparent resize-none outline-none border-0 text-[14px] sm:text-[15px] leading-relaxed placeholder:text-[var(--dmoop-text-tertiary)]"
+              className="w-full bg-transparent resize-none outline-none border-0 text-[14px] sm:text-[15px] leading-relaxed placeholder:text-[var(--reverb-text-tertiary)]"
               placeholder="Edit your message…"
               disabled={resubmitting}
             />
             <div className="flex items-center justify-end gap-2 mt-2 pt-2 border-t border-[rgba(165,138,110,0.2)]">
-              <span className="text-[10.5px] text-[var(--dmoop-text-tertiary)] mr-auto">
+              <span className="text-[10.5px] text-[var(--reverb-text-tertiary)] mr-auto">
                 Cmd/Ctrl + Enter to regenerate · Esc to cancel
               </span>
               <button
                 onClick={cancelEdit}
                 disabled={resubmitting}
-                className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[var(--dmoop-text-secondary)] hover:bg-white/60 transition-colors disabled:opacity-50"
+                className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[var(--reverb-text-secondary)] hover:bg-white/60 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={submitEdit}
                 disabled={resubmitting || draft.trim().length === 0}
-                className="px-3.5 py-1.5 rounded-lg text-[12px] font-semibold dmoop-btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3.5 py-1.5 rounded-lg text-[12px] font-semibold reverb-btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {resubmitting ? "Sending…" : "Regenerate"}
               </button>
@@ -144,21 +144,21 @@ export default function Message({ message }: { message: MessageType }) {
     }
 
     return (
-      <div className="flex justify-end items-start gap-1.5 dmoop-fade-in group/user">
+      <div className="flex justify-end items-start gap-1.5 reverb-fade-in group/user">
         {/* Edit button — appears on hover, sits to the left of the bubble */}
         <button
           onClick={startEdit}
           title="Edit message"
-          className="opacity-0 group-hover/user:opacity-100 transition-opacity duration-200 p-1.5 rounded-lg text-[var(--dmoop-text-secondary)] hover:bg-white hover:shadow-[var(--dmoop-shadow-sm)] hover:text-[var(--dmoop-text-primary)] mt-1.5 shrink-0"
+          className="opacity-0 group-hover/user:opacity-100 transition-opacity duration-200 p-1.5 rounded-lg text-[var(--reverb-text-secondary)] hover:bg-white hover:shadow-[var(--reverb-shadow-sm)] hover:text-[var(--reverb-text-primary)] mt-1.5 shrink-0"
         >
           <Pencil size={13} />
         </button>
         <div
-          className="max-w-[90%] sm:max-w-[80%] rounded-[20px] px-4 sm:px-5 py-2.5 sm:py-3 text-[14px] sm:text-[15px] text-[var(--dmoop-text-primary)] whitespace-pre-wrap leading-relaxed break-words"
+          className="max-w-[90%] sm:max-w-[80%] rounded-[20px] px-4 sm:px-5 py-2.5 sm:py-3 text-[14px] sm:text-[15px] text-[var(--reverb-text-primary)] whitespace-pre-wrap leading-relaxed break-words"
           style={{
             background: "linear-gradient(135deg, #f3eee6 0%, #ebe5da 100%)",
             border: "1px solid rgba(165, 138, 110, 0.15)",
-            boxShadow: "var(--dmoop-shadow-sm)",
+            boxShadow: "var(--reverb-shadow-sm)",
           }}
         >
           {message.content}
@@ -253,17 +253,17 @@ export default function Message({ message }: { message: MessageType }) {
   };
 
   return (
-    <div className="flex gap-2.5 sm:gap-3 dmoop-fade-in">
+    <div className="flex gap-2.5 sm:gap-3 reverb-fade-in">
       <div
         className="relative w-9 h-9 shrink-0 rounded-xl flex items-center justify-center mt-0.5 bg-white p-1.5 overflow-hidden"
         style={{
-          border: "1px solid var(--dmoop-border-soft)",
-          boxShadow: "var(--dmoop-shadow-sm)",
+          border: "1px solid var(--reverb-border-soft)",
+          boxShadow: "var(--reverb-shadow-sm)",
         }}
       >
         <Image
-          src="/dmoop-logo.png"
-          alt="DMOOP"
+          src="/reverb-logo.png"
+          alt="Reverb"
           width={64}
           height={20}
           priority
@@ -273,8 +273,8 @@ export default function Message({ message }: { message: MessageType }) {
 
       <div className="flex-1 min-w-0 pt-1">
         <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-[13px] font-semibold tracking-tight text-[var(--dmoop-text-primary)]">
-            DMOOP
+          <span className="text-[13px] font-semibold tracking-tight text-[var(--reverb-text-primary)]">
+            Reverb
           </span>
           {model && (
             <span className={`text-[11px] font-medium ${model.color} flex items-center gap-1`}>
@@ -284,9 +284,9 @@ export default function Message({ message }: { message: MessageType }) {
           )}
           {message.isStreaming && (
             <span className="flex gap-1 ml-1 items-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--dmoop-accent)] animate-pulse" />
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--dmoop-accent)] animate-pulse [animation-delay:200ms]" />
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--dmoop-accent)] animate-pulse [animation-delay:400ms]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--reverb-accent)] animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--reverb-accent)] animate-pulse [animation-delay:200ms]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--reverb-accent)] animate-pulse [animation-delay:400ms]" />
             </span>
           )}
         </div>
@@ -302,10 +302,10 @@ export default function Message({ message }: { message: MessageType }) {
           />
         )}
 
-        <div className="text-[14px] sm:text-[15px] text-[var(--dmoop-text-primary)] break-words">
+        <div className="text-[14px] sm:text-[15px] text-[var(--reverb-text-primary)] break-words">
           <Markdown content={message.content} />
           {message.isStreaming && message.content && (
-            <span className="inline-block w-[2px] h-4 bg-[var(--dmoop-accent)] ml-0.5 animate-pulse align-middle rounded-sm" />
+            <span className="inline-block w-[2px] h-4 bg-[var(--reverb-accent)] ml-0.5 animate-pulse align-middle rounded-sm" />
           )}
         </div>
 
@@ -319,7 +319,7 @@ export default function Message({ message }: { message: MessageType }) {
                 "inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-[12.5px] font-semibold transition-all duration-200 active:scale-[0.97]",
                 downloaded
                   ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                  : "dmoop-btn-primary"
+                  : "reverb-btn-primary"
               )}
               title={`Download as ${FORMAT_LABELS[message.requestedFormat as ExportFormat] ?? message.requestedFormat}`}
             >
@@ -338,7 +338,7 @@ export default function Message({ message }: { message: MessageType }) {
                 </>
               )}
             </button>
-            <span className="text-[11px] text-[var(--dmoop-text-tertiary)]">
+            <span className="text-[11px] text-[var(--reverb-text-tertiary)]">
               Generated locally · nothing leaves your browser
             </span>
           </div>
@@ -375,7 +375,7 @@ export default function Message({ message }: { message: MessageType }) {
               <RotateCcw size={13} className={regenerating ? "animate-spin" : ""} />
             </ActionButton>
             {message.interactionId && (
-              <span className="ml-2 text-[10px] text-[var(--dmoop-text-tertiary)] font-mono tracking-tight">
+              <span className="ml-2 text-[10px] text-[var(--reverb-text-tertiary)] font-mono tracking-tight">
                 {message.interactionId.slice(0, 8)}
               </span>
             )}
@@ -408,7 +408,7 @@ function ActionButton({
       title={title}
       className={cn(
         "p-1.5 rounded-lg transition-all duration-150 active:scale-90",
-        active && activeColor ? activeColor : "text-[var(--dmoop-text-secondary)] hover:bg-[#f5f1ea]",
+        active && activeColor ? activeColor : "text-[var(--reverb-text-secondary)] hover:bg-[#f5f1ea]",
         disabled && "opacity-40 cursor-not-allowed"
       )}
     >
@@ -450,47 +450,47 @@ function ResearchTraceView({
   };
 
   return (
-    <div className="mb-3 rounded-xl border border-[var(--dmoop-border-soft)] bg-[#faf6ef]/60 overflow-hidden">
+    <div className="mb-3 rounded-xl border border-[var(--reverb-border-soft)] bg-[#faf6ef]/60 overflow-hidden">
       <button
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-[#faf6ef] transition-colors"
       >
-        <span className="w-5 h-5 rounded-md bg-[var(--dmoop-accent)]/10 flex items-center justify-center shrink-0">
+        <span className="w-5 h-5 rounded-md bg-[var(--reverb-accent)]/10 flex items-center justify-center shrink-0">
           {allDone ? (
-            <Check size={11} className="text-[var(--dmoop-accent)]" strokeWidth={2.6} />
+            <Check size={11} className="text-[var(--reverb-accent)]" strokeWidth={2.6} />
           ) : (
-            <Loader2 size={11} className="text-[var(--dmoop-accent)] animate-spin" strokeWidth={2.4} />
+            <Loader2 size={11} className="text-[var(--reverb-accent)] animate-spin" strokeWidth={2.4} />
           )}
         </span>
         <div className="flex-1 min-w-0">
-          <p className="text-[10.5px] font-bold uppercase tracking-wider text-[var(--dmoop-text-tertiary)]">
+          <p className="text-[10.5px] font-bold uppercase tracking-wider text-[var(--reverb-text-tertiary)]">
             {allDone ? "Thought it through" : "Thinking…"}
           </p>
-          <p className="text-[12.5px] font-medium text-[var(--dmoop-text-primary)] truncate italic">
+          <p className="text-[12.5px] font-medium text-[var(--reverb-text-primary)] truncate italic">
             {trace.intent || "Letting me think this one through"}
           </p>
         </div>
         <ChevronDown
           size={13}
-          className="text-[var(--dmoop-text-tertiary)] shrink-0 transition-transform"
+          className="text-[var(--reverb-text-tertiary)] shrink-0 transition-transform"
           style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
         />
       </button>
       {open && (
-        <ul className="border-t border-[var(--dmoop-border-soft)] divide-y divide-[var(--dmoop-border-soft)]">
+        <ul className="border-t border-[var(--reverb-border-soft)] divide-y divide-[var(--reverb-border-soft)]">
           {trace.steps.map((step, i) => {
             const Icon = iconForKind(step.kind);
             return (
               <li key={`${step.kind}-${i}`} className="flex items-start gap-2.5 px-3 py-2">
-                <span className="w-5 h-5 rounded-md bg-white border border-[var(--dmoop-border-soft)] flex items-center justify-center shrink-0 mt-0.5">
-                  <Icon size={11} className="text-[var(--dmoop-text-secondary)]" strokeWidth={2.2} />
+                <span className="w-5 h-5 rounded-md bg-white border border-[var(--reverb-border-soft)] flex items-center justify-center shrink-0 mt-0.5">
+                  <Icon size={11} className="text-[var(--reverb-text-secondary)]" strokeWidth={2.2} />
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] text-[var(--dmoop-text-primary)] leading-snug">
+                  <p className="text-[12px] text-[var(--reverb-text-primary)] leading-snug">
                     {step.label}
                   </p>
                   {step.status === "done" && step.result && (
-                    <p className="text-[10.5px] text-[var(--dmoop-text-tertiary)] mt-0.5 truncate">
+                    <p className="text-[10.5px] text-[var(--reverb-text-tertiary)] mt-0.5 truncate">
                       {step.result}
                     </p>
                   )}
@@ -499,7 +499,7 @@ function ResearchTraceView({
                   {step.status === "done" ? (
                     <Check size={11} className="text-emerald-600" strokeWidth={2.6} />
                   ) : (
-                    <Loader2 size={11} className="text-[var(--dmoop-accent)] animate-spin" strokeWidth={2.4} />
+                    <Loader2 size={11} className="text-[var(--reverb-accent)] animate-spin" strokeWidth={2.4} />
                   )}
                 </span>
               </li>

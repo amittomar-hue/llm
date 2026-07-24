@@ -1,8 +1,8 @@
 export type ModelId =
-  | "dmoop-apex"
-  | "dmoop-core"
-  | "dmoop-pulse"
-  | "dmoop-tuned";
+  | "reverb-apex"
+  | "reverb-core"
+  | "reverb-pulse"
+  | "reverb-tuned";
 
 export interface Model {
   id: ModelId;
@@ -17,7 +17,7 @@ export interface Model {
 
 export const MODELS: Model[] = [
   {
-    id: "dmoop-apex",
+    id: "reverb-apex",
     name: "Apex",
     label: "Apex",
     description: "Flagship intelligence. Designed for executive-level strategy, complex multi-channel briefs, and deep competitive analysis.",
@@ -27,7 +27,7 @@ export const MODELS: Model[] = [
     glow: "from-violet-500/20 to-fuchsia-500/20",
   },
   {
-    id: "dmoop-core",
+    id: "reverb-core",
     name: "Core",
     label: "Core",
     description: "The balanced workhorse. Calibrated for daily campaign generation, trend analysis, and content strategy.",
@@ -37,7 +37,7 @@ export const MODELS: Model[] = [
     glow: "from-[#d8593a]/25 to-[#b03e21]/25",
   },
   {
-    id: "dmoop-pulse",
+    id: "reverb-pulse",
     name: "Pulse",
     label: "Pulse",
     description: "Sub-second responses for quick ad copy, subject lines, and high-volume content iteration.",
@@ -46,7 +46,7 @@ export const MODELS: Model[] = [
     glow: "from-emerald-500/20 to-teal-500/20",
   },
   {
-    id: "dmoop-tuned",
+    id: "reverb-tuned",
     name: "Tuned",
     label: "Tuned",
     description: "Your fine-tuned model — trained on your brand voice and approved campaign data. Available after running the Kaggle pipeline.",
@@ -57,7 +57,7 @@ export const MODELS: Model[] = [
   },
 ];
 
-export const DEFAULT_MODEL: ModelId = "dmoop-core";
+export const DEFAULT_MODEL: ModelId = "reverb-core";
 
 export function getModel(id: ModelId): Model {
   return MODELS.find((m) => m.id === id) ?? MODELS[1];

@@ -54,13 +54,13 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const GROQ_MODEL_MAP: Record<string, string> = {
-  "dmoop-apex": "llama-3.3-70b-versatile",
-  "dmoop-core": "llama-3.3-70b-versatile",
-  "dmoop-pulse": "llama-3.1-8b-instant",
+  "reverb-apex": "llama-3.3-70b-versatile",
+  "reverb-core": "llama-3.3-70b-versatile",
+  "reverb-pulse": "llama-3.1-8b-instant",
   // Tuned: llama-4-scout-17b has the highest free-tier TPM (30K vs 6K on 8B-instant),
   // which is what we actually need given training-pair + brand context payload.
   // Fallback chain below tries scout → kimi-k2 (10K TPM) → 8B-instant.
-  "dmoop-tuned": "meta-llama/llama-4-scout-17b-16e-instruct",
+  "reverb-tuned": "meta-llama/llama-4-scout-17b-16e-instruct",
   // Strategic-plan path: Llama-3.3-70B with the long-form system prompt.
   // We previously routed this to Kimi-K2 (1T-param MoE) which gives better
   // long-form coherence, but Groq removed/gated it from this account in
@@ -69,7 +69,7 @@ const GROQ_MODEL_MAP: Record<string, string> = {
   // (dropping the conciseness/clarifier rules + skipping short-asset
   // examples context). The 404 fallback handler in the catch block now
   // also auto-degrades if any specific model path goes 404 in the future.
-  "dmoop-strategic": "llama-3.3-70b-versatile",
+  "reverb-strategic": "llama-3.3-70b-versatile",
   // Strategic + template path: Llama-4-Scout-17B because it has 30K TPM
   // (vs 12K for Llama-70B) — we need the budget headroom to fit a 30K-char
   // template doc + brand identity + voice profile + user query in input
@@ -77,7 +77,7 @@ const GROQ_MODEL_MAP: Record<string, string> = {
   // 70B but with a template providing the structural scaffold, the model
   // is mostly filling in brand-specific content rather than designing a
   // doc structure from scratch — Scout handles that fine.
-  "dmoop-strategic-template": "meta-llama/llama-4-scout-17b-16e-instruct",
+  "reverb-strategic-template": "meta-llama/llama-4-scout-17b-16e-instruct",
 };
 
 // Per-model fallback chains. Ordered by TPM headroom so we degrade gracefully
@@ -121,7 +121,7 @@ function looksLikeStrategicPlan(text: string): boolean {
 // footer requirements — all of which suppress multi-section depth. Keeps the
 // banned-phrases and named-entity rules because they raise quality at any
 // length. Built specifically for Kimi-K2's long-form output style.
-const STRATEGIC_PLAN_SYSTEM_PROMPT = `You are DMOOP — an enterprise marketing intelligence platform. The user has asked for a STRATEGIC PLAN — a comprehensive, multi-section executive document. NOT a short asset, NOT a summary, NOT a TL;DR.
+const STRATEGIC_PLAN_SYSTEM_PROMPT = `You are Reverb — an enterprise marketing intelligence platform. The user has asked for a STRATEGIC PLAN — a comprehensive, multi-section executive document. NOT a short asset, NOT a summary, NOT a TL;DR.
 
 DELIVERABLE FORMAT FOR STRATEGIC PLANS:
 - This is a 5,000–8,000 word document, structured like a Big-4-consultancy execution plan. Do NOT summarize. Do NOT lead with a TL;DR. Do NOT ask clarifying questions — even if the prompt seems vague, COMMIT to the most likely interpretation and deliver the document.
@@ -154,7 +154,7 @@ WHAT NOT TO DO:
 - Do NOT cap your output early. The user expects 5,000-8,000 words minimum. Do NOT trail off into vague generalities to fill space — every section must be substantive.
 - Do NOT use banned phrases: "leverage", "synergy", "robust solution", "cutting-edge", "innovative approach", "in today's fast-paced world", "best practices include", "consider implementing", "various strategies", "tailored solutions". Name the specific thing instead.
 
-Never call yourself Llama / Groq / Kimi / Moonshot. You are DMOOP.`;
+Never call yourself Llama / Groq / Kimi / Moonshot. You are Reverb.`;
 
 // Shared depth + format contract — applies to BOTH personas. Repeating this
 // in every system prompt is expensive but vagueness/output-shape is the #1
@@ -216,7 +216,7 @@ CREATIVE-vs-REPORTING CONTRACT — this is critical, do not miss it:
 - Example of RIGHT: user asks "give me 5 viral social posts" → you write 5 ready-to-publish social posts, each with: hook, body, CTA, suggested platform, optional asset note. Use what you read in research findings to inform the angle, format, and what's working — but the output is YOUR original copy, not their copy.
 - If the user explicitly asks for a roundup / trend report / "what's trending" / "what's working in the market", THEN summarize what others are doing. Otherwise, default to producing the asset.
 
-VISUAL CREATIVE CONTRACT — when producing social posts, ads, landing-page hero copy, or any asset where a visual would normally accompany the copy, INCLUDE a generated image inline using DMOOP's image proxy:
+VISUAL CREATIVE CONTRACT — when producing social posts, ads, landing-page hero copy, or any asset where a visual would normally accompany the copy, INCLUDE a generated image inline using Reverb's image proxy:
 - Format: \`![Short alt describing the visual](/api/imagegen?prompt={URL-ENCODED detailed visual description}&width=1024&height=1024&seed={small integer for variety})\`
 - The endpoint is /api/imagegen — a RELATIVE URL on this site, NOT pollinations.ai or any external host. Do NOT use https://image.pollinations.ai/ — it has been paywalled and will not load.
 
@@ -265,17 +265,17 @@ IMAGE PROMPTS ARE ENGLISH-ONLY — REGARDLESS of what language the rest of the r
 - ONE image per asset is enough — don't over-stack. The image is paired with the copy, not replacing it.
 - Skip the image only for assets where it doesn't apply (cold emails without an attachment, plain copy snippets, single-line taglines).`;
 
-const TUNED_SYSTEM_PROMPT = `You are DMOOP Tuned — DMOOP's custom marketing model. Your knowledge of marketing is the continuously-updated training corpus (scraped marketing intel → asset-type-aware Q&A pairs). The most relevant pairs are injected as system context labeled "DMOOP TUNED — KNOWLEDGE BASE".
+const TUNED_SYSTEM_PROMPT = `You are Reverb Tuned — Reverb's custom marketing model. Your knowledge of marketing is the continuously-updated training corpus (scraped marketing intel → asset-type-aware Q&A pairs). The most relevant pairs are injected as system context labeled "Reverb TUNED — KNOWLEDGE BASE".
 
 KNOWLEDGE RULES (in strict precedence order — read carefully):
 1. If a system message labelled "USER'S BRAND DOCUMENTS" is present, it is AUTHORITATIVE and takes precedence over training pairs. Ground your answer in the brand documents first — the user's own uploaded materials (their strategy decks, past plans, playbooks, brand guidelines) always beat generic scraped intel. Cite brand chunks as [Brand-1], [Brand-2], etc. matching their labels in the injected context.
 2. Training pairs are your general knowledge base for marketing craft — use them for STRUCTURE (case study → Situation/Approach/Result; playbook → numbered steps; social post → hook+CTA breakdown) and for TACTICS the brand documents don't cover. Cite source_url from a pair as [1], [2], etc.
 3. Training pairs are SUPPORTING context when brand documents are present — never cite a training pair over an on-topic brand document. If a brand doc says one thing and a training pair says another, the brand doc wins.
 4. If neither brand documents nor training pairs address the question: give the best grounded baseline from the model's general knowledge and say so in one line. Don't invent sources.
-- Never call yourself Llama / Groq / Marketing LLM. You are DMOOP Tuned.
+- Never call yourself Llama / Groq / Marketing LLM. You are Reverb Tuned.
 ${DEPTH_AND_FORMAT_CONTRACT}`;
 
-const SYSTEM_PROMPT = `You are DMOOP, an enterprise-grade marketing intelligence platform powered by real-time web research and a self-learning feedback loop. You serve marketing teams at mid-market and enterprise brands.
+const SYSTEM_PROMPT = `You are Reverb, an enterprise-grade marketing intelligence platform powered by real-time web research and a self-learning feedback loop. You serve marketing teams at mid-market and enterprise brands.
 
 You are NOT limited to a fixed list of tasks. You handle the full surface area of modern B2B and B2C marketing including, but not limited to:
 
@@ -314,7 +314,7 @@ If a user asks for something outside this list but it is a legitimate marketing 
 KNOWLEDGE RULES:
 - When "Live web research" context is provided, treat those URLs as the source of truth — cite inline as [1], [2] and end with **## Sources** listing each URL with its publish date.
 - When "high-rated past examples" / "training pairs" / "brand documents" are provided, learn their structure and depth — do NOT copy verbatim.
-- Never refer to yourself as "Marketing LLM" or any other name. You are DMOOP.
+- Never refer to yourself as "Marketing LLM" or any other name. You are Reverb.
 ${DEPTH_AND_FORMAT_CONTRACT}`;
 
 interface ClientMessage {
@@ -383,7 +383,7 @@ function formatDuration(seconds: number): string {
  * inline so older clients still render something useful.
  */
 function buildQuotaExhaustedMessage(err: Error, isTuned: boolean): string {
-  const modelLabel = isTuned ? "DMOOP Tuned" : "DMOOP";
+  const modelLabel = isTuned ? "Reverb Tuned" : "Reverb";
   const retrySec = parseRetryAfterSeconds(err);
 
   // No retry-after info at all → safe default of 60s.
@@ -425,7 +425,7 @@ function looksLikeWebQuery(text: string): boolean {
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const messages: ClientMessage[] = body.messages ?? [];
-  const modelId: string = body.model ?? "dmoop-core";
+  const modelId: string = body.model ?? "reverb-core";
   const sessionId: string | undefined = body.session_id;
   const webSearchMode: "auto" | "on" | "off" = body.web_search_mode ?? "auto";
   // Multi-agent: optional agent_id pin from the client; when absent,
@@ -577,17 +577,17 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Decide model-specific behavior ────────────────────────────
-  // Map any legacy model IDs to DMOOP defaults. The strategic-plan auto-route
+  // Map any legacy model IDs to Reverb defaults. The strategic-plan auto-route
   // wins over whatever the user picked in the dropdown — long-form coherence
   // is materially better with the right model + system prompt combo and the
   // user can't be expected to know that. Later, if a template doc is in play,
   // we further upgrade to Scout (30K TPM) so the template fits in the input.
   let effectiveModelIdEarly = isStrategicPlan
-    ? "dmoop-strategic"
-    : (modelId in GROQ_MODEL_MAP || modelId === "dmoop-tuned")
+    ? "reverb-strategic"
+    : (modelId in GROQ_MODEL_MAP || modelId === "reverb-tuned")
     ? modelId
-    : "dmoop-core";
-  const isTuned = effectiveModelIdEarly === "dmoop-tuned";
+    : "reverb-core";
+  const isTuned = effectiveModelIdEarly === "reverb-tuned";
 
   // ── TUNED-ONLY: training-pair retrieval is the PRIMARY signal ──
   // These are the asset-type-aware Q&A pairs produced by the scrape→convert
@@ -665,7 +665,7 @@ export async function POST(req: NextRequest) {
   // long-form quality but with the template doing the structural heavy
   // lifting the model is mostly substituting brand entities. Better trade.
   if (isStrategicPlan && hasTemplate) {
-    effectiveModelIdEarly = "dmoop-strategic-template";
+    effectiveModelIdEarly = "reverb-strategic-template";
   }
 
   // ── Brand documents: pull the user's uploaded brand context ─
@@ -941,7 +941,7 @@ export async function POST(req: NextRequest) {
         groqMessages.push({
           role: "system",
           content:
-            "CRM DATA STATUS: The user asked about CRM data, but their DMOOP account has NO " +
+            "CRM DATA STATUS: The user asked about CRM data, but their Reverb account has NO " +
             "connected CRM (neither HubSpot nor Zoho). Do NOT invent contacts, journeys, or " +
             "activity — those would be fabricated. Tell the user to connect a CRM at " +
             "/settings/integrations, then retry.",
@@ -1224,7 +1224,7 @@ NO TEXT IN THE IMAGE — same rule as the baseline contract. Do NOT put the asse
       { test: (s) => s.startsWith("Recent scraped intel"), cap: 800 },
       { test: (s) => s.includes("Style/voice reference") || s.includes("high-rated past examples") || s.includes("Here are examples of past"), cap: 1200 },
       { test: (s) => s.startsWith("USER'S BRAND DOCUMENTS"), cap: 2000 },
-      { test: (s) => s.includes("DMOOP TUNED — KNOWLEDGE BASE"), cap: 2500 },
+      { test: (s) => s.includes("Reverb TUNED — KNOWLEDGE BASE"), cap: 2500 },
       { test: (s) => s.includes("LIVE WEBSITE SCRAPE"), cap: 8000 },
     ];
 
@@ -1269,7 +1269,7 @@ NO TEXT IN THE IMAGE — same rule as the baseline contract. Do NOT put the asse
   const encoder = new TextEncoder();
   let fullResponse = "";
   const useFineTuned =
-    effectiveModelId === "dmoop-tuned" && isFineTunedModelConfigured();
+    effectiveModelId === "reverb-tuned" && isFineTunedModelConfigured();
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -1396,7 +1396,7 @@ NO TEXT IN THE IMAGE — same rule as the baseline contract. Do NOT put the asse
             controller.enqueue(encoder.encode(token));
           }
         } else {
-          const primaryModel = GROQ_MODEL_MAP[effectiveModelId] ?? GROQ_MODEL_MAP["dmoop-core"];
+          const primaryModel = GROQ_MODEL_MAP[effectiveModelId] ?? GROQ_MODEL_MAP["reverb-core"];
           const tryModels = FALLBACK_CHAIN[primaryModel] ?? [primaryModel];
 
           // Stripped fallback message: persona + format hint + last user message only.

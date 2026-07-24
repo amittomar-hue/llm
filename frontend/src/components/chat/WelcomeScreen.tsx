@@ -135,41 +135,41 @@ export default function WelcomeScreen() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto dmoop-scroll min-h-0">
+    <div className="flex-1 overflow-y-auto reverb-scroll min-h-0">
       <div className="min-h-full flex flex-col items-center px-4 sm:px-6 py-6 sm:py-8">
-        <div className="w-full max-w-4xl dmoop-fade-in">
+        <div className="w-full max-w-4xl reverb-fade-in">
           <div className="text-center mb-5 sm:mb-6">
-            <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-[var(--dmoop-border-soft)] shadow-[var(--dmoop-shadow-xs)] mb-3 sm:mb-4">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-[var(--reverb-border-soft)] shadow-[var(--reverb-shadow-xs)] mb-3 sm:mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-              <span className="text-[10.5px] sm:text-[11px] font-semibold text-[var(--dmoop-text-secondary)] tracking-wide uppercase">
+              <span className="text-[10.5px] sm:text-[11px] font-semibold text-[var(--reverb-text-secondary)] tracking-wide uppercase">
                 Live · Self-Learning
               </span>
             </div>
-            <h1 className="text-[28px] sm:text-[36px] md:text-[40px] font-medium tracking-tight text-[var(--dmoop-text-primary)] mb-2 sm:mb-2.5 leading-tight">
+            <h1 className="text-[28px] sm:text-[36px] md:text-[40px] font-medium tracking-tight text-[var(--reverb-text-primary)] mb-2 sm:mb-2.5 leading-tight">
               {greeting}, <span style={{
-                background: "var(--dmoop-gradient-accent)",
+                background: "var(--reverb-gradient-accent)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 fontWeight: 700,
               }}>{firstName}</span>
             </h1>
-            <p className="text-[13px] sm:text-[14.5px] text-[var(--dmoop-text-secondary)] font-normal px-2">
+            <p className="text-[13px] sm:text-[14.5px] text-[var(--reverb-text-secondary)] font-normal px-2">
               From SEO to ABM to buyer intent — what would you like to work on?
             </p>
           </div>
 
           {/* Category tabs */}
-          <div className="flex items-center justify-start sm:justify-center gap-1.5 mb-4 sm:mb-5 flex-nowrap sm:flex-wrap overflow-x-auto dmoop-scroll -mx-4 sm:mx-0 px-4 sm:px-0 pb-1">
+          <div className="flex items-center justify-start sm:justify-center gap-1.5 mb-4 sm:mb-5 flex-nowrap sm:flex-wrap overflow-x-auto reverb-scroll -mx-4 sm:mx-0 px-4 sm:px-0 pb-1">
             {CATEGORIES.map((cat) => (
               <button key={cat} onClick={() => setActiveCategory(cat)}
                 className={cn(
                   "shrink-0 px-3 py-1.5 rounded-full text-[12px] font-semibold tracking-tight transition-all duration-200 active:scale-95",
                   activeCategory === cat
-                    ? "text-white shadow-[var(--dmoop-shadow-sm)]"
-                    : "text-[var(--dmoop-text-secondary)] bg-white/60 border border-[var(--dmoop-border-soft)] hover:bg-white"
+                    ? "text-white shadow-[var(--reverb-shadow-sm)]"
+                    : "text-[var(--reverb-text-secondary)] bg-white/60 border border-[var(--reverb-border-soft)] hover:bg-white"
                 )}
-                style={activeCategory === cat ? { background: "var(--dmoop-gradient-accent)" } : {}}>
+                style={activeCategory === cat ? { background: "var(--reverb-gradient-accent)" } : {}}>
                 {cat}
               </button>
             ))}
@@ -180,31 +180,31 @@ export default function WelcomeScreen() {
             {visible.map((s, i) => (
               <button key={s.title} onClick={() => startWith(s.prompt)}
                 style={{ animationDelay: `${50 + i * 40}ms` }}
-                className="group relative text-left p-4 rounded-2xl bg-[var(--dmoop-gradient-card)] border border-[var(--dmoop-border-soft)] overflow-hidden dmoop-card dmoop-stagger-in">
+                className="group relative text-left p-4 rounded-2xl bg-[var(--reverb-gradient-card)] border border-[var(--reverb-border-soft)] overflow-hidden reverb-card reverb-stagger-in">
                 <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${s.accent} opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500`} />
                 <div className="relative">
                   <div className="flex items-start justify-between mb-2.5">
                     <div className={`w-9 h-9 rounded-xl ${s.iconBg} flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}
-                      style={{ boxShadow: "var(--dmoop-shadow-xs)" }}>
+                      style={{ boxShadow: "var(--reverb-shadow-xs)" }}>
                       <s.icon size={16} className={s.iconColor} strokeWidth={2.2} />
                     </div>
-                    <span className="text-[9.5px] font-semibold tracking-wider uppercase text-[var(--dmoop-text-tertiary)] px-1.5 py-0.5 rounded-md bg-[#f5f1ea]">
+                    <span className="text-[9.5px] font-semibold tracking-wider uppercase text-[var(--reverb-text-tertiary)] px-1.5 py-0.5 rounded-md bg-[#f5f1ea]">
                       {s.category}
                     </span>
                   </div>
-                  <p className="text-[13.5px] font-semibold text-[var(--dmoop-text-primary)] mb-1 tracking-tight">{s.title}</p>
-                  <p className="text-[12px] text-[var(--dmoop-text-secondary)] line-clamp-2 leading-relaxed">{s.prompt}</p>
+                  <p className="text-[13.5px] font-semibold text-[var(--reverb-text-primary)] mb-1 tracking-tight">{s.title}</p>
+                  <p className="text-[12px] text-[var(--reverb-text-secondary)] line-clamp-2 leading-relaxed">{s.prompt}</p>
                 </div>
               </button>
             ))}
           </div>
 
           {/* "And much more" footer */}
-          <div className="mt-7 mb-2 flex items-center justify-center gap-2 text-[12px] text-[var(--dmoop-text-tertiary)]">
-            <span className="h-px w-12 bg-[var(--dmoop-border-soft)]" />
+          <div className="mt-7 mb-2 flex items-center justify-center gap-2 text-[12px] text-[var(--reverb-text-tertiary)]">
+            <span className="h-px w-12 bg-[var(--reverb-border-soft)]" />
             <span className="font-medium">And much more — just ask</span>
             <ChevronRight size={12} className="opacity-60" />
-            <span className="h-px w-12 bg-[var(--dmoop-border-soft)]" />
+            <span className="h-px w-12 bg-[var(--reverb-border-soft)]" />
           </div>
         </div>
       </div>

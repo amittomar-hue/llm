@@ -6,13 +6,13 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 const EFFECTIVE_DATE = "June 17, 2026";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — DMOOP",
+  title: "Privacy Policy — Reverb",
   description:
-    "How DMOOP collects, uses, and protects your data. Effective " + EFFECTIVE_DATE + ".",
+    "How Reverb collects, uses, and protects your data. Effective " + EFFECTIVE_DATE + ".",
   alternates: { canonical: "/privacy" },
   openGraph: {
-    title: "Privacy Policy — DMOOP",
-    description: "How DMOOP collects, uses, and protects your data.",
+    title: "Privacy Policy — Reverb",
+    description: "How Reverb collects, uses, and protects your data.",
     url: "/privacy",
     type: "website",
   },
@@ -23,57 +23,57 @@ export default function PrivacyPage() {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.dmoop.com" },
-      { "@type": "ListItem", position: 2, name: "Privacy Policy", item: "https://www.dmoop.com/privacy" },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://llm-amits-projects-d3468251.vercel.app" },
+      { "@type": "ListItem", position: 2, name: "Privacy Policy", item: "https://llm-amits-projects-d3468251.vercel.app/privacy" },
     ],
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "var(--dmoop-bg-app)" }}>
+    <div className="min-h-screen flex flex-col" style={{ background: "var(--reverb-bg-app)" }}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      <nav className="sticky top-0 z-30 border-b border-[var(--dmoop-border-soft)] backdrop-blur-xl bg-white/70">
+      <nav className="sticky top-0 z-30 border-b border-[var(--reverb-border-soft)] backdrop-blur-xl bg-white/70">
         <div className="max-w-4xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
           <Link href="/" className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-            <Image src="/dmoop-logo.png" alt="DMOOP" width={130} height={36} priority className="h-7 sm:h-8 w-auto" />
+            <Image src="/reverb-logo.png" alt="Reverb" width={130} height={36} priority className="h-7 sm:h-8 w-auto" />
           </Link>
           <div className="flex items-center gap-3 shrink-0">
-            <Link href="/" className="text-[12.5px] sm:text-[13px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] flex items-center gap-1">
+            <Link href="/" className="text-[12.5px] sm:text-[13px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)] flex items-center gap-1">
               <ArrowLeft size={13} /> Home
             </Link>
-            <Link href="/chat" className="h-8 sm:h-9 px-3 sm:px-4 rounded-lg dmoop-btn-primary text-[12.5px] sm:text-[13px] font-semibold flex items-center gap-1.5 shrink-0">
-              Open DMOOP <ArrowRight size={13} />
+            <Link href="/chat" className="h-8 sm:h-9 px-3 sm:px-4 rounded-lg reverb-btn-primary text-[12.5px] sm:text-[13px] font-semibold flex items-center gap-1.5 shrink-0">
+              Open Reverb <ArrowRight size={13} />
             </Link>
           </div>
         </div>
       </nav>
 
       <article className="relative max-w-3xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-12 sm:pb-20 w-full">
-        <p className="text-[10.5px] sm:text-[11px] font-bold tracking-[0.14em] text-[var(--dmoop-accent)] uppercase mb-3">
+        <p className="text-[10.5px] sm:text-[11px] font-bold tracking-[0.14em] text-[var(--reverb-accent)] uppercase mb-3">
           Legal
         </p>
-        <h1 className="text-[28px] sm:text-[42px] font-semibold tracking-tight text-[var(--dmoop-text-primary)] leading-[1.15] mb-3">
+        <h1 className="text-[28px] sm:text-[42px] font-semibold tracking-tight text-[var(--reverb-text-primary)] leading-[1.15] mb-3">
           Privacy Policy
         </h1>
-        <p className="text-[13px] text-[var(--dmoop-text-tertiary)] mb-8 pb-6 border-b border-[var(--dmoop-border-soft)]">
+        <p className="text-[13px] text-[var(--reverb-text-tertiary)] mb-8 pb-6 border-b border-[var(--reverb-border-soft)]">
           Effective {EFFECTIVE_DATE}
         </p>
 
         <div className="resource-prose">
           <p>
-            This Privacy Policy explains how DMOOP (&quot;DMOOP&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;)
+            This Privacy Policy explains how Reverb (&quot;Reverb&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;)
             collects, uses, discloses, and protects information when you use
-            <Link href="/" className="text-[var(--dmoop-accent)] font-medium"> www.dmoop.com </Link>
-            and the DMOOP marketing intelligence platform (collectively, the &quot;Service&quot;). By using the
+            <Link href="/" className="text-[var(--reverb-accent)] font-medium"> www.reverb.com </Link>
+            and the Reverb marketing intelligence platform (collectively, the &quot;Service&quot;). By using the
             Service, you agree to this Policy. If you do not agree, do not use the Service.
           </p>
 
           <h2>1. Who we are</h2>
           <p>
-            DMOOP is an AI-assisted marketing intelligence platform operated by Compunnel Inc. and its
+            Reverb is an AI-assisted marketing intelligence platform operated by Compunnel Inc. and its
             affiliates. For data-protection purposes, the operating entity acts as the
             &quot;controller&quot; of your personal data unless otherwise indicated.
           </p>
@@ -128,7 +128,7 @@ export default function PrivacyPage() {
               you request. We send prompts using API access governed by zero-retention or
               short-retention agreements where available; we never use customer prompts to train any
               third-party model without your explicit consent.</li>
-            <li><strong>Web search grounding</strong> — Tavily AI, when you ask DMOOP to research a topic on
+            <li><strong>Web search grounding</strong> — Tavily AI, when you ask Reverb to research a topic on
               the live web.</li>
             <li><strong>Product analytics</strong> — internal analytics only; we do not currently use
               ad-tracking SDKs.</li>
@@ -140,7 +140,7 @@ export default function PrivacyPage() {
             <li>With your consent or at your direction.</li>
             <li>To service providers acting on our behalf (Section 4).</li>
             <li>To comply with law, legal process, or governmental requests, or to protect the rights,
-              safety, or property of DMOOP, our users, or others.</li>
+              safety, or property of Reverb, our users, or others.</li>
             <li>In connection with a merger, acquisition, financing, or sale of assets, with notice to
               you and continued protection of your data.</li>
           </ul>
@@ -169,26 +169,26 @@ export default function PrivacyPage() {
           </ul>
           <p>
             To exercise any of these rights, email us at{" "}
-            <a href="mailto:privacy@dmoop.com" className="text-[var(--dmoop-accent)] font-medium">
-              privacy@dmoop.com
+            <a href="mailto:privacy@reverb.com" className="text-[var(--reverb-accent)] font-medium">
+              privacy@reverb.com
             </a>
             . We respond within the timeframes required by applicable law.
           </p>
 
           <h2>8. International data transfers</h2>
           <p>
-            DMOOP and its providers may process data in the United States, India, and other countries
+            Reverb and its providers may process data in the United States, India, and other countries
             where our infrastructure operates. Where required, we use safeguards such as standard
             contractual clauses to protect cross-border transfers.
           </p>
 
           <h2>9. Children</h2>
           <p>
-            DMOOP is intended for business and professional use. The Service is not directed to
+            Reverb is intended for business and professional use. The Service is not directed to
             children under 16, and we do not knowingly collect personal data from children. If you
             believe a child has provided us personal data, please contact{" "}
-            <a href="mailto:privacy@dmoop.com" className="text-[var(--dmoop-accent)] font-medium">
-              privacy@dmoop.com
+            <a href="mailto:privacy@reverb.com" className="text-[var(--reverb-accent)] font-medium">
+              privacy@reverb.com
             </a>{" "}
             and we will delete it.
           </p>
@@ -199,8 +199,8 @@ export default function PrivacyPage() {
             encryption in transit (HTTPS/TLS), encrypted storage at rest with our cloud providers,
             access controls, and audit logging. No security system is perfect; if you believe your
             account has been compromised, contact us immediately at{" "}
-            <a href="mailto:security@dmoop.com" className="text-[var(--dmoop-accent)] font-medium">
-              security@dmoop.com
+            <a href="mailto:security@reverb.com" className="text-[var(--reverb-accent)] font-medium">
+              security@reverb.com
             </a>
             .
           </p>
@@ -231,15 +231,15 @@ export default function PrivacyPage() {
             For privacy questions or to exercise your rights, contact us at:
           </p>
           <p>
-            DMOOP Privacy Team<br />
+            Reverb Privacy Team<br />
             Email:{" "}
-            <a href="mailto:privacy@dmoop.com" className="text-[var(--dmoop-accent)] font-medium">
-              privacy@dmoop.com
+            <a href="mailto:privacy@reverb.com" className="text-[var(--reverb-accent)] font-medium">
+              privacy@reverb.com
             </a>
           </p>
           <p>
             See also our{" "}
-            <Link href="/terms" className="text-[var(--dmoop-accent)] font-medium">
+            <Link href="/terms" className="text-[var(--reverb-accent)] font-medium">
               Terms of Service
             </Link>
             .
@@ -247,20 +247,20 @@ export default function PrivacyPage() {
         </div>
       </article>
 
-      <footer className="relative py-8 border-t border-[var(--dmoop-border-soft)] mt-auto">
+      <footer className="relative py-8 border-t border-[var(--reverb-border-soft)] mt-auto">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <Image src="/dmoop-logo.png" alt="DMOOP" width={100} height={28} className="h-6 w-auto" />
-            <span className="text-[11px] text-[var(--dmoop-text-tertiary)]">© {new Date().getFullYear()} DMOOP</span>
+            <Image src="/reverb-logo.png" alt="Reverb" width={100} height={28} className="h-6 w-auto" />
+            <span className="text-[11px] text-[var(--reverb-text-tertiary)]">© {new Date().getFullYear()} Reverb</span>
           </div>
           <div className="flex items-center gap-5">
-            <Link href="/docs/api" className="text-[12px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)]">
+            <Link href="/docs/api" className="text-[12px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]">
               API
             </Link>
-            <Link href="/terms" className="text-[12px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)]">
+            <Link href="/terms" className="text-[12px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]">
               Terms
             </Link>
-            <Link href="/" className="text-[12px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] flex items-center gap-1">
+            <Link href="/" className="text-[12px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)] flex items-center gap-1">
               <ArrowLeft size={12} /> Back to home
             </Link>
           </div>

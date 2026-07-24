@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Verify your email — DMOOP",
+  title: "Verify your email — Reverb",
   robots: { index: false, follow: false },
 };
 

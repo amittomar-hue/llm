@@ -4,7 +4,7 @@
 
 import type { MetadataRoute } from "next";
 
-const SITE_URL = "https://www.dmoop.com";
+const SITE_URL = "https://llm-amits-projects-d3468251.vercel.app";
 
 export default function robots(): MetadataRoute.Robots {
   const disallow = [

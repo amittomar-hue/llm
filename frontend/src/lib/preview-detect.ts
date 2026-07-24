@@ -1,9 +1,9 @@
 // ─────────────────────────────────────────────────────────────────
-// Detect whether a code block can be opened in DMOOP's preview drawer.
+// Detect whether a code block can be opened in Reverb's preview drawer.
 // Returns the rendering "kind" for routing inside PreviewDrawer.
 //   - html      → render in sandboxed iframe via srcDoc
 //   - svg       → inline render
-//   - markdown  → re-render through DMOOP's Markdown component
+//   - markdown  → re-render through Reverb's Markdown component
 //   - json      → pretty-printed code view
 //   - react     → flag-only (no JSX runtime yet)
 // ─────────────────────────────────────────────────────────────────
@@ -79,7 +79,7 @@ export function wrapHtmlFragment(code: string): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DMOOP Preview</title>
+<title>Reverb Preview</title>
 <style>
 body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:24px;line-height:1.6;color:#1f1b16;background:#fafaf8}
 </style>

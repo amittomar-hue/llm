@@ -25,7 +25,7 @@ import { buildAuthorizeUrl } from "@/lib/crm/hubspot";
 export const runtime = "nodejs";
 
 const STATE_TTL_MS = 10 * 60 * 1000; // 10 minutes
-export const PKCE_COOKIE = "dmoop_hs_pkce";
+export const PKCE_COOKIE = "reverb_hs_pkce";
 
 function signState(userId: string): string {
   const secret = process.env.CRM_OAUTH_STATE_SECRET;
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
     const url = buildAuthorizeUrl(state, challenge);
     const res = NextResponse.redirect(url);
     // HttpOnly so JS can't read it. SameSite=Lax so it comes back with
-    // the top-level nav from hubspot.com → dmoop.com. Secure in prod.
+    // the top-level nav from hubspot.com → reverb.com. Secure in prod.
     res.cookies.set(PKCE_COOKIE, verifier, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

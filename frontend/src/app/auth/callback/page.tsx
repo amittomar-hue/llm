@@ -81,14 +81,14 @@ export default function AuthCallbackPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "var(--dmoop-bg-app)" }}>
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "var(--reverb-bg-app)" }}>
       <div className="text-center">
-        <div className="inline-block w-10 h-10 border-2 border-[var(--dmoop-accent)] border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-[14px] font-medium text-[var(--dmoop-text-primary)]">
+        <div className="inline-block w-10 h-10 border-2 border-[var(--reverb-accent)] border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-[14px] font-medium text-[var(--reverb-text-primary)]">
           {error ? "Verification failed" : "Finishing sign-in…"}
         </p>
         {error && (
-          <p className="text-[12.5px] text-[var(--dmoop-text-tertiary)] mt-1.5 max-w-sm">
+          <p className="text-[12.5px] text-[var(--reverb-text-tertiary)] mt-1.5 max-w-sm">
             {error}
           </p>
         )}

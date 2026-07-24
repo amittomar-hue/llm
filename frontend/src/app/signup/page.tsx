@@ -93,16 +93,16 @@ export default function SignUpPage() {
   };
 
   return (
-    <AuthShellLite title="Get started with DMOOP" subtitle="Create your account in seconds">
+    <AuthShellLite title="Get started with Reverb" subtitle="Create your account in seconds">
       <button type="button" onClick={handleLinkedIn}
         className="h-11 w-full rounded-xl flex items-center justify-center gap-2 text-[14px] font-semibold text-white transition-all hover:opacity-90"
         style={{ background: "#0A66C2", boxShadow: "0 1px 2px rgba(10,102,194,0.25)" }}>
         <LinkedInGlyph size={16} /> Continue with LinkedIn
       </button>
       <div className="flex items-center gap-3 my-4">
-        <div className="flex-1 h-px bg-[var(--dmoop-border-soft)]" />
-        <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--dmoop-text-tertiary)]">or</span>
-        <div className="flex-1 h-px bg-[var(--dmoop-border-soft)]" />
+        <div className="flex-1 h-px bg-[var(--reverb-border-soft)]" />
+        <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--reverb-text-tertiary)]">or</span>
+        <div className="flex-1 h-px bg-[var(--reverb-border-soft)]" />
       </div>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Honeypot — invisible to humans (off-screen, aria-hidden,
@@ -140,21 +140,21 @@ export default function SignUpPage() {
         )}
 
         <button type="submit" disabled={loading || !email || !password || !fullName}
-          className="h-11 rounded-xl dmoop-btn-primary text-[14px] font-semibold flex items-center justify-center gap-2">
+          className="h-11 rounded-xl reverb-btn-primary text-[14px] font-semibold flex items-center justify-center gap-2">
           {loading ? <><Loader2 size={15} className="animate-spin" /> Creating account…</> : "Create account"}
         </button>
       </form>
 
-      <p className="text-center text-[11.5px] text-[var(--dmoop-text-tertiary)] mt-4 leading-relaxed px-2">
+      <p className="text-center text-[11.5px] text-[var(--reverb-text-tertiary)] mt-4 leading-relaxed px-2">
         By creating an account you agree to our{" "}
-        <Link href="/terms" className="text-[var(--dmoop-text-secondary)] underline underline-offset-2 hover:text-[var(--dmoop-accent)]">Terms of Service</Link>
+        <Link href="/terms" className="text-[var(--reverb-text-secondary)] underline underline-offset-2 hover:text-[var(--reverb-accent)]">Terms of Service</Link>
         {" "}and{" "}
-        <Link href="/privacy" className="text-[var(--dmoop-text-secondary)] underline underline-offset-2 hover:text-[var(--dmoop-accent)]">Privacy Policy</Link>.
+        <Link href="/privacy" className="text-[var(--reverb-text-secondary)] underline underline-offset-2 hover:text-[var(--reverb-accent)]">Privacy Policy</Link>.
       </p>
 
-      <p className="text-center text-[13px] text-[var(--dmoop-text-secondary)] mt-5">
+      <p className="text-center text-[13px] text-[var(--reverb-text-secondary)] mt-5">
         Already have an account?{" "}
-        <Link href="/signin" className="font-semibold text-[var(--dmoop-accent)] hover:text-[var(--dmoop-accent-rich)]">Sign in</Link>
+        <Link href="/signin" className="font-semibold text-[var(--reverb-accent)] hover:text-[var(--reverb-accent-rich)]">Sign in</Link>
       </p>
     </AuthShellLite>
   );
@@ -162,17 +162,17 @@ export default function SignUpPage() {
 
 function AuthShellLite({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--dmoop-bg-app)" }}>
+    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--reverb-bg-app)" }}>
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none opacity-50"
         style={{ background: "radial-gradient(ellipse at top, rgba(193,74,42,0.12) 0%, transparent 70%)" }} />
-      <div className="relative w-full max-w-md dmoop-fade-in">
+      <div className="relative w-full max-w-md reverb-fade-in">
         <div className="flex justify-center mb-7">
-          <Image src="/dmoop-logo.png" alt="DMOOP" width={180} height={56} priority className="h-12 w-auto" />
+          <Image src="/reverb-logo.png" alt="Reverb" width={180} height={56} priority className="h-12 w-auto" />
         </div>
-        <div className="p-6 sm:p-8 rounded-2xl" style={{ background: "var(--dmoop-gradient-card)", border: "1px solid var(--dmoop-border-soft)", boxShadow: "var(--dmoop-shadow-xl)" }}>
+        <div className="p-6 sm:p-8 rounded-2xl" style={{ background: "var(--reverb-gradient-card)", border: "1px solid var(--reverb-border-soft)", boxShadow: "var(--reverb-shadow-xl)" }}>
           <div className="text-center mb-7">
-            <h1 className="text-[24px] font-semibold tracking-tight text-[var(--dmoop-text-primary)] mb-1.5">{title}</h1>
-            <p className="text-[13.5px] text-[var(--dmoop-text-secondary)]">{subtitle}</p>
+            <h1 className="text-[24px] font-semibold tracking-tight text-[var(--reverb-text-primary)] mb-1.5">{title}</h1>
+            <p className="text-[13.5px] text-[var(--reverb-text-secondary)]">{subtitle}</p>
           </div>
           {children}
         </div>
@@ -187,9 +187,9 @@ function InlineField({ icon: Icon, type, placeholder, value, onChange, autoCompl
 }) {
   return (
     <div className="relative">
-      <Icon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--dmoop-text-tertiary)] pointer-events-none" />
+      <Icon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--reverb-text-tertiary)] pointer-events-none" />
       <input type={type} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} autoComplete={autoComplete} required
-        className="w-full h-11 pl-10 pr-3.5 rounded-xl bg-white border border-[var(--dmoop-border-soft)] text-[14px] focus:outline-none focus:border-[var(--dmoop-accent)] focus:ring-4 focus:ring-[var(--dmoop-accent)]/10 transition-all" />
+        className="w-full h-11 pl-10 pr-3.5 rounded-xl bg-white border border-[var(--reverb-border-soft)] text-[14px] focus:outline-none focus:border-[var(--reverb-accent)] focus:ring-4 focus:ring-[var(--reverb-accent)]/10 transition-all" />
     </div>
   );
 }

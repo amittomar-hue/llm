@@ -478,7 +478,7 @@ export default function InputBar() {
       {(voiceSilent || voiceError) && listening && (
         <div className="mb-2 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-[12px]">
           <Mic size={12} className="text-amber-600 shrink-0" />
-          <p className="text-[var(--dmoop-text-primary)] flex-1 leading-snug">
+          <p className="text-[var(--reverb-text-primary)] flex-1 leading-snug">
             {voiceError === "no-speech" || voiceSilent ? (
               <>
                 <strong>We can&apos;t hear you.</strong> Check your system mic isn&apos;t muted and that the right input device is selected.
@@ -507,12 +507,12 @@ export default function InputBar() {
         <div className="mb-2 space-y-1.5">
           {pendingAttachments.length > 1 && (
             <div className="flex items-center justify-between px-1">
-              <p className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)]">
+              <p className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--reverb-text-tertiary)]">
                 {pendingAttachments.length} files attached
               </p>
               <button
                 onClick={clearPendingAttachments}
-                className="text-[10.5px] font-medium text-[var(--dmoop-text-tertiary)] hover:text-[var(--dmoop-text-primary)] transition-colors"
+                className="text-[10.5px] font-medium text-[var(--reverb-text-tertiary)] hover:text-[var(--reverb-text-primary)] transition-colors"
               >
                 Clear all
               </button>
@@ -521,13 +521,13 @@ export default function InputBar() {
           {pendingAttachments.map((a) => (
             <div
               key={a.name}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[var(--dmoop-border-soft)] shadow-[var(--dmoop-shadow-xs)] text-[12.5px]"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[var(--reverb-border-soft)] shadow-[var(--reverb-shadow-xs)] text-[12.5px]"
             >
-              <FileText size={12} className="text-[var(--dmoop-accent)] shrink-0" />
-              <span className="font-medium text-[var(--dmoop-text-primary)] truncate flex-1">
+              <FileText size={12} className="text-[var(--reverb-accent)] shrink-0" />
+              <span className="font-medium text-[var(--reverb-text-primary)] truncate flex-1">
                 {a.name}
               </span>
-              <span className="text-[10.5px] text-[var(--dmoop-text-tertiary)] shrink-0">
+              <span className="text-[10.5px] text-[var(--reverb-text-tertiary)] shrink-0">
                 {(a.content.length / 1024).toFixed(1)}KB
               </span>
               <button
@@ -535,7 +535,7 @@ export default function InputBar() {
                 className="p-0.5 rounded-md hover:bg-[#f0ede8] transition-colors shrink-0"
                 title={`Remove ${a.name}`}
               >
-                <X size={12} className="text-[var(--dmoop-text-secondary)]" />
+                <X size={12} className="text-[var(--reverb-text-secondary)]" />
               </button>
             </div>
           ))}
@@ -543,7 +543,7 @@ export default function InputBar() {
       )}
 
       <div
-        className={`relative rounded-[20px] sm:rounded-[24px] transition-all duration-300 ease-out dmoop-input-elev ${
+        className={`relative rounded-[20px] sm:rounded-[24px] transition-all duration-300 ease-out reverb-input-elev ${
           isFocused ? "scale-[1.005]" : ""
         }`}
       >
@@ -562,8 +562,8 @@ export default function InputBar() {
           onKeyDown={onKey}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          placeholder="How can DMOOP help you today?"
-          className="w-full resize-none bg-transparent px-5 pt-4 pb-2 text-[15px] text-[var(--dmoop-text-primary)] placeholder:text-[var(--dmoop-text-tertiary)] focus:outline-none leading-relaxed"
+          placeholder="How can Reverb help you today?"
+          className="w-full resize-none bg-transparent px-5 pt-4 pb-2 text-[15px] text-[var(--reverb-text-primary)] placeholder:text-[var(--reverb-text-tertiary)] focus:outline-none leading-relaxed"
         />
 
         <div className="flex items-center justify-between px-2 sm:px-3 pb-3 pt-1.5 gap-1.5 sm:gap-2 min-w-0">
@@ -589,14 +589,14 @@ export default function InputBar() {
               onClick={() => fileInputRef.current?.click()}
               disabled={parsingFile}
               className={cn(
-                "p-1.5 sm:p-2 rounded-lg text-[var(--dmoop-text-secondary)] transition-all duration-150 hover:bg-[#f5f1ea] hover:text-[var(--dmoop-text-primary)] active:scale-95 shrink-0",
-                pendingAttachments.length > 0 && "text-[var(--dmoop-accent)] bg-[#fbf3ee]",
+                "p-1.5 sm:p-2 rounded-lg text-[var(--reverb-text-secondary)] transition-all duration-150 hover:bg-[#f5f1ea] hover:text-[var(--reverb-text-primary)] active:scale-95 shrink-0",
+                pendingAttachments.length > 0 && "text-[var(--reverb-accent)] bg-[#fbf3ee]",
                 parsingFile && "opacity-60 cursor-wait"
               )}
               title="Attach one or more files — PDF, Word, Excel, PowerPoint, text (max 50MB each)"
             >
               {parsingFile ? (
-                <span className="block w-3.5 h-3.5 border-2 border-[var(--dmoop-accent)] border-t-transparent rounded-full animate-spin" />
+                <span className="block w-3.5 h-3.5 border-2 border-[var(--reverb-accent)] border-t-transparent rounded-full animate-spin" />
               ) : (
                 <Paperclip size={14} strokeWidth={2} />
               )}
@@ -611,8 +611,8 @@ export default function InputBar() {
                 webSearchForced === "on"
                   ? "bg-blue-50 text-blue-700 hover:bg-blue-100"
                   : webSearchForced === "off"
-                  ? "text-[var(--dmoop-text-tertiary)] hover:bg-[#f5f1ea] hover:text-[var(--dmoop-text-secondary)]"
-                  : "text-[var(--dmoop-text-secondary)] hover:bg-[#f5f1ea] hover:text-[var(--dmoop-text-primary)]"
+                  ? "text-[var(--reverb-text-tertiary)] hover:bg-[#f5f1ea] hover:text-[var(--reverb-text-secondary)]"
+                  : "text-[var(--reverb-text-secondary)] hover:bg-[#f5f1ea] hover:text-[var(--reverb-text-primary)]"
               )}
               title={
                 webSearchForced === "auto" ? "Search: Auto (smart)" :
@@ -638,7 +638,7 @@ export default function InputBar() {
                   "flex items-center gap-1.5 pl-2 pr-1.5 sm:pl-2.5 sm:pr-1.5 py-1.5 rounded-l-lg text-[13px] transition-all duration-150 active:scale-95 shrink-0 whitespace-nowrap",
                   imageMode === "on"
                     ? "bg-violet-50 text-violet-700 hover:bg-violet-100"
-                    : "text-[var(--dmoop-text-tertiary)] hover:bg-[#f5f1ea] hover:text-[var(--dmoop-text-secondary)]"
+                    : "text-[var(--reverb-text-tertiary)] hover:bg-[#f5f1ea] hover:text-[var(--reverb-text-secondary)]"
                 )}
                 title={
                   imageMode === "on"
@@ -659,7 +659,7 @@ export default function InputBar() {
                   "flex items-center px-1 sm:px-1.5 py-1.5 rounded-r-lg text-[13px] transition-all duration-150 active:scale-95 -ml-px shrink-0 whitespace-nowrap",
                   imageMode === "on"
                     ? "bg-violet-50 text-violet-700 hover:bg-violet-100 border-l border-violet-200/70"
-                    : "text-[var(--dmoop-text-tertiary)]/50 cursor-not-allowed"
+                    : "text-[var(--reverb-text-tertiary)]/50 cursor-not-allowed"
                 )}
                 title="Pick visual style"
               >
@@ -667,14 +667,14 @@ export default function InputBar() {
               </button>
               {imageStyleOpen && imageMode === "on" && (
                 <div
-                  className="absolute bottom-full mb-1.5 left-0 w-[180px] rounded-xl overflow-hidden z-30 dmoop-scale-in"
+                  className="absolute bottom-full mb-1.5 left-0 w-[180px] rounded-xl overflow-hidden z-30 reverb-scale-in"
                   style={{
-                    background: "var(--dmoop-gradient-card)",
-                    border: "1px solid var(--dmoop-border-soft)",
-                    boxShadow: "var(--dmoop-shadow-xl)",
+                    background: "var(--reverb-gradient-card)",
+                    border: "1px solid var(--reverb-border-soft)",
+                    boxShadow: "var(--reverb-shadow-xl)",
                   }}
                 >
-                  <p className="px-3 pt-2.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-[var(--dmoop-text-tertiary)]">
+                  <p className="px-3 pt-2.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-[var(--reverb-text-tertiary)]">
                     Visual style
                   </p>
                   {[
@@ -696,15 +696,15 @@ export default function InputBar() {
                           : "hover:bg-[#faf6ef]"
                       )}
                     >
-                      <span className="text-[12.5px] font-semibold text-[var(--dmoop-text-primary)] flex items-center gap-1.5 w-full">
+                      <span className="text-[12.5px] font-semibold text-[var(--reverb-text-primary)] flex items-center gap-1.5 w-full">
                         {s.label}
                         {imageStyle === s.value && (
-                          <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-[var(--dmoop-accent)]">
+                          <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-[var(--reverb-accent)]">
                             active
                           </span>
                         )}
                       </span>
-                      <span className="text-[10.5px] text-[var(--dmoop-text-tertiary)] leading-snug">
+                      <span className="text-[10.5px] text-[var(--reverb-text-tertiary)] leading-snug">
                         {s.desc}
                       </span>
                     </button>
@@ -725,7 +725,7 @@ export default function InputBar() {
                   "flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg text-[13px] transition-all duration-150 active:scale-95 shrink-0 whitespace-nowrap",
                   outputLanguage !== "auto"
                     ? "bg-amber-50 text-amber-800 hover:bg-amber-100"
-                    : "text-[var(--dmoop-text-secondary)] hover:bg-[#f5f1ea] hover:text-[var(--dmoop-text-primary)]"
+                    : "text-[var(--reverb-text-secondary)] hover:bg-[#f5f1ea] hover:text-[var(--reverb-text-primary)]"
                 )}
                 title={
                   outputLanguage === "auto"
@@ -740,15 +740,15 @@ export default function InputBar() {
               </button>
               {languageOpen && (
                 <div
-                  className="absolute bottom-full mb-1.5 left-0 w-[240px] max-h-[380px] overflow-y-auto rounded-xl z-30 dmoop-scale-in dmoop-scroll"
+                  className="absolute bottom-full mb-1.5 left-0 w-[240px] max-h-[380px] overflow-y-auto rounded-xl z-30 reverb-scale-in reverb-scroll"
                   style={{
-                    background: "var(--dmoop-gradient-card)",
-                    border: "1px solid var(--dmoop-border-soft)",
-                    boxShadow: "var(--dmoop-shadow-xl)",
+                    background: "var(--reverb-gradient-card)",
+                    border: "1px solid var(--reverb-border-soft)",
+                    boxShadow: "var(--reverb-shadow-xl)",
                   }}
                 >
-                  <p className="sticky top-0 px-3 pt-2.5 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--dmoop-text-tertiary)]"
-                    style={{ background: "var(--dmoop-gradient-card)" }}>
+                  <p className="sticky top-0 px-3 pt-2.5 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--reverb-text-tertiary)]"
+                    style={{ background: "var(--reverb-gradient-card)" }}>
                     Respond in
                   </p>
                   {SUPPORTED_LANGUAGES.map((l) => (
@@ -768,15 +768,15 @@ export default function InputBar() {
                     >
                       <span className="text-[15px] leading-none shrink-0">{l.flag}</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[12.5px] font-semibold text-[var(--dmoop-text-primary)] leading-tight truncate">
+                        <p className="text-[12.5px] font-semibold text-[var(--reverb-text-primary)] leading-tight truncate">
                           {l.name}
                         </p>
-                        <p className="text-[10.5px] text-[var(--dmoop-text-tertiary)] leading-tight truncate">
+                        <p className="text-[10.5px] text-[var(--reverb-text-tertiary)] leading-tight truncate">
                           {l.nativeName}
                         </p>
                       </div>
                       {outputLanguage === l.code && (
-                        <span className="text-[9.5px] font-bold uppercase tracking-wider text-[var(--dmoop-accent)] shrink-0">
+                        <span className="text-[9.5px] font-bold uppercase tracking-wider text-[var(--reverb-accent)] shrink-0">
                           on
                         </span>
                       )}
@@ -806,7 +806,7 @@ export default function InputBar() {
                   "relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-150 active:scale-95",
                   listening
                     ? "text-white bg-red-500 hover:bg-red-600 shadow-[0_2px_8px_rgba(239,68,68,0.35)]"
-                    : "text-[var(--dmoop-text-secondary)] bg-[#f5f1ea]/60 hover:bg-[#f5f1ea] hover:text-[var(--dmoop-text-primary)]"
+                    : "text-[var(--reverb-text-secondary)] bg-[#f5f1ea]/60 hover:bg-[#f5f1ea] hover:text-[var(--reverb-text-primary)]"
                 )}
                 title={listening ? "Stop voice input" : "Voice input"}
               >
@@ -824,13 +824,13 @@ export default function InputBar() {
               onClick={send}
               disabled={!hasValue}
               className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 overflow-hidden ${
-                hasValue ? "dmoop-btn-primary" : "bg-[#e8e2d8] text-[#b8ad9f] cursor-not-allowed"
+                hasValue ? "reverb-btn-primary" : "bg-[#e8e2d8] text-[#b8ad9f] cursor-not-allowed"
               }`}
             >
               {hasValue && (
                 <span
                   className="absolute inset-0 opacity-50"
-                  style={{ background: "var(--dmoop-gradient-sheen)" }}
+                  style={{ background: "var(--reverb-gradient-sheen)" }}
                 />
               )}
               <ArrowUp size={16} strokeWidth={2.5} className="relative" />
@@ -838,8 +838,8 @@ export default function InputBar() {
           </div>
         </div>
       </div>
-      <p className="text-center text-[10.5px] text-[var(--dmoop-text-tertiary)] mt-2 tracking-wide">
-        DMOOP generates AI-assisted content. Verify against your brand guidelines before publishing.
+      <p className="text-center text-[10.5px] text-[var(--reverb-text-tertiary)] mt-2 tracking-wide">
+        Reverb generates AI-assisted content. Verify against your brand guidelines before publishing.
       </p>
     </div>
   );

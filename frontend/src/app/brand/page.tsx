@@ -255,7 +255,7 @@ export default function BrandPage() {
   };
 
   const deleteDoc = async (id: string, filename: string) => {
-    if (!confirm(`Delete "${filename}"? DMOOP will stop using it as context.`)) return;
+    if (!confirm(`Delete "${filename}"? Reverb will stop using it as context.`)) return;
     await fetch("/api/brand/documents", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -267,30 +267,30 @@ export default function BrandPage() {
   const empty = (list?.total_documents ?? 0) === 0;
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--dmoop-bg-app)" }}>
+    <div className="min-h-screen" style={{ background: "var(--reverb-bg-app)" }}>
       {/* Header */}
-      <header className="sticky top-0 z-20 border-b border-[var(--dmoop-border-soft)] bg-white/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-20 border-b border-[var(--reverb-border-soft)] bg-white/80 backdrop-blur-xl">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <Link href="/chat" className="flex items-center gap-1.5 text-[12.5px] text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] transition-colors shrink-0">
+            <Link href="/chat" className="flex items-center gap-1.5 text-[12.5px] text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)] transition-colors shrink-0">
               <ArrowLeft size={15} />
               <span className="hidden sm:inline">Back to chat</span>
             </Link>
-            <span className="h-4 w-px bg-[var(--dmoop-border-soft)] hidden sm:block" />
-            <Image src="/dmoop-logo.png" alt="DMOOP" width={100} height={32} className="h-6 sm:h-7 w-auto" />
-            <span className="text-[10px] font-bold tracking-[0.12em] text-[var(--dmoop-accent)] uppercase px-1.5 sm:px-2 py-0.5 rounded-md shrink-0" style={{ background: "rgba(193,74,42,0.1)" }}>
+            <span className="h-4 w-px bg-[var(--reverb-border-soft)] hidden sm:block" />
+            <Image src="/reverb-logo.png" alt="Reverb" width={100} height={32} className="h-6 sm:h-7 w-auto" />
+            <span className="text-[10px] font-bold tracking-[0.12em] text-[var(--reverb-accent)] uppercase px-1.5 sm:px-2 py-0.5 rounded-md shrink-0" style={{ background: "rgba(193,74,42,0.1)" }}>
               Brand
             </span>
             {selectedAgent && (
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11.5px] font-medium text-[var(--dmoop-text-secondary)] px-2 py-1 rounded-md bg-[#faf6ef] border border-[var(--dmoop-border-soft)] shrink-0">
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11.5px] font-medium text-[var(--reverb-text-secondary)] px-2 py-1 rounded-md bg-[#faf6ef] border border-[var(--reverb-border-soft)] shrink-0">
                 <span className="w-2 h-2 rounded-full" style={{ background: selectedAgent.color }} />
-                Viewing <strong className="font-semibold text-[var(--dmoop-text-primary)]">{selectedAgent.name}</strong>
+                Viewing <strong className="font-semibold text-[var(--reverb-text-primary)]">{selectedAgent.name}</strong>
               </span>
             )}
           </div>
           <Link
             href="/agents"
-            className="text-[12.5px] font-medium text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)] shrink-0 flex items-center gap-1"
+            className="text-[12.5px] font-medium text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)] shrink-0 flex items-center gap-1"
           >
             Manage agents →
           </Link>
@@ -299,17 +299,17 @@ export default function BrandPage() {
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Headline */}
-        <div className="mb-6 dmoop-fade-in flex items-start gap-3">
+        <div className="mb-6 reverb-fade-in flex items-start gap-3">
           <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: "var(--dmoop-gradient-accent)", boxShadow: "var(--dmoop-shadow-accent)" }}>
+            style={{ background: "var(--reverb-gradient-accent)", boxShadow: "var(--reverb-shadow-accent)" }}>
             <BookOpen size={18} className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-[24px] sm:text-[28px] font-semibold tracking-tight text-[var(--dmoop-text-primary)] leading-tight">
+            <h1 className="text-[24px] sm:text-[28px] font-semibold tracking-tight text-[var(--reverb-text-primary)] leading-tight">
               Brand Library
             </h1>
-            <p className="text-[13px] sm:text-[14px] text-[var(--dmoop-text-secondary)] mt-1">
-              Upload your brand guidelines, style guides, product info, past campaigns, or personas. DMOOP will use them as authoritative context in every response — scoped to the agent picked below.
+            <p className="text-[13px] sm:text-[14px] text-[var(--reverb-text-secondary)] mt-1">
+              Upload your brand guidelines, style guides, product info, past campaigns, or personas. Reverb will use them as authoritative context in every response — scoped to the agent picked below.
             </p>
           </div>
         </div>
@@ -318,14 +318,14 @@ export default function BrandPage() {
             drives both the docs shown below AND which library new uploads
             land in. Switching here = switching everywhere in this session. */}
         <div className="rounded-2xl p-5 sm:p-6 mb-4"
-          style={{ background: "var(--dmoop-gradient-card)", border: "1px solid var(--dmoop-border-soft)", boxShadow: "var(--dmoop-shadow-md)" }}>
+          style={{ background: "var(--reverb-gradient-card)", border: "1px solid var(--reverb-border-soft)", boxShadow: "var(--reverb-shadow-md)" }}>
           <div className="flex items-start gap-3 mb-4">
             <div className="w-9 h-9 rounded-xl bg-[#fbf3ee] flex items-center justify-center shrink-0">
-              <Wand2 size={14} className="text-[var(--dmoop-accent)]" />
+              <Wand2 size={14} className="text-[var(--reverb-accent)]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[13.5px] font-semibold text-[var(--dmoop-text-primary)]">Brand Agent</p>
-              <p className="text-[12px] text-[var(--dmoop-text-secondary)] mt-0.5">
+              <p className="text-[13.5px] font-semibold text-[var(--reverb-text-primary)]">Brand Agent</p>
+              <p className="text-[12px] text-[var(--reverb-text-secondary)] mt-0.5">
                 Pick which agent&apos;s library this page is showing — and where new uploads land.
               </p>
             </div>
@@ -333,49 +333,49 @@ export default function BrandPage() {
 
           {/* Picker row */}
           <div className="mb-4">
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)] mb-1.5">
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--reverb-text-tertiary)] mb-1.5">
               Upload to
             </label>
             <div ref={pickerRef} className="relative">
               <button
                 type="button"
                 onClick={() => setPickerOpen((o) => !o)}
-                className="w-full h-11 px-3 rounded-lg bg-white border border-[var(--dmoop-border-soft)] hover:border-[var(--dmoop-accent)] focus:outline-none focus:border-[var(--dmoop-accent)] focus:ring-4 focus:ring-[var(--dmoop-accent)]/10 flex items-center gap-2.5 text-left transition-all"
+                className="w-full h-11 px-3 rounded-lg bg-white border border-[var(--reverb-border-soft)] hover:border-[var(--reverb-accent)] focus:outline-none focus:border-[var(--reverb-accent)] focus:ring-4 focus:ring-[var(--reverb-accent)]/10 flex items-center gap-2.5 text-left transition-all"
               >
                 {selectedAgent ? (
                   <>
                     <span className="w-3 h-3 rounded-full shrink-0" style={{ background: selectedAgent.color }} />
-                    <span className="text-[13.5px] font-semibold text-[var(--dmoop-text-primary)] truncate">
+                    <span className="text-[13.5px] font-semibold text-[var(--reverb-text-primary)] truncate">
                       {selectedAgent.name}
                     </span>
                     {selectedAgent.is_default && (
-                      <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#fbf3ee] text-[var(--dmoop-accent-rich)] shrink-0">
+                      <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#fbf3ee] text-[var(--reverb-accent-rich)] shrink-0">
                         default
                       </span>
                     )}
-                    <span className="ml-auto text-[11.5px] text-[var(--dmoop-text-tertiary)] shrink-0">
+                    <span className="ml-auto text-[11.5px] text-[var(--reverb-text-tertiary)] shrink-0">
                       {selectedAgent.doc_count} doc{selectedAgent.doc_count === 1 ? "" : "s"}
                     </span>
-                    <ChevronDown size={14} className={cn("text-[var(--dmoop-text-tertiary)] shrink-0 transition-transform", pickerOpen && "rotate-180")} />
+                    <ChevronDown size={14} className={cn("text-[var(--reverb-text-tertiary)] shrink-0 transition-transform", pickerOpen && "rotate-180")} />
                   </>
                 ) : (
                   <>
-                    <span className="text-[13px] text-[var(--dmoop-text-tertiary)]">Select a brand agent…</span>
-                    <ChevronDown size={14} className="text-[var(--dmoop-text-tertiary)] shrink-0 ml-auto" />
+                    <span className="text-[13px] text-[var(--reverb-text-tertiary)]">Select a brand agent…</span>
+                    <ChevronDown size={14} className="text-[var(--reverb-text-tertiary)] shrink-0 ml-auto" />
                   </>
                 )}
               </button>
 
               {pickerOpen && (
                 <div
-                  className="absolute left-0 right-0 top-full mt-1.5 rounded-xl overflow-hidden z-30 dmoop-scale-in"
+                  className="absolute left-0 right-0 top-full mt-1.5 rounded-xl overflow-hidden z-30 reverb-scale-in"
                   style={{
-                    background: "var(--dmoop-gradient-card)",
-                    border: "1px solid var(--dmoop-border-soft)",
-                    boxShadow: "var(--dmoop-shadow-xl)",
+                    background: "var(--reverb-gradient-card)",
+                    border: "1px solid var(--reverb-border-soft)",
+                    boxShadow: "var(--reverb-shadow-xl)",
                   }}
                 >
-                  <div className="max-h-[260px] overflow-y-auto dmoop-scroll">
+                  <div className="max-h-[260px] overflow-y-auto reverb-scroll">
                     {agents.map((a) => {
                       const active = selectedAgentId === a.id;
                       return (
@@ -389,30 +389,30 @@ export default function BrandPage() {
                         >
                           <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: a.color }} />
                           <div className="flex-1 min-w-0">
-                            <p className="text-[13px] font-medium text-[var(--dmoop-text-primary)] truncate">
+                            <p className="text-[13px] font-medium text-[var(--reverb-text-primary)] truncate">
                               {a.name}
                               {a.is_default && (
-                                <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wider text-[var(--dmoop-accent)]">
+                                <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wider text-[var(--reverb-accent)]">
                                   default
                                 </span>
                               )}
                             </p>
                           </div>
-                          <span className="text-[10.5px] text-[var(--dmoop-text-tertiary)] shrink-0">
+                          <span className="text-[10.5px] text-[var(--reverb-text-tertiary)] shrink-0">
                             {a.doc_count} doc{a.doc_count === 1 ? "" : "s"}
                           </span>
-                          {active && <Check size={12} className="text-[var(--dmoop-accent)] shrink-0" />}
+                          {active && <Check size={12} className="text-[var(--reverb-accent)] shrink-0" />}
                         </button>
                       );
                     })}
                     {agents.length === 0 && (
-                      <p className="px-3.5 py-4 text-center text-[12px] text-[var(--dmoop-text-tertiary)]">
+                      <p className="px-3.5 py-4 text-center text-[12px] text-[var(--reverb-text-tertiary)]">
                         No agents yet. Create your first below.
                       </p>
                     )}
                   </div>
 
-                  <div className="border-t border-[var(--dmoop-border-soft)]">
+                  <div className="border-t border-[var(--reverb-border-soft)]">
                     {creatingAgent ? (
                       <div className="px-3.5 py-2.5 flex items-center gap-2">
                         <input
@@ -424,12 +424,12 @@ export default function BrandPage() {
                             if (e.key === "Escape") { setCreatingAgent(false); setNewAgentName(""); }
                           }}
                           placeholder="e.g. Acme Co"
-                          className="flex-1 text-[12.5px] font-medium bg-white border border-[var(--dmoop-accent)] rounded-md px-2 py-1 focus:outline-none"
+                          className="flex-1 text-[12.5px] font-medium bg-white border border-[var(--reverb-accent)] rounded-md px-2 py-1 focus:outline-none"
                         />
                         <button
                           onClick={() => void createAgent()}
                           disabled={creatingBusy || !newAgentName.trim()}
-                          className="px-2.5 py-1 rounded-md text-[11.5px] font-semibold dmoop-btn-primary disabled:opacity-50"
+                          className="px-2.5 py-1 rounded-md text-[11.5px] font-semibold reverb-btn-primary disabled:opacity-50"
                         >
                           Add
                         </button>
@@ -437,7 +437,7 @@ export default function BrandPage() {
                     ) : (
                       <button
                         onClick={() => setCreatingAgent(true)}
-                        className="w-full flex items-center gap-2 px-3.5 py-2.5 text-[12.5px] font-medium text-[var(--dmoop-accent)] hover:bg-[#faf6ef] transition-colors"
+                        className="w-full flex items-center gap-2 px-3.5 py-2.5 text-[12.5px] font-medium text-[var(--reverb-accent)] hover:bg-[#faf6ef] transition-colors"
                       >
                         <Plus size={12} strokeWidth={2.5} /> New brand agent
                       </button>
@@ -452,7 +452,7 @@ export default function BrandPage() {
               below the picker so the relationship is obvious. */}
           {selectedAgent && (
             <div>
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)] mb-1.5">
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--reverb-text-tertiary)] mb-1.5">
                 Rename this agent
               </label>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
@@ -462,7 +462,7 @@ export default function BrandPage() {
                   onKeyDown={(e) => e.key === "Enter" && saveAgentName()}
                   placeholder='e.g. "Acme Brand Voice"'
                   maxLength={40}
-                  className="flex-1 min-w-0 h-10 px-3 rounded-lg text-[13px] bg-white border border-[var(--dmoop-border-soft)] focus:outline-none focus:border-[var(--dmoop-accent)] focus:ring-4 focus:ring-[var(--dmoop-accent)]/10"
+                  className="flex-1 min-w-0 h-10 px-3 rounded-lg text-[13px] bg-white border border-[var(--reverb-border-soft)] focus:outline-none focus:border-[var(--reverb-accent)] focus:ring-4 focus:ring-[var(--reverb-accent)]/10"
                 />
                 <button
                   onClick={saveAgentName}
@@ -470,8 +470,8 @@ export default function BrandPage() {
                   className={cn(
                     "h-10 px-4 rounded-lg text-[12.5px] font-semibold transition-all flex items-center justify-center gap-1.5 shrink-0",
                     !draftName.trim() || draftName === agentName
-                      ? "bg-[#f5f1ea] text-[var(--dmoop-text-tertiary)] cursor-not-allowed"
-                      : "dmoop-btn-primary"
+                      ? "bg-[#f5f1ea] text-[var(--reverb-text-tertiary)] cursor-not-allowed"
+                      : "reverb-btn-primary"
                   )}
                 >
                   {savedTick ? <><Check size={13} /> Saved</> : "Save"}
@@ -483,10 +483,10 @@ export default function BrandPage() {
 
         {/* Upload card */}
         <div className="rounded-2xl p-5 sm:p-6 mb-6"
-          style={{ background: "var(--dmoop-gradient-card)", border: "1px solid var(--dmoop-border-soft)", boxShadow: "var(--dmoop-shadow-md)" }}>
+          style={{ background: "var(--reverb-gradient-card)", border: "1px solid var(--reverb-border-soft)", boxShadow: "var(--reverb-shadow-md)" }}>
           <div className="flex flex-col sm:flex-row sm:items-start gap-4">
             <div className="flex-1">
-              <label className="flex items-center justify-between text-[11.5px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)] mb-1.5">
+              <label className="flex items-center justify-between text-[11.5px] font-semibold uppercase tracking-wider text-[var(--reverb-text-tertiary)] mb-1.5">
                 <span>Document type</span>
                 {lastDetectedType && docType === "auto" && (
                   <span className="inline-flex items-center gap-1 text-[10px] normal-case tracking-normal font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
@@ -496,20 +496,20 @@ export default function BrandPage() {
                 )}
               </label>
               <select value={docType} onChange={(e) => setDocType(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg text-[13px] bg-white border border-[var(--dmoop-border-soft)] focus:outline-none focus:border-[var(--dmoop-accent)] focus:ring-4 focus:ring-[var(--dmoop-accent)]/10">
+                className="w-full h-10 px-3 rounded-lg text-[13px] bg-white border border-[var(--reverb-border-soft)] focus:outline-none focus:border-[var(--reverb-accent)] focus:ring-4 focus:ring-[var(--reverb-accent)]/10">
                 <option value="auto">✨ Auto-detect (recommended)</option>
                 {DOC_TYPES.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
               </select>
-              <p className="text-[10.5px] text-[var(--dmoop-text-tertiary)] mt-1">
+              <p className="text-[10.5px] text-[var(--reverb-text-tertiary)] mt-1">
                 {docType === "auto"
-                  ? "DMOOP scans filename + content to pick the right category."
+                  ? "Reverb scans filename + content to pick the right category."
                   : docType === "template"
-                  ? "Template docs are injected WHOLE into strategic-plan requests so DMOOP mimics their structure, depth, and density. Best for: past GTM plans, execution playbooks, board-deck outlines, 20-30 page campaign briefs."
+                  ? "Template docs are injected WHOLE into strategic-plan requests so Reverb mimics their structure, depth, and density. Best for: past GTM plans, execution playbooks, board-deck outlines, 20-30 page campaign briefs."
                   : "Pinned — every upload uses this label until you change it."}
               </p>
             </div>
             <div className="flex-1 sm:flex-[1.2]">
-              <label className="block text-[11.5px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)] mb-1.5">
+              <label className="block text-[11.5px] font-semibold uppercase tracking-wider text-[var(--reverb-text-tertiary)] mb-1.5">
                 Upload file
               </label>
               <input
@@ -526,8 +526,8 @@ export default function BrandPage() {
                 className={cn(
                   "w-full h-10 rounded-lg flex items-center justify-center gap-2 text-[13px] font-semibold transition-all",
                   uploading
-                    ? "bg-[#f5f1ea] text-[var(--dmoop-text-tertiary)] cursor-wait"
-                    : "dmoop-btn-primary"
+                    ? "bg-[#f5f1ea] text-[var(--reverb-text-tertiary)] cursor-wait"
+                    : "reverb-btn-primary"
                 )}
               >
                 {uploading ? (
@@ -563,7 +563,7 @@ export default function BrandPage() {
             </div>
           )}
 
-          <p className="text-[11.5px] text-[var(--dmoop-text-tertiary)] mt-3">
+          <p className="text-[11.5px] text-[var(--reverb-text-tertiary)] mt-3">
             Supports PDF, Word, Excel, PowerPoint, CSV, Markdown, and text files (up to 10MB each). PII (emails, phones, SSN, credit cards, API keys) is auto-redacted client-side before indexing.
           </p>
         </div>
@@ -579,8 +579,8 @@ export default function BrandPage() {
 
         {/* Document list */}
         <div className="rounded-2xl overflow-hidden"
-          style={{ background: "var(--dmoop-gradient-card)", border: "1px solid var(--dmoop-border-soft)", boxShadow: "var(--dmoop-shadow-md)" }}>
-          <div className="px-5 py-3 border-b border-[var(--dmoop-border-soft)] flex items-center justify-between gap-2">
+          style={{ background: "var(--reverb-gradient-card)", border: "1px solid var(--reverb-border-soft)", boxShadow: "var(--reverb-shadow-md)" }}>
+          <div className="px-5 py-3 border-b border-[var(--reverb-border-soft)] flex items-center justify-between gap-2">
             {selectedDocs.size > 0 ? (
               <>
                 <div className="flex items-center gap-2.5">
@@ -588,14 +588,14 @@ export default function BrandPage() {
                     type="checkbox"
                     checked={!!list && selectedDocs.size === list.documents.length}
                     onChange={toggleAll}
-                    className="h-4 w-4 accent-[var(--dmoop-accent)] cursor-pointer"
+                    className="h-4 w-4 accent-[var(--reverb-accent)] cursor-pointer"
                   />
-                  <p className="text-[13px] font-semibold text-[var(--dmoop-text-primary)]">
+                  <p className="text-[13px] font-semibold text-[var(--reverb-text-primary)]">
                     {selectedDocs.size} selected
                   </p>
                   <button
                     onClick={() => setSelectedDocs(new Set())}
-                    className="text-[11.5px] font-medium text-[var(--dmoop-text-tertiary)] hover:text-[var(--dmoop-text-primary)] transition-colors"
+                    className="text-[11.5px] font-medium text-[var(--reverb-text-tertiary)] hover:text-[var(--reverb-text-primary)] transition-colors"
                   >
                     Clear
                   </button>
@@ -604,20 +604,20 @@ export default function BrandPage() {
                   <button
                     onClick={() => setMoveMenuOpen((o) => !o)}
                     disabled={moving}
-                    className="h-8 px-3 rounded-lg text-[12px] font-semibold dmoop-btn-primary flex items-center gap-1.5 disabled:opacity-60"
+                    className="h-8 px-3 rounded-lg text-[12px] font-semibold reverb-btn-primary flex items-center gap-1.5 disabled:opacity-60"
                   >
                     {moving ? "Moving…" : "Move to…"}
                   </button>
                   {moveMenuOpen && (
                     <div
-                      className="absolute right-0 top-full mt-1.5 w-[220px] max-w-[calc(100vw-2rem)] rounded-xl overflow-hidden z-30 dmoop-scale-in"
+                      className="absolute right-0 top-full mt-1.5 w-[220px] max-w-[calc(100vw-2rem)] rounded-xl overflow-hidden z-30 reverb-scale-in"
                       style={{
-                        background: "var(--dmoop-gradient-card)",
-                        border: "1px solid var(--dmoop-border-soft)",
-                        boxShadow: "var(--dmoop-shadow-xl)",
+                        background: "var(--reverb-gradient-card)",
+                        border: "1px solid var(--reverb-border-soft)",
+                        boxShadow: "var(--reverb-shadow-xl)",
                       }}
                     >
-                      <p className="px-3.5 pt-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)]">
+                      <p className="px-3.5 pt-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--reverb-text-tertiary)]">
                         Move {selectedDocs.size} doc{selectedDocs.size === 1 ? "" : "s"} to
                       </p>
                       {agents
@@ -629,15 +629,15 @@ export default function BrandPage() {
                             className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-[#faf6ef] transition-colors text-left"
                           >
                             <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: a.color }} />
-                            <span className="text-[12.5px] font-medium text-[var(--dmoop-text-primary)] truncate flex-1">
+                            <span className="text-[12.5px] font-medium text-[var(--reverb-text-primary)] truncate flex-1">
                               {a.name}
                             </span>
-                            <span className="text-[10.5px] text-[var(--dmoop-text-tertiary)]">{a.doc_count}</span>
+                            <span className="text-[10.5px] text-[var(--reverb-text-tertiary)]">{a.doc_count}</span>
                           </button>
                         ))}
                       {agents.filter((a) => a.id !== selectedAgentId).length === 0 && (
-                        <p className="px-3.5 py-3 text-[11.5px] text-[var(--dmoop-text-tertiary)] text-center">
-                          No other agents to move to. Create one in <Link href="/agents" className="text-[var(--dmoop-accent)] underline">Manage agents</Link>.
+                        <p className="px-3.5 py-3 text-[11.5px] text-[var(--reverb-text-tertiary)] text-center">
+                          No other agents to move to. Create one in <Link href="/agents" className="text-[var(--reverb-accent)] underline">Manage agents</Link>.
                         </p>
                       )}
                     </div>
@@ -653,12 +653,12 @@ export default function BrandPage() {
                       checked={false}
                       onChange={toggleAll}
                       title="Select all"
-                      className="h-4 w-4 accent-[var(--dmoop-accent)] cursor-pointer"
+                      className="h-4 w-4 accent-[var(--reverb-accent)] cursor-pointer"
                     />
                   )}
-                  <p className="text-[13.5px] font-semibold text-[var(--dmoop-text-primary)]">Your brand library</p>
+                  <p className="text-[13.5px] font-semibold text-[var(--reverb-text-primary)]">Your brand library</p>
                 </div>
-                <span className="text-[10.5px] text-[var(--dmoop-text-tertiary)]">
+                <span className="text-[10.5px] text-[var(--reverb-text-tertiary)]">
                   {list?.total_documents ?? 0} / 50 documents
                 </span>
               </>
@@ -666,12 +666,12 @@ export default function BrandPage() {
           </div>
           {empty ? (
             <div className="px-5 py-12 text-center">
-              <BookOpen size={28} className="mx-auto text-[var(--dmoop-text-tertiary)] mb-3 opacity-40" />
-              <p className="text-[13px] text-[var(--dmoop-text-secondary)] font-medium">
+              <BookOpen size={28} className="mx-auto text-[var(--reverb-text-tertiary)] mb-3 opacity-40" />
+              <p className="text-[13px] text-[var(--reverb-text-secondary)] font-medium">
                 No brand documents yet
               </p>
-              <p className="text-[12px] text-[var(--dmoop-text-tertiary)] mt-1">
-                Upload your first document above. DMOOP will use it on every chat to keep responses brand-aligned.
+              <p className="text-[12px] text-[var(--reverb-text-tertiary)] mt-1">
+                Upload your first document above. Reverb will use it on every chat to keep responses brand-aligned.
               </p>
             </div>
           ) : (
@@ -680,22 +680,22 @@ export default function BrandPage() {
               const isSelected = selectedDocs.has(d.id);
               return (
                 <div key={d.id} className={cn(
-                  "px-5 py-3.5 border-b border-[var(--dmoop-border-soft)] last:border-0 flex items-center gap-3 transition-colors",
+                  "px-5 py-3.5 border-b border-[var(--reverb-border-soft)] last:border-0 flex items-center gap-3 transition-colors",
                   isSelected ? "bg-[#fbf3ee]" : ""
                 )}>
                   <input
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => toggleDoc(d.id)}
-                    className="h-4 w-4 accent-[var(--dmoop-accent)] cursor-pointer shrink-0"
+                    className="h-4 w-4 accent-[var(--reverb-accent)] cursor-pointer shrink-0"
                   />
                   <div className="w-9 h-9 rounded-lg bg-[#fbf3ee] flex items-center justify-center shrink-0">
-                    <FileText size={15} className="text-[var(--dmoop-accent)]" />
+                    <FileText size={15} className="text-[var(--reverb-accent)]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13.5px] font-semibold text-[var(--dmoop-text-primary)] truncate">{d.filename}</p>
-                    <div className="flex items-center gap-2 text-[10.5px] text-[var(--dmoop-text-tertiary)] mt-0.5 flex-wrap">
-                      <span className="px-1.5 py-0.5 rounded-md bg-[#f5f1ea] text-[var(--dmoop-text-secondary)] font-medium uppercase tracking-wide">
+                    <p className="text-[13.5px] font-semibold text-[var(--reverb-text-primary)] truncate">{d.filename}</p>
+                    <div className="flex items-center gap-2 text-[10.5px] text-[var(--reverb-text-tertiary)] mt-0.5 flex-wrap">
+                      <span className="px-1.5 py-0.5 rounded-md bg-[#f5f1ea] text-[var(--reverb-text-secondary)] font-medium uppercase tracking-wide">
                         {typeLabel}
                       </span>
                       <span>{d.total_chunks} chunks</span>
@@ -706,7 +706,7 @@ export default function BrandPage() {
                     </div>
                   </div>
                   <button onClick={() => deleteDoc(d.id, d.filename)}
-                    className="p-2 rounded-lg text-[var(--dmoop-text-secondary)] hover:bg-red-50 hover:text-red-600 transition-colors active:scale-95"
+                    className="p-2 rounded-lg text-[var(--reverb-text-secondary)] hover:bg-red-50 hover:text-red-600 transition-colors active:scale-95"
                     title="Delete document">
                     <Trash2 size={14} />
                   </button>
@@ -732,9 +732,9 @@ export default function BrandPage() {
 function Stat({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-xl p-3.5"
-      style={{ background: "var(--dmoop-gradient-card)", border: "1px solid var(--dmoop-border-soft)", boxShadow: "var(--dmoop-shadow-sm)" }}>
-      <p className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--dmoop-text-tertiary)] mb-1">{label}</p>
-      <p className="text-[20px] font-semibold text-[var(--dmoop-text-primary)] tracking-tight">{value}</p>
+      style={{ background: "var(--reverb-gradient-card)", border: "1px solid var(--reverb-border-soft)", boxShadow: "var(--reverb-shadow-sm)" }}>
+      <p className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--reverb-text-tertiary)] mb-1">{label}</p>
+      <p className="text-[20px] font-semibold text-[var(--reverb-text-primary)] tracking-tight">{value}</p>
     </div>
   );
 }

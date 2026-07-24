@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────
-// Zoho CRM client for DMOOP.
+// Zoho CRM client for Reverb.
 //
 // Zoho has a data-center concept — every user is provisioned in one
 // of six regions (US/EU/IN/AU/JP/CN) and the API endpoints differ
@@ -64,7 +64,7 @@ export function regionFromAccountsServer(url: string | null): ZohoRegion {
   return "us";
 }
 
-// Scopes required by DMOOP's read-only CRM grounding.
+// Scopes required by Reverb's read-only CRM grounding.
 // See https://www.zoho.com/crm/developer/docs/api/v6/scopes.html
 export const ZOHO_SCOPES = [
   "ZohoCRM.modules.contacts.READ",

@@ -49,7 +49,7 @@ export default function PreviewDrawer() {
   const filename = useMemo(() => {
     const ext = artifact?.language || "txt";
     const stamp = new Date().toISOString().slice(0, 10);
-    return `dmoop-artifact-${stamp}.${ext}`;
+    return `reverb-artifact-${stamp}.${ext}`;
   }, [artifact?.language]);
 
   if (!artifact) return null;
@@ -90,31 +90,31 @@ export default function PreviewDrawer() {
     <>
       {/* Backdrop on mobile only — desktop drawer floats over chat */}
       <div
-        className="md:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm dmoop-fade-in"
+        className="md:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm reverb-fade-in"
         onClick={closePreview}
       />
 
       <aside
         className={cn(
-          "fixed top-0 right-0 bottom-0 z-50 bg-white border-l border-[var(--dmoop-border-soft)] flex flex-col dmoop-slide-in-right",
+          "fixed top-0 right-0 bottom-0 z-50 bg-white border-l border-[var(--reverb-border-soft)] flex flex-col reverb-slide-in-right",
           maximized
             ? "w-full"
             : "w-full sm:w-[58%] md:w-[600px] lg:w-[720px] xl:w-[780px]"
         )}
-        style={{ boxShadow: "var(--dmoop-shadow-xl)" }}
+        style={{ boxShadow: "var(--reverb-shadow-xl)" }}
       >
         {/* Header */}
-        <div className="px-3 sm:px-4 py-2.5 border-b border-[var(--dmoop-border-soft)] flex items-center gap-2 bg-[#faf6ef] shrink-0">
+        <div className="px-3 sm:px-4 py-2.5 border-b border-[var(--reverb-border-soft)] flex items-center gap-2 bg-[#faf6ef] shrink-0">
           {/* tabs */}
-          <div className="flex gap-0.5 p-0.5 bg-white rounded-lg border border-[var(--dmoop-border-soft)]">
+          <div className="flex gap-0.5 p-0.5 bg-white rounded-lg border border-[var(--reverb-border-soft)]">
             <button
               onClick={() => setTab("preview")}
               disabled={!previewable}
               className={cn(
                 "px-2.5 sm:px-3 py-1 rounded-md text-[11.5px] sm:text-[12px] font-semibold transition-all flex items-center gap-1.5",
                 tab === "preview"
-                  ? "bg-[var(--dmoop-accent)] text-white shadow-[var(--dmoop-shadow-xs)]"
-                  : "text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)]",
+                  ? "bg-[var(--reverb-accent)] text-white shadow-[var(--reverb-shadow-xs)]"
+                  : "text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]",
                 !previewable && "opacity-40 cursor-not-allowed"
               )}
             >
@@ -125,41 +125,41 @@ export default function PreviewDrawer() {
               className={cn(
                 "px-2.5 sm:px-3 py-1 rounded-md text-[11.5px] sm:text-[12px] font-semibold transition-all flex items-center gap-1.5",
                 tab === "code"
-                  ? "bg-[var(--dmoop-accent)] text-white shadow-[var(--dmoop-shadow-xs)]"
-                  : "text-[var(--dmoop-text-secondary)] hover:text-[var(--dmoop-text-primary)]"
+                  ? "bg-[var(--reverb-accent)] text-white shadow-[var(--reverb-shadow-xs)]"
+                  : "text-[var(--reverb-text-secondary)] hover:text-[var(--reverb-text-primary)]"
               )}
             >
               <CodeIcon size={12} /> Code
             </button>
           </div>
 
-          <span className="text-[10px] sm:text-[10.5px] text-[var(--dmoop-text-tertiary)] uppercase tracking-wider font-semibold ml-1 truncate">
+          <span className="text-[10px] sm:text-[10.5px] text-[var(--reverb-text-tertiary)] uppercase tracking-wider font-semibold ml-1 truncate">
             {artifact.title ?? artifact.language ?? "code"}
           </span>
 
           <div className="ml-auto flex items-center gap-0.5">
             {tab === "preview" && artifact.kind === "html" && (
               <button onClick={refresh} title="Reload preview"
-                className="p-1.5 rounded-md text-[var(--dmoop-text-secondary)] hover:bg-white hover:text-[var(--dmoop-text-primary)] transition-colors">
+                className="p-1.5 rounded-md text-[var(--reverb-text-secondary)] hover:bg-white hover:text-[var(--reverb-text-primary)] transition-colors">
                 <RefreshCw size={13} />
               </button>
             )}
             {(artifact.kind === "html" || artifact.kind === "svg") && (
               <button onClick={openInNewTab} title="Open in new tab"
-                className="p-1.5 rounded-md text-[var(--dmoop-text-secondary)] hover:bg-white hover:text-[var(--dmoop-text-primary)] transition-colors">
+                className="p-1.5 rounded-md text-[var(--reverb-text-secondary)] hover:bg-white hover:text-[var(--reverb-text-primary)] transition-colors">
                 <ExternalLink size={13} />
               </button>
             )}
             <button onClick={download} title="Download"
-              className="p-1.5 rounded-md text-[var(--dmoop-text-secondary)] hover:bg-white hover:text-[var(--dmoop-text-primary)] transition-colors">
+              className="p-1.5 rounded-md text-[var(--reverb-text-secondary)] hover:bg-white hover:text-[var(--reverb-text-primary)] transition-colors">
               <Download size={13} />
             </button>
             <button onClick={() => setMaximized((m) => !m)} title={maximized ? "Restore" : "Maximize"}
-              className="hidden sm:inline-flex p-1.5 rounded-md text-[var(--dmoop-text-secondary)] hover:bg-white hover:text-[var(--dmoop-text-primary)] transition-colors">
+              className="hidden sm:inline-flex p-1.5 rounded-md text-[var(--reverb-text-secondary)] hover:bg-white hover:text-[var(--reverb-text-primary)] transition-colors">
               {maximized ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
             </button>
             <button onClick={closePreview} title="Close"
-              className="p-1.5 rounded-md text-[var(--dmoop-text-secondary)] hover:bg-white hover:text-[var(--dmoop-text-primary)] transition-colors">
+              className="p-1.5 rounded-md text-[var(--reverb-text-secondary)] hover:bg-white hover:text-[var(--reverb-text-primary)] transition-colors">
               <X size={14} />
             </button>
           </div>
@@ -207,7 +207,7 @@ function PreviewBody({
 
   if (artifact.kind === "markdown") {
     return (
-      <div className="overflow-auto h-full p-5 sm:p-7 dmoop-scroll">
+      <div className="overflow-auto h-full p-5 sm:p-7 reverb-scroll">
         <Markdown content={artifact.code} />
       </div>
     );
@@ -219,14 +219,14 @@ function PreviewBody({
       pretty = JSON.stringify(JSON.parse(artifact.code), null, 2);
     } catch {}
     return (
-      <pre className="p-5 sm:p-6 overflow-auto h-full text-[12px] sm:text-[12.5px] leading-[1.6] font-mono whitespace-pre text-[var(--dmoop-text-primary)] dmoop-scroll">
+      <pre className="p-5 sm:p-6 overflow-auto h-full text-[12px] sm:text-[12.5px] leading-[1.6] font-mono whitespace-pre text-[var(--reverb-text-primary)] reverb-scroll">
         {pretty}
       </pre>
     );
   }
 
   return (
-    <div className="p-8 text-[13px] text-[var(--dmoop-text-tertiary)] text-center">
+    <div className="p-8 text-[13px] text-[var(--reverb-text-tertiary)] text-center">
       Preview not available for this content type. Use the Code tab.
     </div>
   );
@@ -234,7 +234,7 @@ function PreviewBody({
 
 function CodeBody({ code, language }: { code: string; language: string }) {
   return (
-    <pre className="p-4 sm:p-5 overflow-auto h-full text-[11.5px] sm:text-[12.5px] leading-[1.65] font-mono bg-[#1c1815] text-[#e8d9c5] dmoop-scroll">
+    <pre className="p-4 sm:p-5 overflow-auto h-full text-[11.5px] sm:text-[12.5px] leading-[1.65] font-mono bg-[#1c1815] text-[#e8d9c5] reverb-scroll">
       <code className={`language-${language}`}>{code}</code>
     </pre>
   );

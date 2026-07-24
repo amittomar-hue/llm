@@ -10,7 +10,7 @@ const PAGE_CHAR_CAP = 6000;       // per-page text cap after HTML strip
 const TOTAL_CHAR_CAP = 22000;     // total budget across all scraped pages
 const FETCH_TIMEOUT_MS = 8000;
 const USER_AGENT =
-  "Mozilla/5.0 (compatible; DMOOPBot/1.0; +https://dmoop.ai/bot)";
+  "Mozilla/5.0 (compatible; ReverbBot/1.0; +https://reverb.ai/bot)";
 
 // Strategic page paths to try — most marketing sites use some subset.
 // Ordered by typical signal value for GTM analysis.

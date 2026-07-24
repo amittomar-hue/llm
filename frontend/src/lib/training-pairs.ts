@@ -52,7 +52,7 @@ export function formatTrainingPairsAsContext(pairs: TrainingPair[]): string {
 
   // Tight format — every char here lands in the request and counts against TPM.
   // Header is ~150 chars instead of 700. Each pair payload is capped at 500.
-  const lines = ["DMOOP TUNED — KNOWLEDGE BASE (top pairs from your scraped corpus):", ""];
+  const lines = ["Reverb TUNED — KNOWLEDGE BASE (top pairs from your scraped corpus):", ""];
 
   pairs.forEach((p, i) => {
     lines.push(`[#${i + 1}] ${p.intent}/${p.asset_type} — Q: ${p.instruction.slice(0, 140)}`);
