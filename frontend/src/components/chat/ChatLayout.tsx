@@ -235,8 +235,8 @@ export default function ChatLayout() {
               <Menu size={17} />
             </button>
             <div className="flex items-center gap-2 min-w-0">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-white border border-[var(--reverb-border-soft)] p-0.5 shrink-0">
-                <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-white border border-[var(--reverb-border-soft)] shrink-0">
+                <span className="font-bold text-[var(--reverb-accent)] text-[11px] leading-none">R</span>
               </span>
               {renaming && conv ? (
                 <input

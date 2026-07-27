@@ -254,13 +254,13 @@ export default function Message({ message }: { message: MessageType }) {
   return (
     <div className="flex gap-2.5 sm:gap-3 reverb-fade-in">
       <div
-        className="relative w-9 h-9 shrink-0 rounded-xl flex items-center justify-center mt-0.5 bg-white p-1.5 overflow-hidden"
+        className="relative w-9 h-9 shrink-0 rounded-xl flex items-center justify-center mt-0.5 bg-white overflow-hidden"
         style={{
           border: "1px solid var(--reverb-border-soft)",
           boxShadow: "var(--reverb-shadow-sm)",
         }}
       >
-        <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-xs">Reverb</span>
+        <span className="font-bold text-[var(--reverb-accent)] text-[16px] leading-none">R</span>
       </div>
 
       <div className="flex-1 min-w-0 pt-1">

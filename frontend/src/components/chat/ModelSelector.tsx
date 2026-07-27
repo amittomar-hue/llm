@@ -32,8 +32,8 @@ export default function ModelSelector() {
         )}
         title={current.name}
       >
-        <span className="inline-flex items-center justify-center w-4 h-4 rounded bg-white border border-[var(--reverb-border-soft)] p-0.5 shrink-0">
-          <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
+        <span className="inline-flex items-center justify-center w-4 h-4 rounded bg-white border border-[var(--reverb-border-soft)] shrink-0">
+          <span className="font-bold text-[var(--reverb-accent)] text-[10px] leading-none">R</span>
         </span>
         <span className="font-semibold tracking-tight hidden min-[420px]:inline">{current.name}</span>
         <ChevronDown
@@ -92,12 +92,12 @@ export default function ModelSelector() {
                   )}
                   <div
                     className={cn(
-                      "w-8 h-8 shrink-0 rounded-lg bg-gradient-to-br flex items-center justify-center p-1 transition-transform duration-200 group-hover:scale-110 bg-white",
+                      "w-8 h-8 shrink-0 rounded-lg bg-gradient-to-br flex items-center justify-center transition-transform duration-200 group-hover:scale-110 bg-white",
                       m.glow
                     )}
                     style={{ boxShadow: "var(--reverb-shadow-xs)", border: "1px solid var(--reverb-border-soft)" }}
                   >
-                    <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
+                    <span className="font-bold text-[var(--reverb-accent)] text-[15px] leading-none">R</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">

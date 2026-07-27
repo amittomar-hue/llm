@@ -480,8 +480,8 @@ export default function OnboardingTour() {
               style={{ boxShadow: "var(--reverb-shadow-md)" }}
             >
               {step === 0 ? (
-                <span className="absolute inset-1.5 rounded-xl bg-white flex items-center justify-center p-1">
-                  <span className="font-semibold tracking-tight text-[var(--reverb-accent)] text-lg">Reverb</span>
+                <span className="absolute inset-1.5 rounded-xl bg-white flex items-center justify-center">
+                  <span className="font-bold text-[var(--reverb-accent)] text-[22px] leading-none">R</span>
                 </span>
               ) : (
                 <current.icon size={20} className="text-white" strokeWidth={2.2} />
