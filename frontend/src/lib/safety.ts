@@ -160,7 +160,6 @@ async function callSafeguard(
     // Groq supports OpenAI-compatible JSON mode for this model; forces
     // well-formed JSON so parseSafeguardResponse doesn't have to guess.
     response_format: { type: "json_object" },
-    // @ts-expect-error -- Groq-specific reasoning-effort param, not in the OpenAI SDK types
     reasoning_effort: "low",
   });
   return response.choices[0]?.message?.content ?? "";
