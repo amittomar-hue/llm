@@ -1522,8 +1522,8 @@ NO TEXT IN THE IMAGE — same rule as the baseline contract. Do NOT put the asse
 
         // ── SAFETY: output guardrail (post-stream sidecar) ──
         // Stream is already flushed for UX, so moderation runs in parallel
-        // with interaction-logging. If Llama Guard flags the response we log
-        // the incident AND append a visible warning trailer the client renders.
+        // with interaction-logging. If the safety layer flags the response we
+        // log the incident AND append a visible warning trailer the client renders.
         if (fullResponse.length > 20) {
           moderateText(fullResponse, "assistant").then(async (modOut) => {
             if (!modOut.safe) {

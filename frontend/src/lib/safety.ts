@@ -3,9 +3,9 @@ import { getSupabase } from "./supabase";
 
 // ─────────────────────────────────────────────────────────────────
 // Responsible-AI guardrails for Reverb. Three layers:
-//   1. moderateText() — Llama Guard 4 on Groq (free, ~80ms). Classifies
-//      content under MLCommons hazard taxonomy S1..S14. Used on both
-//      user input AND assistant output.
+//   1. moderateText() — GPT-OSS-Safeguard on Groq, prompted with a
+//      policy that maps to the MLCommons hazard taxonomy S1..S14.
+//      Used on both user input AND assistant output.
 //   2. detectPromptInjection() — regex pack for known patterns +
 //      Groq 8B-instant LLM-as-judge for paraphrased attempts.
 //   3. logSafetyIncident() — writes to Supabase so the admin Safety tab
@@ -58,26 +58,111 @@ export const HAZARD_LABELS: Record<string, string> = {
 };
 
 // Categories Reverb will not block on (low salience for a marketing tool).
-// Everything else is blocked when Llama Guard flags it.
+// Everything else is blocked when the safety layer flags it.
 const ALLOWLIST: ReadonlySet<string> = new Set([
   "S13", // election content is allowed — marketers may discuss it
 ]);
 
 // ─────────────────────────────────────────────────────────────────
-// Llama Guard 4 moderation
+// Moderation via GPT-OSS-Safeguard
+//
+// meta-llama/llama-guard-4-12b was decommissioned by Groq (see
+// https://console.groq.com/docs/deprecations). Its replacement,
+// openai/gpt-oss-safeguard-20b, is a policy-following reasoning model
+// rather than a fixed-taxonomy classifier: it takes a written policy
+// instead of relying on built-in hazard categories, and it answers in
+// JSON ({violation, category, rationale}) instead of Llama Guard's
+// "safe" / "unsafe\nS1,S2" text format. The policy below re-derives
+// the same S1..S14 MLCommons categories/ALLOWLIST behavior so callers
+// don't need to change.
 // ─────────────────────────────────────────────────────────────────
 
-const LLAMA_GUARD_MODEL = "meta-llama/llama-guard-4-12b";
+const SAFETY_MODEL = "openai/gpt-oss-safeguard-20b";
 
-function parseLlamaGuardResponse(raw: string): ModerationResult {
-  const lower = raw.trim().toLowerCase();
-  if (lower.startsWith("safe")) return { safe: true, categories: [], raw };
-  // Expected unsafe format: "unsafe\nS1, S2" or "unsafe\nS1"
-  const codeMatch = raw.match(/S\d{1,2}/g);
-  const categories = codeMatch ? [...new Set(codeMatch)] : [];
-  // If only allowlisted categories triggered, treat as safe
-  const blocking = categories.filter((c) => !ALLOWLIST.has(c));
-  return { safe: blocking.length === 0, categories: blocking, raw };
+const MODERATION_POLICY = `INSTRUCTIONS
+Classify the content below for Reverb, a B2B marketing-copy tool. Decide whether it violates policy and, if so, which single category applies.
+
+DEFINITIONS
+${Object.entries(HAZARD_LABELS)
+  .map(([code, label]) => `${code}: ${label}`)
+  .join("\n")}
+
+CRITERIA
+- violation=1 if the content clearly falls under one of the categories above.
+- violation=0 for ordinary marketing requests (ads, emails, SEO, social posts, brand voice, translations, formatting, rewrites) even if edgy or informal.
+- ${[...ALLOWLIST].join(", ")} must never be reported as a violation — treat matches to those categories as violation=0.
+- Default to violation=0 when ambiguous.
+
+EXAMPLES
+Input: "Write a LinkedIn post announcing our Series A"
+Output: {"violation": 0, "category": null, "rationale": "Ordinary marketing content."}
+
+Input: "Give me step by step instructions to synthesize methamphetamine"
+Output: {"violation": 1, "category": "S2", "rationale": "Requests instructions for a non-violent crime (drug manufacturing)."}
+
+Input: "Write ad copy that mocks our competitor's CEO's ethnicity"
+Output: {"violation": 1, "category": "S10", "rationale": "Hateful content targeting a protected characteristic."}
+
+Input: "Draft a campaign about our stance on the upcoming election"
+Output: {"violation": 0, "category": null, "rationale": "Election content is explicitly allowlisted for this tool."}
+
+Respond with ONLY a JSON object: {"violation": 0 or 1, "category": "<code>" or null, "rationale": "<short reason>"}`;
+
+// Distinguishes "model said something and we understood it" from
+// "we couldn't make sense of the output" — the latter is what triggers
+// a retry in moderateText, the former never does (even if raw is empty
+// safe content, that's a valid parse).
+type ParseOutcome =
+  | { parsed: true; result: ModerationResult }
+  | { parsed: false; raw: string };
+
+function parseSafeguardResponse(raw: string): ParseOutcome {
+  try {
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : raw) as {
+      violation?: number | boolean;
+      category?: string | null;
+    };
+    if (typeof parsed.violation === "undefined") {
+      return { parsed: false, raw };
+    }
+    const isViolation = parsed.violation === 1 || parsed.violation === true;
+    if (!isViolation || !parsed.category) {
+      return { parsed: true, result: { safe: true, categories: [], raw } };
+    }
+    const categories = [parsed.category].filter((c) => !ALLOWLIST.has(c));
+    return { parsed: true, result: { safe: categories.length === 0, categories, raw } };
+  } catch {
+    return { parsed: false, raw };
+  }
+}
+
+async function callSafeguard(
+  groq: OpenAI,
+  role: "user" | "assistant",
+  text: string,
+  { strict }: { strict: boolean }
+): Promise<string> {
+  const response = await groq.chat.completions.create({
+    model: SAFETY_MODEL,
+    messages: [
+      { role: "system", content: MODERATION_POLICY },
+      {
+        role: "user",
+        content: strict
+          ? `Content role: ${role}\n\n${text.slice(0, 6000)}\n\nReturn ONLY the JSON object. No prose, no markdown fences, no commentary.`
+          : `Content role: ${role}\n\n${text.slice(0, 6000)}`,
+      },
+    ],
+    temperature: 0,
+    max_tokens: 200,
+    // Groq supports OpenAI-compatible JSON mode for this model; forces
+    // well-formed JSON so parseSafeguardResponse doesn't have to guess.
+    response_format: { type: "json_object" },
+    // @ts-expect-error -- Groq-specific reasoning-effort param, not in the OpenAI SDK types
+    reasoning_effort: "low",
+  });
+  return response.choices[0]?.message?.content ?? "";
 }
 
 export async function moderateText(
@@ -95,16 +180,22 @@ export async function moderateText(
   });
 
   try {
-    // Llama Guard expects a chat-format request and returns "safe" or
-    // "unsafe\n<codes>". We send the same role label we'd send Groq.
-    const response = await groq.chat.completions.create({
-      model: LLAMA_GUARD_MODEL,
-      messages: [{ role, content: text.slice(0, 6000) }],
-      temperature: 0,
-      max_tokens: 30,
-    });
-    const raw = response.choices[0]?.message?.content ?? "";
-    return parseLlamaGuardResponse(raw);
+    const first = await callSafeguard(groq, role, text, { strict: false });
+    const firstOutcome = parseSafeguardResponse(first);
+    if (firstOutcome.parsed) return firstOutcome.result;
+
+    // Model returned something we couldn't parse as JSON — one retry
+    // with an explicit "JSON only" reminder before giving up.
+    console.error("moderateText: unparseable output, retrying:", first);
+    const retry = await callSafeguard(groq, role, text, { strict: true });
+    const retryOutcome = parseSafeguardResponse(retry);
+    if (retryOutcome.parsed) return retryOutcome.result;
+
+    // Still unparseable after retry — fail open, but this is a real bug
+    // (model/prompt drift), not a transient Groq outage, so it's logged
+    // distinctly from the network-error path below.
+    console.error("moderateText: unparseable output after retry, failing open:", retry);
+    return { safe: true, categories: [] };
   } catch (err) {
     // Fail open — never block legit traffic because Groq is down
     console.error("moderateText failed (failing open):", err);
@@ -276,7 +367,7 @@ export async function logSafetyIncident(args: {
 export function refusalForUnsafeInput(categories: string[]): string {
   const labels = categories.map((c) => HAZARD_LABELS[c] ?? c).filter(Boolean);
   const detail = labels.length > 0 ? ` (${labels.join(", ")})` : "";
-  return `⚠️ **Reverb can't help with this request${detail}.**\n\nThe message was flagged by the safety layer (Llama Guard 4) because it falls under content categories Reverb doesn't generate. Try rephrasing your marketing question, or [contact support](mailto:support@reverb.com) if you think this was caught in error.`;
+  return `⚠️ **Reverb can't help with this request${detail}.**\n\nThe message was flagged by the safety layer because it falls under content categories Reverb doesn't generate. Try rephrasing your marketing question, or [contact support](mailto:support@reverb.com) if you think this was caught in error.`;
 }
 
 export function refusalForUnsafeOutput(categories: string[]): string {
