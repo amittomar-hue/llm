@@ -14,6 +14,7 @@ import { getSupabase } from "./supabase";
 // Failure mode: any layer that errors fails OPEN — we never block a
 // legit user message because the safety check itself broke. The
 // incident still gets logged so the admin can see what happened.
+
 // ─────────────────────────────────────────────────────────────────
 
 export type SafetyKind =
