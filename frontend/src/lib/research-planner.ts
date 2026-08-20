@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────
 // Research planner — first leg of the "think like a human" chat
 // flow. Before the main answer-generation model runs, a fast Groq
-// 8B-instant pass reads the user's prompt + conversation context
+// pass reads the user's prompt + conversation context
 // and produces a small structured plan: the core intent the user
 // is really after, plus 2-4 research steps the system should run
 // to ground the answer. Each step is one of:
@@ -43,7 +43,10 @@ export interface ResearchPlan {
   steps: ResearchStep[];
 }
 
-const PLANNER_MODEL = "llama-3.1-8b-instant";
+// 8B-instant was pulled by Groq from this account (404s on every call,
+// same as the earlier Llama Guard 4 / Kimi-K2 retirements) — moved to
+// 70B-versatile, which is still live.
+const PLANNER_MODEL = "llama-3.3-70b-versatile";
 
 const SYSTEM_PROMPT = `You are the inner voice of a senior marketing strategist who thinks out loud before answering. Read the user's question and produce a JSON plan that captures how a thoughtful human would actually approach it — what they'd want to understand, what they'd check, what they'd want to confirm — NOT a checklist of tasks for a bot.
 

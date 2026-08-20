@@ -283,7 +283,10 @@ export async function detectPromptInjection(
       baseURL: "https://api.groq.com/openai/v1",
     });
     const response = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
+      // 8B-instant was pulled by Groq from this account (404s on every
+      // call, same as the earlier Llama Guard 4 / Kimi-K2 retirements) —
+      // moved to 70B-versatile, which is still live.
+      model: "llama-3.3-70b-versatile",
       messages: [
         {
           role: "system",

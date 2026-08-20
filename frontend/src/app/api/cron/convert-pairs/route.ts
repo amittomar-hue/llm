@@ -245,7 +245,9 @@ A: ${original.output.slice(0, 1400)}
 Evolve it per the system prompt and return the new pair as a JSON object.`;
 
     const response = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
+      // 8B-instant was pulled by Groq from this account (404s on every
+      // call) — moved to 70B-versatile, which is still live.
+      model: "llama-3.3-70b-versatile",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
@@ -291,10 +293,12 @@ ${summary}
 
 Generate 3 training Q&A pairs in the required JSON format.`;
 
-  // 8B-instant: 5× the free-tier TPD quota of 70B (500K vs 100K).
-  // The bottleneck is daily throughput, not single-call quality.
+  // 8B-instant was pulled by Groq from this account (404s on every call) —
+  // moved to 70B-versatile, which is still live. Note this trades away the
+  // 5x free-tier TPD headroom 8B-instant had (500K vs 100K), so this cron
+  // may hit its daily quota sooner than before.
   const response = await groq.chat.completions.create({
-    model: "llama-3.1-8b-instant",
+    model: "llama-3.3-70b-versatile",
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt },

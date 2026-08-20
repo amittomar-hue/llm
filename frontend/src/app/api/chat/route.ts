@@ -84,11 +84,15 @@ const GROQ_MODEL_MAP: Record<string, string> = {
 // under rate-limit / over-budget conditions instead of erroring out.
 const FALLBACK_CHAIN: Record<string, string[]> = {
   "llama-3.3-70b-versatile": ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"],
-  "llama-3.1-8b-instant": ["llama-3.1-8b-instant"],
+  // 8B-instant went the way of Llama Guard 4 / Kimi-K2 (Groq pulled it from
+  // this account, 404s on every call) — give it a live model to fall
+  // through to instead of dead-ending here.
+  "llama-3.1-8b-instant": ["llama-3.1-8b-instant", "llama-3.3-70b-versatile"],
   "meta-llama/llama-4-scout-17b-16e-instruct": [
     "meta-llama/llama-4-scout-17b-16e-instruct", // 30K TPM
     "moonshotai/kimi-k2-instruct",               // 10K TPM
-    "llama-3.1-8b-instant",                      // 6K TPM — last resort
+    "llama-3.1-8b-instant",                      // 6K TPM — currently 404ing, kept in case Groq restores it
+    "llama-3.3-70b-versatile",                   // 12K TPM — guaranteed-live last resort
   ],
   "moonshotai/kimi-k2-instruct": [
     "moonshotai/kimi-k2-instruct",   // 10K TPM — best for long-form strategy
@@ -415,6 +419,20 @@ function buildQuotaExhaustedMessage(err: Error, isTuned: boolean): string {
   ];
 
   return lines.join("\n");
+}
+
+// Distinct from buildQuotaExhaustedMessage: a 404/model-gone failure has no
+// retry-after ETA, so we don't pretend one exists — retrying won't help
+// until the fallback chain itself is updated with a live model.
+function buildModelUnavailableMessage(isTuned: boolean): string {
+  const modelLabel = isTuned ? "Reverb Tuned" : "Reverb";
+  return [
+    `⚠️ **${modelLabel} — model temporarily unavailable**`,
+    "",
+    `The AI provider has pulled the underlying model(s) this persona depends on. This isn't a quota issue, so retrying won't help right now.`,
+    "",
+    `In the meantime, you can switch to **Apex** or **Core** from the model selector — they're on a different model and are available right now.`,
+  ].join("\n");
 }
 
 function looksLikeWebQuery(text: string): boolean {
@@ -1502,18 +1520,29 @@ NO TEXT IN THE IMAGE — same rule as the baseline contract. Do NOT put the asse
           }
 
           if (!succeeded && lastError) {
-            const friendly = buildQuotaExhaustedMessage(lastError, isTuned);
+            const lastLower = lastError.message.toLowerCase();
             const isQuotaError =
               lastError.message.includes("413") ||
-              lastError.message.toLowerCase().includes("too large") ||
+              lastLower.includes("too large") ||
               lastError.message.includes("429") ||
-              lastError.message.toLowerCase().includes("rate limit") ||
-              lastError.message.toLowerCase().includes("tokens per minute") ||
-              lastError.message.toLowerCase().includes("tokens per day") ||
-              lastError.message.toLowerCase().includes("quota");
+              lastLower.includes("rate limit") ||
+              lastLower.includes("tokens per minute") ||
+              lastLower.includes("tokens per day") ||
+              lastLower.includes("quota");
+            const isModelGone =
+              lastError.message.includes("404") ||
+              lastLower.includes("does not exist") ||
+              lastLower.includes("do not have access") ||
+              lastLower.includes("model_not_found") ||
+              lastLower.includes("not found");
             if (isQuotaError) {
-              controller.enqueue(encoder.encode(friendly));
+              controller.enqueue(encoder.encode(buildQuotaExhaustedMessage(lastError, isTuned)));
               succeeded = true; // graceful degrade — show message to user instead of error
+            } else if (isModelGone) {
+              // Whole fallback chain 404'd — no model left to try. Surface a
+              // friendly notice instead of the raw provider error.
+              controller.enqueue(encoder.encode(buildModelUnavailableMessage(isTuned)));
+              succeeded = true;
             } else {
               throw lastError;
             }
@@ -1583,8 +1612,16 @@ NO TEXT IN THE IMAGE — same rule as the baseline contract. Do NOT put the asse
           lower.includes("tokens per minute") ||
           lower.includes("tokens per day") ||
           lower.includes("quota");
+        const isModelGone =
+          msg.includes("404") ||
+          lower.includes("does not exist") ||
+          lower.includes("do not have access") ||
+          lower.includes("model_not_found") ||
+          lower.includes("not found");
         if (isQuotaError) {
           controller.enqueue(encoder.encode(buildQuotaExhaustedMessage(errObj, isTuned)));
+        } else if (isModelGone) {
+          controller.enqueue(encoder.encode(buildModelUnavailableMessage(isTuned)));
         } else {
           controller.enqueue(encoder.encode(`\n\n⚠️ ${msg}`));
         }
